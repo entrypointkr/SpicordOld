@@ -1,0 +1,7 @@
+main: kr.entree.spicord.Spicord
+name: Spicord
+version: @version@
+authors: [EntryPoint]
+commands:
+  spicord:
+    aliases: [sc]

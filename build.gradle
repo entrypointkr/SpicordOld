@@ -1,0 +1,53 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
+}
+
+group 'kr.entree'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
+    maven { url 'https://repo.codemc.org/repository/maven-public' }
+}
+
+dependencies {
+    compileOnly('org.spigotmc:spigot-api:1.14.4-R0.1-SNAPSHOT') {
+        exclude module: 'bungeecord-chat'
+    }
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    implementation 'net.dv8tion:JDA:4.0.0_61'
+    implementation 'club.minnced:discord-webhooks:0.1.8'
+    implementation 'org.ahocorasick:ahocorasick:0.4.0'
+    implementation 'org.bstats:bstats-bukkit:1.5'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.1.0'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation('org.spigotmc:spigot-api:1.14.4-R0.1-SNAPSHOT') {
+        exclude module: 'bungeecord-chat'
+    }
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.10'
+}
+
+processResources {
+    filteringCharset = 'UTF-8'
+    from(sourceSets.main.resources.srcDirs) {
+        filter ReplaceTokens, tokens: [version: version]
+    }
+}
+
+shadowJar {
+    relocate('net.dv8tion.jda', 'kr.entree.spicord.libs.jda')
+    relocate('club.minnced.discord', 'kr.entree.spicord.libs.discord')
+    archiveClassifier.set("")
+    minimize()
+}
+
+tasks.build.dependsOn shadowJar

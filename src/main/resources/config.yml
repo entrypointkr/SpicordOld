@@ -1,0 +1,59 @@
+token: "Input your bot token"
+channels:
+  bot: "Channel ID"
+  user-chat: "Channel ID"
+  verify: "Channel ID"
+messages:
+  server-on:
+    enabled: true
+    channel: bot
+    message:
+      title: "서버가 열렸습니다!"
+      url: "http://minecraft.net"
+      description: "서버가 열렸습니다."
+      color: blue
+      thumbnail: "https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/img/menu/menu-buy--reversed.gif"
+  server-off:
+    enabled: true
+    channel: [bot]
+    message:
+      title: "서버가 닫혔습니다!"
+      color: red
+      description: "서버가 종료되었습니다. 마지막 동접자 수: %players%"
+  player-chat:
+    enabled: true
+    channel: user-chat
+    slow-mode: true
+  player-kick:
+    enabled: true
+    channel: bot
+    message:
+      title: "사유: %reason%"
+      description: "%player%(%uuid%)"
+      url: "https://ko.namemc.com/search?q=%player%"
+      thumbnail: "https://crafatar.com/avatars/%uuid%?overlay=true"
+      color: orange
+      author:
+        title: "서버에서 추방되었습니다."
+        icon: "https://crafatar.com/avatars/%uuid%?overlay=true"
+  discord-chat:
+    enabled: true
+    channel: user-chat
+    message: "&7[Discord] [%name%]: &f%message%"
+    worlds: []
+verification:
+  enabled: false
+  channel: verify
+  command: "!인증"
+  expire-second: 15
+  before:
+    player-restrict:
+      - chat
+      - build
+      - pvp
+      - move
+  after:
+    discord-role:
+      - verified
+    command:
+      - "pex user %player% group set verified"
