@@ -47,6 +47,7 @@ public class Parameter {
                     .append(map.get(emit.getKeyword()));
             prevIndex = emit.getEnd() + 1;
         }
+        builder.append(contents.substring(prevIndex));
         return builder.toString();
     }
 }

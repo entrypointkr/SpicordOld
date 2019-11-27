@@ -51,6 +51,12 @@ public class SpicordConfig extends PluginConfiguration {
         return "config.yml";
     }
 
+    @Override
+    public void load() {
+        super.load();
+        verifyConfig = null;
+    }
+
     public void update(Discord discord) {
         discord.setToken(getString("token", null));
     }
