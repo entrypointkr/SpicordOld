@@ -66,7 +66,7 @@ public class ConfigTest {
         Plugin plugin = mock(Plugin.class);
         YamlConfiguration config = new YamlConfiguration();
         SpicordConfig spicordConfig = new SpicordConfig(config, plugin);
-        config.set("messages.welcome.message", Arrays.asList(
+        config.set("messages.welcome", Arrays.asList(
                 createEmbedSection(),
                 "test",
                 createEmbedSection(),

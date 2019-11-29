@@ -9,12 +9,10 @@ import org.bukkit.configuration.ConfigurationSection;
  */
 public enum Lang {
     PREFIX("&c[Spicord] &f"),
-    VERIFY_MESSAGE("%prefix% 디스코드 &e%discord% &f가 본인이 맞으시다면 디스코드에 &e'!인증 &e%code%' &f를 입력해주세요."),
-    NO_PLAYER_FOUND("플레이어 %player% 를 찾을 수 없습니다."),
-    ALREADY_VERIFIED("이미 인증된 계정입니다."),
-    NOT_MATCHES_CODE("인증번호가 잘못되었습니다. `%command% 게임닉네임` 을 다시 입력하세요."),
-    VERIFY_USAGE("명령어 사용법: `%command% 게임닉네임`"),
-    NEEDS_VERIFY("%prefix% 디스코드 인증이 필요합니다. 서버 디스코드 인증채널에서 &e'%command% 게임닉네임' &f을 입력하여 인증하세요."),
+    VERIFY_MESSAGE("%prefix% 디스코드 &e%discord% &f로부터 인증 요청이 왔습니다. 채팅으로 인증 코드를 입력하세요."),
+    VERIFY_NEEDS("%prefix% 디스코드 인증이 필요합니다. 서버 디스코드 인증채널에서 &e'%command% 게임닉네임' &f을 입력하여 인증하세요."),
+    VERIFY_SUCCESS("인증되었습니다!"),
+    VERIFY_FAILED("인증에 실패했습니다. 다시 시도해주세요."),
     ;
     @Getter
     private final String def;

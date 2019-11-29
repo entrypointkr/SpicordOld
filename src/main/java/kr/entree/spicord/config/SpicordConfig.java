@@ -79,6 +79,17 @@ public class SpicordConfig extends PluginConfiguration {
                 : Collections.emptySet();
     }
 
+    public String formatChannel(String channel) {
+        ConfigurationSection section = getChannelSection();
+        if (section != null) {
+            Object mapped = section.get(channel);
+            if (mapped != null) {
+                return mapped.toString();
+            }
+        }
+        return channel;
+    }
+
     @Nullable
     public ConfigurationSection getChannelSection() {
         return getConfigurationSection("channels");

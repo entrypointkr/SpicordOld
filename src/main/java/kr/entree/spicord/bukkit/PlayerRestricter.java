@@ -24,13 +24,13 @@ import java.util.Set;
 /**
  * Created by JunHyung Lim on 2019-11-27
  */
-public class UserRestricter implements Listener {
+public class PlayerRestricter implements Listener {
     private final VerifiedMemberManager manager;
     private final SpicordConfig config;
     private final LangConfig langConfig;
     private final CooldownMap cools = new CooldownMap();
 
-    public UserRestricter(VerifiedMemberManager manager, SpicordConfig config, LangConfig langConfig) {
+    public PlayerRestricter(VerifiedMemberManager manager, SpicordConfig config, LangConfig langConfig) {
         this.manager = manager;
         this.config = config;
         this.langConfig = langConfig;
@@ -48,7 +48,7 @@ public class UserRestricter implements Listener {
                 cancellable.setCancelled(true);
                 if (cools.action(player.getUniqueId(), 3000)) {
                     player.sendMessage(langConfig.format(
-                            Lang.NEEDS_VERIFY,
+                            Lang.VERIFY_NEEDS,
                             new Parameter().put(player)
                                     .put("%command%", verifyConfig.getVerificationCommandPrefix())
                     ));
@@ -57,7 +57,7 @@ public class UserRestricter implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent e) {
         tryRestrict(e.getPlayer(), e, RestrictType.CHAT);
     }

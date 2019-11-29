@@ -1,5 +1,6 @@
 package kr.entree.spicord.bukkit.event;
 
+import kr.entree.spicord.bukkit.structure.ChannelProvider;
 import kr.entree.spicord.bukkit.structure.Guild;
 import kr.entree.spicord.bukkit.structure.Member;
 import kr.entree.spicord.bukkit.structure.Message;
@@ -14,12 +15,12 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Created by JunHyung Lim on 2019-11-29
  */
-public class GuildChatEvent extends GuildMemberEvent implements MessageProvider {
+public class GuildChatEvent extends GuildMemberEvent implements MessageProvider, ChannelProvider {
     private static final HandlerList handlers = new HandlerList();
-    private final long channel;
+    private final Long channel;
     private final Message message;
 
-    public GuildChatEvent(Discord discord, Guild guild, Member member, long channel, Message message) {
+    public GuildChatEvent(Discord discord, Guild guild, Member member, Long channel, Message message) {
         super(discord, guild, member);
         this.channel = channel;
         this.message = message;
@@ -41,6 +42,7 @@ public class GuildChatEvent extends GuildMemberEvent implements MessageProvider 
         return getMessage().getAuthor();
     }
 
+    @Override
     public Long getChannel() {
         return channel;
     }

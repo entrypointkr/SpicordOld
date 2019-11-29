@@ -1,7 +1,6 @@
 package kr.entree.spicord.discord;
 
 import kr.entree.spicord.bukkit.DiscordEventToBukkit;
-import kr.entree.spicord.bukkit.UserVerifier;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
 import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.SpicordConfig;
@@ -67,10 +66,7 @@ public class Discord implements Runnable {
             shutdownJDA();
             try {
                 jda = new JDABuilder(token)
-                        .addEventListeners(
-                                new DiscordEventToBukkit(plugin, this),
-                                new UserVerifier(plugin, this, config, langConfig, verifiedManager)
-                        )
+                        .addEventListeners(new DiscordEventToBukkit(plugin, this))
                         .build();
                 jda.awaitReady();
             } catch (LoginException e) {

@@ -17,8 +17,8 @@ public class Parameter {
     private final Map<String, Object> map = new HashMap<>();
 
     public Parameter put(Player player) {
-        put("%player%", player.getName());
         put("%name%", player.getName());
+        put("%player%", player.getName());
         put("%uuid%", player.getUniqueId());
         return this;
     }

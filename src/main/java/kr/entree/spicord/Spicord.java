@@ -2,8 +2,8 @@ package kr.entree.spicord;
 
 import kr.entree.spicord.bukkit.DiscordChatToMinecraft;
 import kr.entree.spicord.bukkit.MinecraftToDiscord;
+import kr.entree.spicord.bukkit.PlayerRestricter;
 import kr.entree.spicord.bukkit.SpicordCommand;
-import kr.entree.spicord.bukkit.UserRestricter;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
 import kr.entree.spicord.bukkit.util.Compatibles;
 import kr.entree.spicord.config.LangConfig;
@@ -84,7 +84,7 @@ public class Spicord extends JavaPlugin {
         registerEvents(
                 new DiscordChatToMinecraft(this, spicordConfig),
                 new MinecraftToDiscord(discord, spicordConfig, verifiedManager, webhookManager),
-                new UserRestricter(verifiedManager, spicordConfig, langConfig)
+                new PlayerRestricter(verifiedManager, spicordConfig, langConfig)
         );
         discordThread.start();
         discord.addTask(spicordConfig.getServerOnMessage());

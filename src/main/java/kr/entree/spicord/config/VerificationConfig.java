@@ -92,4 +92,8 @@ public class VerificationConfig {
             Bukkit.dispatchCommand(sender, parameter.format(command));
         }
     }
+
+    public long getExpireSeconds() {
+        return section.getLong("expire-second");
+    }
 }

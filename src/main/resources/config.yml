@@ -34,6 +34,16 @@ messages:
     author:
       title: "서버에서 추방되었습니다."
       icon: "https://crafatar.com/avatars/%uuid%?overlay=true"
+  verify-usage: "명령어 사용법: `%command% 게임닉네임`"
+  verify-code:
+    - "인증코드: `%code%`"
+    - "위 인증코드를 `%player%` 닉네임의 플레이어로"
+    - "마인크래프트 서버 채팅창에 입력하세요!"
+  player-offline: "%name% 은 접속 중인 플레이어가 아닙니다!"
+  verify-expired: "%seconds% 초가 지나, 인증이 만료되었습니다."
+  already-verified: "이미 `%uuid%` 로 인증되어있습니다."
+  verify-success: "인증되었습니다! 연동 계정: %discord%"
+  verify-failed: "인증에 실패했습니다. 다시 시도해주세요"
 events:
   welcome:
     enabled: true
@@ -61,7 +71,7 @@ events:
     worlds: []
 verification:
   enabled: true
-  channel: [verify]
+  channel: verify
   command: "!인증"
   expire-second: 15
   before:
