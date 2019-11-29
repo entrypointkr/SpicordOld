@@ -12,5 +12,5 @@ public abstract class RestActor<T extends MessageChannel> implements MessageChan
         action(channel).queue();
     }
 
-    protected abstract RestAction action(T channel);
+    protected abstract RestAction<?> action(T channel);
 }

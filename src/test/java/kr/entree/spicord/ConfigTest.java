@@ -40,7 +40,7 @@ public class ConfigTest {
         Player player = BukkitFactory.createPlayer("EntryPoint");
         SpicordConfig config = createConfig(mockPlugin);
         LangConfig langConfig = new LangConfig(mockPlugin);
-        config.getSendMessage("messages.player-kick", new Parameter());
+        config.getSendMessage("player-kick", new Parameter());
         Assert.assertEquals(
                 Lang.colorize(Lang.VERIFY_MESSAGE.getDef()
                         .replace("%prefix%", Lang.PREFIX.getDef())
@@ -77,7 +77,7 @@ public class ConfigTest {
                 "d"
         ));
         AtomicInteger counter = new AtomicInteger();
-        MessageChannelHandler<TextChannel> message = spicordConfig.getMessage("messages.welcome.message", new Parameter());
+        MessageChannelHandler<TextChannel> message = spicordConfig.getMessage("welcome", new Parameter());
         message.handle(JDAFactory.createTextChannel(msg -> counter.incrementAndGet()));
         Assert.assertEquals(6, counter.get());
     }

@@ -14,6 +14,7 @@ import kr.entree.spicord.discord.task.CombinedHandler;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -96,7 +97,7 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     public JDAHandler getSendMessage(String id, Parameter parameter) {
-        return getSendMessage(id, getMessage("message", parameter));
+        return getSendMessage(id, getMessage(id, parameter));
     }
 
     public JDAHandler getSendMessage(String id) {
@@ -104,6 +105,7 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     public JDAHandler getSendMessage(String id, MessageChannelHandler<TextChannel> handler) {
+        id = "events." + id;
         if (!isEnabled(id)) {
             return EmptyHandler.INSTANCE;
         }
@@ -123,50 +125,54 @@ public class SpicordConfig extends PluginConfiguration {
         return getSendMessage("messages.server-off", parameter);
     }
 
-    public static MessageChannelHandler<TextChannel> parseMessage(Object val, Parameter parameter) {
+    public static <T extends MessageChannel> MessageChannelHandler<T> parseMessage(Object val, Parameter parameter) {
         if (val instanceof ConfigurationSection) {
             val = ((ConfigurationSection) val).getValues(false);
         }
         if (val instanceof Map) {
             return new EmbedMessage<>(parseEmbed(((Map<?, ?>) val), parameter));
         } else if (val instanceof Collection) {
-            val collection = (Collection<?>) val;
-            val ret = CombinedMessage.<TextChannel>ofList();
-            val builder = new StringBuilder();
-            for (Object element : collection) {
-                val parsed = parseMessage(element, parameter);
-                if (parsed instanceof PlainMessage) {
-                    if (builder.length() > 0) {
-                        builder.append('\n');
-                    }
-                    builder.append(((PlainMessage<TextChannel>) parsed).getMessage());
-                } else {
-                    if (builder.length() > 0) {
-                        ret.add(new PlainMessage<>(builder));
-                        builder.setLength(0);
-                    }
-                    ret.add(parsed);
-                }
-            }
-            if (builder.length() > 0) {
-                ret.add(new PlainMessage<>(builder));
-            }
-            return ret;
+            return parseMessage(((Collection<?>) val), parameter);
         } else if (val != null) {
             return new PlainMessage<>(val.toString());
         }
         return new EmptyMessageChannelHandler<>();
     }
 
-    public MessageChannelHandler<TextChannel> getMessage(String key, Parameter parameter) {
-        Object messageObj = get(key);
+    public static <T extends MessageChannel> MessageChannelHandler<T> parseMessage(Collection<?> val, Parameter parameter) {
+        val collection = (Collection<?>) val;
+        val ret = CombinedMessage.<T>ofList();
+        val builder = new StringBuilder();
+        for (Object element : collection) {
+            val parsed = SpicordConfig.<T>parseMessage(element, parameter);
+            if (parsed instanceof PlainMessage) {
+                if (builder.length() > 0) {
+                    builder.append('\n');
+                }
+                builder.append(((PlainMessage<T>) parsed).getMessage());
+            } else {
+                if (builder.length() > 0) {
+                    ret.add(new PlainMessage<>(builder));
+                    builder.setLength(0);
+                }
+                ret.add(parsed);
+            }
+        }
+        if (builder.length() > 0) {
+            ret.add(new PlainMessage<>(builder));
+        }
+        return ret;
+    }
+
+    public <T extends MessageChannel> MessageChannelHandler<T> getMessage(String key, Parameter parameter) {
+        Object messageObj = get("messages." + key);
         if (messageObj instanceof ConfigurationSection) {
             messageObj = ((ConfigurationSection) messageObj).getValues(false);
         }
         return parseMessage(messageObj, parameter);
     }
 
-    public MessageChannelHandler<TextChannel> getMessage(String key) {
+    public MessageChannelHandler<MessageChannel> getMessage(String key) {
         return getMessage(key, new Parameter());
     }
 

@@ -5,9 +5,11 @@ import kr.entree.spicord.discord.ChannelSupplier;
 import kr.entree.spicord.discord.JDAHandler;
 import kr.entree.spicord.discord.handler.MessageChannelHandler;
 import kr.entree.spicord.discord.handler.PlainMessage;
+import kr.entree.spicord.discord.supplier.PrivateChannelSupplier;
 import kr.entree.spicord.discord.supplier.TextChannelSupplier;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 /**
@@ -32,6 +34,10 @@ public class ChannelHandler<T extends MessageChannel> implements JDAHandler {
 
     public static ChannelHandler<TextChannel> ofText(SpicordConfig config, String channel, String message) {
         return ofText(config, channel, new PlainMessage<>(message));
+    }
+
+    public static ChannelHandler<PrivateChannel> ofPrivate(long channel, MessageChannelHandler<PrivateChannel> handler) {
+        return of(new PrivateChannelSupplier(channel), handler);
     }
 
     @Override
