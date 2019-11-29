@@ -96,7 +96,7 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     public JDAHandler getSendMessage(String id, Parameter parameter) {
-        return getSendMessage(id, getMessage(id + ".message", parameter));
+        return getSendMessage(id, getMessage("message", parameter));
     }
 
     public JDAHandler getSendMessage(String id) {

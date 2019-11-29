@@ -31,13 +31,11 @@ public class MinecraftChat {
         return ChatColor.translateAlternateColorCodes('&', contents);
     }
 
-    public void send(Message message) {
+    public void send(String author, String contents) {
         if (!enabled) {
             return;
         }
-        User author = message.getAuthor();
-        String contents = message.getContentDisplay();
-        String formatted = colorize(format.replace("%name%", author.getName())
+        String formatted = colorize(format.replace("%name%", author)
                 .replace("%message%", contents));
         if (worlds.isEmpty()) {
             Bukkit.broadcastMessage(formatted);

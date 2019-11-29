@@ -1,6 +1,6 @@
 package kr.entree.spicord.discord;
 
-import kr.entree.spicord.bukkit.DiscordToMinecraft;
+import kr.entree.spicord.bukkit.DiscordEventToBukkit;
 import kr.entree.spicord.bukkit.UserVerifier;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
 import kr.entree.spicord.config.LangConfig;
@@ -68,7 +68,7 @@ public class Discord implements Runnable {
             try {
                 jda = new JDABuilder(token)
                         .addEventListeners(
-                                new DiscordToMinecraft(plugin, config),
+                                new DiscordEventToBukkit(plugin),
                                 new UserVerifier(plugin, this, config, langConfig, verifiedManager)
                         )
                         .build();
