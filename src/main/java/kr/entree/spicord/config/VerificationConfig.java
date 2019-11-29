@@ -87,7 +87,7 @@ public class VerificationConfig {
     }
 
     public void executeCommands(CommandSender sender, Player player) {
-        Parameter parameter = Parameter.ofPlayer(player);
+        Parameter parameter = new Parameter().put(player);
         for (String command : getCommands()) {
             Bukkit.dispatchCommand(sender, parameter.format(command));
         }

@@ -49,7 +49,7 @@ public class UserRestricter implements Listener {
                 if (cools.action(player.getUniqueId(), 3000)) {
                     player.sendMessage(langConfig.format(
                             Lang.NEEDS_VERIFY,
-                            Parameter.ofPlayer(player)
+                            new Parameter().put(player)
                                     .put("%command%", verifyConfig.getVerificationCommandPrefix())
                     ));
                 }

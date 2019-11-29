@@ -44,6 +44,6 @@ public class LangConfig extends PluginConfiguration {
     }
 
     public String format(Lang lang) {
-        return format(lang, Parameter.of());
+        return format(lang, new Parameter());
     }
 }

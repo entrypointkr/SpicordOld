@@ -4,6 +4,7 @@ import kr.entree.spicord.Spicord;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.EmptyHandler;
 import kr.entree.spicord.discord.JDAHandler;
+import kr.entree.spicord.discord.handler.CombinedMessage;
 import kr.entree.spicord.discord.handler.EmbedMessage;
 import kr.entree.spicord.discord.handler.EmptyMessageChannelHandler;
 import kr.entree.spicord.discord.handler.MessageChannelHandler;
@@ -99,7 +100,7 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     public JDAHandler getSendMessage(String id) {
-        return getSendMessage(id, Parameter.of());
+        return getSendMessage(id, new Parameter());
     }
 
     public JDAHandler getSendMessage(String id, MessageChannelHandler<TextChannel> handler) {
@@ -122,21 +123,51 @@ public class SpicordConfig extends PluginConfiguration {
         return getSendMessage("messages.server-off", parameter);
     }
 
+    public static MessageChannelHandler<TextChannel> parseMessage(Object val, Parameter parameter) {
+        if (val instanceof ConfigurationSection) {
+            val = ((ConfigurationSection) val).getValues(false);
+        }
+        if (val instanceof Map) {
+            return new EmbedMessage<>(parseEmbed(((Map<?, ?>) val), parameter));
+        } else if (val instanceof Collection) {
+            val collection = (Collection<?>) val;
+            val ret = CombinedMessage.<TextChannel>ofList();
+            val builder = new StringBuilder();
+            for (Object element : collection) {
+                val parsed = parseMessage(element, parameter);
+                if (parsed instanceof PlainMessage) {
+                    if (builder.length() > 0) {
+                        builder.append('\n');
+                    }
+                    builder.append(((PlainMessage<TextChannel>) parsed).getMessage());
+                } else {
+                    if (builder.length() > 0) {
+                        ret.add(new PlainMessage<>(builder));
+                        builder.setLength(0);
+                    }
+                    ret.add(parsed);
+                }
+            }
+            if (builder.length() > 0) {
+                ret.add(new PlainMessage<>(builder));
+            }
+            return ret;
+        } else if (val != null) {
+            return new PlainMessage<>(val.toString());
+        }
+        return new EmptyMessageChannelHandler<>();
+    }
+
     public MessageChannelHandler<TextChannel> getMessage(String key, Parameter parameter) {
         Object messageObj = get(key);
         if (messageObj instanceof ConfigurationSection) {
             messageObj = ((ConfigurationSection) messageObj).getValues(false);
         }
-        if (messageObj instanceof Map) {
-            return new EmbedMessage<>(parseEmbed(((Map) messageObj), parameter));
-        } else if (messageObj != null) {
-            return new PlainMessage<>(messageObj.toString());
-        }
-        return new EmptyMessageChannelHandler<>();
+        return parseMessage(messageObj, parameter);
     }
 
     public MessageChannelHandler<TextChannel> getMessage(String key) {
-        return getMessage(key, Parameter.of());
+        return getMessage(key, new Parameter());
     }
 
     public boolean isSlowModePlayerChat() {

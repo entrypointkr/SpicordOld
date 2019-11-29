@@ -1,5 +1,7 @@
 package kr.entree.spicord.config;
 
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import org.ahocorasick.trie.Emit;
 import org.ahocorasick.trie.Trie;
 import org.bukkit.entity.Player;
@@ -14,17 +16,21 @@ import java.util.Map;
 public class Parameter {
     private final Map<String, Object> map = new HashMap<>();
 
-    private Parameter() {
+    public Parameter put(Player player) {
+        put("%player%", player.getName());
+        put("%name%", player.getName());
+        put("%uuid%", player.getUniqueId());
+        return this;
     }
 
-    public static Parameter of() {
-        return new Parameter();
+    public Parameter put(User user) {
+        put("%discord%", user.getName());
+        return this;
     }
 
-    public static Parameter ofPlayer(Player player) {
-        return of().put("%player%", player.getName())
-                .put("%name%", player.getName())
-                .put("%uuid%", player.getUniqueId());
+    public Parameter put(Member member) {
+        put("%discord%", member.getEffectiveName());
+        return this;
     }
 
     public Parameter put(String key, Object value) {

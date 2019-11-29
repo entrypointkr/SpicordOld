@@ -108,7 +108,7 @@ public class Spicord extends JavaPlugin {
     private void awaitDiscordThread() {
         val latch = new CountDownLatch(1);
         discord.addTask(new CompleterBuilder(spicordConfig.getServerOffMessage(
-                Parameter.of().put("%players%", Compatibles.getOnlinePlayers().size())
+                new Parameter().put("%players%", Compatibles.getOnlinePlayers().size())
         )).latch(latch).build());
         try {
             latch.await(15, TimeUnit.SECONDS);

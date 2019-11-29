@@ -73,7 +73,7 @@ public class UserVerifier extends ListenerAdapter {
         } else {
             sendMessage(member.getUser(), langConfig.format(
                     Lang.NO_PLAYER_FOUND,
-                    Parameter.of().put("%player%", verification.getName())
+                    new Parameter().put("%player%", verification.getName())
             ));
         }
     }
@@ -94,13 +94,13 @@ public class UserVerifier extends ListenerAdapter {
                 verifyMap.put(member.getIdLong(), new Verification(player, code));
                 player.sendMessage(langConfig.format(
                         Lang.VERIFY_MESSAGE,
-                        Parameter.ofPlayer(player).put("%discord%", member.getEffectiveName())
+                        new Parameter().put(player).put("%discord%", member.getEffectiveName())
                                 .put("%code%", code)
                 ));
             } else {
                 discord.addTask(createMessage(member, langConfig.format(
                         Lang.NO_PLAYER_FOUND,
-                        Parameter.of().put("%player%", mcName)
+                        new Parameter().put("%player%", mcName)
                 )));
             }
         });
@@ -131,7 +131,7 @@ public class UserVerifier extends ListenerAdapter {
         val prefix = getConfig().getVerificationCommandPrefix();
         val message = event.getMessage();
         val content = message.getContentDisplay();
-        val parameter = Parameter.of().put("%command%", prefix);
+        val parameter = new Parameter().put("%command%", prefix);
         if (content.startsWith(prefix) && content.length() >= prefix.length() + 1) {
             val argument = content.substring(prefix.length() + 1);
             val verification = verifyMap.remove(member.getIdLong());

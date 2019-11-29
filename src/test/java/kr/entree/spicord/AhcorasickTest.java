@@ -11,7 +11,7 @@ public class AhcorasickTest {
     @Test
     public void replace() {
         String contents = "&7(%Test%){%tEst%} %test%%teSt%";
-        Parameter parameter = Parameter.of().put("%test%", "replaced");
+        Parameter parameter = new Parameter().put("%test%", "replaced");
         Assert.assertEquals(
                 "&7(replaced){replaced} replacedreplaced",
                 parameter.format(contents)

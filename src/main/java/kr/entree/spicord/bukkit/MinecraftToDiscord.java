@@ -95,7 +95,7 @@ public class MinecraftToDiscord implements Listener {
         Player player = e.getPlayer();
         discord.addTask(config.getSendMessage(
                 "messages.player-kick",
-                Parameter.ofPlayer(player)
+                new Parameter().put(player)
                         .put("%reason%", e.getReason())
         ));
     }
