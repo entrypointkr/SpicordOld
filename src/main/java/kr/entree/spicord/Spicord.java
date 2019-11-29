@@ -1,5 +1,6 @@
 package kr.entree.spicord;
 
+import kr.entree.spicord.bukkit.DiscordChatToMinecraft;
 import kr.entree.spicord.bukkit.MinecraftToDiscord;
 import kr.entree.spicord.bukkit.SpicordCommand;
 import kr.entree.spicord.bukkit.UserRestricter;
@@ -81,6 +82,7 @@ public class Spicord extends JavaPlugin {
 
     private void initFunctions() {
         registerEvents(
+                new DiscordChatToMinecraft(this, spicordConfig),
                 new MinecraftToDiscord(discord, spicordConfig, verifiedManager, webhookManager),
                 new UserRestricter(verifiedManager, spicordConfig, langConfig)
         );
