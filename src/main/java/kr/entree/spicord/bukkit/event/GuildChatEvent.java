@@ -36,7 +36,7 @@ public class GuildChatEvent extends GuildMemberEvent implements MessageProvider 
     }
 
     public User getAuthor() {
-        return message.getAuthor();
+        return getMessage().getAuthor();
     }
 
     public Long getChannel() {
