@@ -22,7 +22,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -61,9 +60,10 @@ public class UserVerifier extends ListenerAdapter {
         Optional<Player> playerOpt = verification.getPlayer();
         if (playerOpt.isPresent()) {
             Player player = playerOpt.get();
-            manager.put(id, verification.getUuid());
-            Bukkit.getScheduler().runTask(plugin, () ->
-                    getConfig().executeCommands(Bukkit.getConsoleSender(), player));
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                manager.put(id, verification.getUuid());
+                getConfig().executeCommands(Bukkit.getConsoleSender(), player);
+            });
             discord.addTask(jda -> {
                 Guild guild = member.getGuild();
                 for (Role role : getConfig().getDiscordRoles(guild)) {
@@ -83,11 +83,11 @@ public class UserVerifier extends ListenerAdapter {
     }
 
     private void requestVerify(Member member, String mcName) {
-        if (isVerified(member)) {
-            sendMessage(member.getUser(), langConfig.format(Lang.ALREADY_VERIFIED));
-            return;
-        }
         Bukkit.getScheduler().runTask(plugin, () -> {
+            if (isVerified(member)) {
+                sendMessage(member.getUser(), langConfig.format(Lang.ALREADY_VERIFIED));
+                return;
+            }
             Player player = Bukkit.getPlayer(mcName);
             if (player != null) {
                 String code = generateCode();

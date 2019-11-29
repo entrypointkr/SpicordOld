@@ -15,7 +15,6 @@ import lombok.Getter;
 import lombok.val;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -44,37 +43,22 @@ public class Spicord extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        loadConfigs();
+        initConfigs();
         initCommands();
-        verifiedManager.load(this);
-        registerEvents(
-                new MinecraftToDiscord(discord, spicordConfig, verifiedManager, webhookManager),
-                new UserRestricter(verifiedManager, spicordConfig, langConfig)
-        );
-        discordThread.start();
-        discord.addTask(spicordConfig.getServerOnMessage());
+        initFunctions();
         initMetrics();
     }
 
     @Override
     public void onDisable() {
-        getLogger().log(Level.INFO, "Waiting discord thread...");
-        val latch = new CountDownLatch(1);
-        discord.addTask(new CompleterBuilder(spicordConfig.getServerOffMessage(
-                Parameter.of().put("%players%", Compatibles.getOnlinePlayers().size())
-        )).latch(latch).build());
-        try {
-            latch.await(15, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        getLogger().info("Waiting discord thread...");
+        awaitDiscordThread();
         interruptDiscordThread();
-        getLogger().log(Level.INFO, "Waiting webhooks...");
+        getLogger().info("Waiting webhooks...");
         if (!webhookManager.await()) {
-            getLogger().log(Level.INFO, "Await timeout");
+            getLogger().info("Timeout");
         }
-        verifiedManager.save(this);
-        langConfig.save();
+        saveConfigs();
     }
 
     public void loadConfigs() {
@@ -83,9 +67,30 @@ public class Spicord extends JavaPlugin {
         langConfig.load();
     }
 
+    public void saveConfigs() {
+        verifiedManager.save(this);
+        langConfig.save();
+    }
+
+    private void initConfigs() {
+        loadConfigs();
+        verifiedManager.load(this);
+        val period = 15L * 60L * 20L;
+        Bukkit.getScheduler().runTaskTimer(this, verifiedManager::saveAsync, period, period);
+    }
+
+    private void initFunctions() {
+        registerEvents(
+                new MinecraftToDiscord(discord, spicordConfig, verifiedManager, webhookManager),
+                new UserRestricter(verifiedManager, spicordConfig, langConfig)
+        );
+        discordThread.start();
+        discord.addTask(spicordConfig.getServerOnMessage());
+    }
+
     private void initCommands() {
-        PluginCommand pluginCommand = Objects.requireNonNull(getCommand("spicord"));
-        SpicordCommand spicordCommand = new SpicordCommand(this, discord);
+        val pluginCommand = Objects.requireNonNull(getCommand("spicord"));
+        val spicordCommand = new SpicordCommand(this, discord);
         pluginCommand.setExecutor(spicordCommand);
         pluginCommand.setTabCompleter(spicordCommand);
     }
@@ -97,6 +102,18 @@ public class Spicord extends JavaPlugin {
     private void registerEvents(Listener... listeners) {
         for (Listener listener : listeners) {
             Bukkit.getPluginManager().registerEvents(listener, this);
+        }
+    }
+
+    private void awaitDiscordThread() {
+        val latch = new CountDownLatch(1);
+        discord.addTask(new CompleterBuilder(spicordConfig.getServerOffMessage(
+                Parameter.of().put("%players%", Compatibles.getOnlinePlayers().size())
+        )).latch(latch).build());
+        try {
+            latch.await(15, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 

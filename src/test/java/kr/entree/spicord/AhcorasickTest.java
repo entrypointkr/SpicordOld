@@ -10,7 +10,7 @@ import org.junit.Test;
 public class AhcorasickTest {
     @Test
     public void replace() {
-        String contents = "&7(%test%){%test%} %test%%test%";
+        String contents = "&7(%Test%){%tEst%} %test%%teSt%";
         Parameter parameter = Parameter.of().put("%test%", "replaced");
         Assert.assertEquals(
                 "&7(replaced){replaced} replacedreplaced",

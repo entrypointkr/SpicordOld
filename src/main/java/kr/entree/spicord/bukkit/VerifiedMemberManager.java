@@ -1,13 +1,17 @@
 package kr.entree.spicord.bukkit;
 
+import kr.entree.spicord.config.PluginConfiguration;
 import lombok.val;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -63,16 +67,29 @@ public class VerifiedMemberManager {
         }
     }
 
-    public void save(Plugin plugin) {
+    public static String saveToString(Collection<Map.Entry<Long, UUID>> entries) {
         val config = new YamlConfiguration();
-        for (val entry : mcByDiscord.entrySet()) {
+        for (val entry : entries) {
             config.set(entry.getKey().toString(), entry.getValue().toString());
         }
+        return config.saveToString();
+    }
+
+    public void save(Plugin plugin, String contents) {
         try {
-            config.save(createFile(plugin));
+            PluginConfiguration.writeText(createFile(plugin), contents);
         } catch (IOException e) {
             plugin.getLogger().log(Level.WARNING, e, () -> "Failed while saving verified members");
         }
+    }
+
+    public void saveAsync() {
+        HashSet<Map.Entry<Long, UUID>> entries = new HashSet<>(mcByDiscord.entrySet());
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> save(plugin, saveToString(entries)));
+    }
+
+    public void save(Plugin plugin) {
+        save(plugin, saveToString(mcByDiscord.entrySet()));
     }
 
     public void put(Long discordUser, UUID mcUser) {

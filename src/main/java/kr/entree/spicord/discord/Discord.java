@@ -49,18 +49,22 @@ public class Discord implements Runnable {
                 break;
             }
         }
-        jda.shutdownNow();
+        shutdownJDA();
     }
 
     public void addTask(JDAHandler consumer) {
         consumers.add(consumer);
     }
 
+    private void shutdownJDA() {
+        if (jda != null) {
+            jda.shutdownNow();
+        }
+    }
+
     private void preProcess() throws InterruptedException {
         if (token != null && (jda == null || !jda.getToken().contains(token))) {
-            if (jda != null) {
-                jda.shutdownNow();
-            }
+            shutdownJDA();
             try {
                 jda = new JDABuilder(token)
                         .addEventListeners(
@@ -78,7 +82,7 @@ public class Discord implements Runnable {
 
     private void takeAndNotifyConsumer() throws InterruptedException {
         if (jda == null) {
-            Thread.sleep(1000);
+            Thread.sleep(500);
             return;
         }
         val consumer = consumers.take();

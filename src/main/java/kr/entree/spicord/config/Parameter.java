@@ -35,8 +35,8 @@ public class Parameter {
     public String format(String contents) {
         StringBuilder builder = new StringBuilder(contents.length() * 2);
         Trie trie = Trie.builder()
-                .onlyWholeWords()
                 .ignoreOverlaps()
+                .ignoreCase()
                 .addKeywords(map.keySet())
                 .build();
         Collection<Emit> emits = trie.parseText(contents);

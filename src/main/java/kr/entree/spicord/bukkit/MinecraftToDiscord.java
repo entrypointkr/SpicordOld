@@ -4,7 +4,6 @@ import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.discord.BukkitMessage;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
-import kr.entree.spicord.config.VerificationConfig;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.WebhookManager;
 import lombok.val;

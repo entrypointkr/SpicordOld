@@ -44,8 +44,15 @@ processResources {
 }
 
 shadowJar {
-    relocate('net.dv8tion.jda', 'kr.entree.spicord.libs.jda')
-    relocate('club.minnced.discord', 'kr.entree.spicord.libs.discord')
+    def prefix = 'kr.entree.spicord.libs'
+    [
+            'net.dv8tion.jda'     : 'jda',
+            'club.minnced.discord': 'jda-webhook',
+            'org.ahocorasick'     : 'ahocorasick',
+            'org.bstats.bukkit'   : 'bstats'
+    ].forEach { pattern, dest ->
+        relocate(pattern, "$prefix.$dest")
+    }
     archiveClassifier.set("")
     minimize()
 }

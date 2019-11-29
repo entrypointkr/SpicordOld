@@ -1,12 +1,12 @@
 token: "Input your bot token"
 channels:
-  bot: "Channel ID"
-  user-chat: "Channel ID"
+  announce: "Channel ID"
+  chat: "Channel ID"
   verify: "Channel ID"
 messages:
   server-on:
     enabled: true
-    channel: bot
+    channel: announce
     message:
       title: "서버가 열렸습니다!"
       url: "http://minecraft.net"
@@ -15,18 +15,18 @@ messages:
       thumbnail: "https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/img/menu/menu-buy--reversed.gif"
   server-off:
     enabled: true
-    channel: [bot]
+    channel: [announce]
     message:
       title: "서버가 닫혔습니다!"
       color: red
       description: "서버가 종료되었습니다. 마지막 동접자 수: %players%"
   player-chat:
     enabled: true
-    channel: user-chat
+    channel: chat
     slow-mode: true
   player-kick:
     enabled: true
-    channel: bot
+    channel: announce
     message:
       title: "사유: %reason%"
       description: "%player%(%uuid%)"
@@ -38,7 +38,7 @@ messages:
         icon: "https://crafatar.com/avatars/%uuid%?overlay=true"
   discord-chat:
     enabled: true
-    channel: user-chat
+    channel: chat
     message: "&7[Discord] [%name%]: &f%message%"
     worlds: []
 verification:
