@@ -2,6 +2,7 @@ package kr.entree.spicord.bukkit.event;
 
 import kr.entree.spicord.bukkit.structure.Guild;
 import kr.entree.spicord.bukkit.structure.Member;
+import kr.entree.spicord.discord.Discord;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -18,14 +19,15 @@ public class GuildBoostEvent extends GuildMemberEvent {
     private final OffsetDateTime oldTime;
     private final OffsetDateTime newTime;
 
-    public GuildBoostEvent(Guild guild, Member member, @Nullable OffsetDateTime oldTime, @Nullable OffsetDateTime newTime) {
-        super(guild, member);
+    public GuildBoostEvent(Discord discord, Guild guild, Member member, OffsetDateTime oldTime, OffsetDateTime newTime) {
+        super(discord, guild, member);
         this.oldTime = oldTime;
         this.newTime = newTime;
     }
 
-    public static GuildBoostEvent from(GuildMemberUpdateBoostTimeEvent e) {
+    public static GuildBoostEvent from(Discord discord, GuildMemberUpdateBoostTimeEvent e) {
         return new GuildBoostEvent(
+                discord,
                 Guild.of(e.getGuild()),
                 Member.of(e.getMember()),
                 e.getOldTimeBoosted(),

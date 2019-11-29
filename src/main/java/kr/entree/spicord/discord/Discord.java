@@ -68,7 +68,7 @@ public class Discord implements Runnable {
             try {
                 jda = new JDABuilder(token)
                         .addEventListeners(
-                                new DiscordEventToBukkit(plugin),
+                                new DiscordEventToBukkit(plugin, this),
                                 new UserVerifier(plugin, this, config, langConfig, verifiedManager)
                         )
                         .build();

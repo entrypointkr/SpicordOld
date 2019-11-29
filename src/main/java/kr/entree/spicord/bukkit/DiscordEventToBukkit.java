@@ -5,6 +5,7 @@ import kr.entree.spicord.bukkit.event.GuildChatEvent;
 import kr.entree.spicord.bukkit.event.GuildJoinEvent;
 import kr.entree.spicord.bukkit.event.GuildLeaveEvent;
 import kr.entree.spicord.bukkit.event.PrivateChatEvent;
+import kr.entree.spicord.discord.Discord;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
@@ -22,9 +23,11 @@ import javax.annotation.Nonnull;
  */
 public class DiscordEventToBukkit extends ListenerAdapter {
     private final Plugin plugin;
+    private final Discord discord;
 
-    public DiscordEventToBukkit(Plugin plugin) {
+    public DiscordEventToBukkit(Plugin plugin, Discord discord) {
         this.plugin = plugin;
+        this.discord = discord;
     }
 
     private void callEvent(Event event) {
@@ -34,27 +37,27 @@ public class DiscordEventToBukkit extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event) {
         if (!event.isWebhookMessage()) {
-            callEvent(GuildChatEvent.from(event));
+            callEvent(GuildChatEvent.from(discord, event));
         }
     }
 
     @Override
     public void onGuildMemberJoin(@Nonnull GuildMemberJoinEvent event) {
-        callEvent(GuildJoinEvent.from(event));
+        callEvent(GuildJoinEvent.from(discord, event));
     }
 
     @Override
     public void onGuildMemberLeave(@Nonnull GuildMemberLeaveEvent event) {
-        callEvent(GuildLeaveEvent.from(event));
+        callEvent(GuildLeaveEvent.from(discord, event));
     }
 
     @Override
     public void onGuildMemberUpdateBoostTime(@Nonnull GuildMemberUpdateBoostTimeEvent event) {
-        callEvent(GuildBoostEvent.from(event));
+        callEvent(GuildBoostEvent.from(discord, event));
     }
 
     @Override
     public void onPrivateMessageReceived(@Nonnull PrivateMessageReceivedEvent event) {
-        callEvent(PrivateChatEvent.from(event));
+        callEvent(PrivateChatEvent.from(discord, event));
     }
 }

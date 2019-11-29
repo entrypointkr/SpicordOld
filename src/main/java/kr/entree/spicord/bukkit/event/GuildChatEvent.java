@@ -5,6 +5,7 @@ import kr.entree.spicord.bukkit.structure.Member;
 import kr.entree.spicord.bukkit.structure.Message;
 import kr.entree.spicord.bukkit.structure.MessageProvider;
 import kr.entree.spicord.bukkit.structure.User;
+import kr.entree.spicord.discord.Discord;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.apache.commons.lang.Validate;
 import org.bukkit.event.HandlerList;
@@ -18,16 +19,17 @@ public class GuildChatEvent extends GuildMemberEvent implements MessageProvider 
     private final long channel;
     private final Message message;
 
-    public GuildChatEvent(Guild guild, Member member, long channel, Message message) {
-        super(guild, member);
+    public GuildChatEvent(Discord discord, Guild guild, Member member, long channel, Message message) {
+        super(discord, guild, member);
         this.channel = channel;
         this.message = message;
     }
 
     @SuppressWarnings("ConstantConditions")
-    public static GuildChatEvent from(GuildMessageReceivedEvent e) {
+    public static GuildChatEvent from(Discord discord, GuildMessageReceivedEvent e) {
         Validate.isTrue(!e.isWebhookMessage());
         return new GuildChatEvent(
+                discord,
                 Guild.of(e.getGuild()),
                 Member.of(e.getMember()),
                 e.getChannel().getIdLong(),
