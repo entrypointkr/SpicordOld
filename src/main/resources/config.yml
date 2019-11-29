@@ -4,6 +4,18 @@ channels:
   chat: "Channel ID"
   verify: "Channel ID"
 messages:
+  welcome:
+    enabled: true
+    message:
+      # 임베드 형식, 참고: https://cog-creators.github.io/discord-embed-sandbox/
+      - title: "환영합니다!"
+        url: "http://minecraft.net"
+        description: "마인크래프트 서버에 오신 것을 환영합니다!"
+        color: blue
+        thumbnail: "https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/img/menu/menu-buy--reversed.gif"
+      # 기본 형식
+      - "본 서버는 Spicord 를 사용하고 있습니다."
+      - "인증을 위해 `!인증 <게임닉네임>` 명령어를 입력해주세요!"
   server-on:
     enabled: true
     channel: announce
@@ -15,7 +27,7 @@ messages:
       thumbnail: "https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/img/menu/menu-buy--reversed.gif"
   server-off:
     enabled: true
-    channel: [announce]
+    channel: announce
     message:
       title: "서버가 닫혔습니다!"
       color: red
@@ -42,8 +54,8 @@ messages:
     message: "&7[Discord] [%name%]: &f%message%"
     worlds: []
 verification:
-  enabled: false
-  channel: verify
+  enabled: true
+  channel: [verify]
   command: "!인증"
   expire-second: 15
   before:
@@ -57,3 +69,4 @@ verification:
       - verified
     command:
       - "pex user %player% group set verified"
+      - "whisper %player% 디스코드 &e%discord% &r로 인증되셨습니다."

@@ -25,7 +25,6 @@ public class MinecraftToDiscord implements Listener {
     private final SpicordConfig config;
     private final VerifiedMemberManager verifiedManager;
     private final WebhookManager webhookManager;
-
     private final StringBuilder builder = new StringBuilder();
     private Player last = null;
     private BukkitTask task = null;
