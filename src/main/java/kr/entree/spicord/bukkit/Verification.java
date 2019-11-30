@@ -1,5 +1,6 @@
 package kr.entree.spicord.bukkit;
 
+import kr.entree.spicord.bukkit.structure.User;
 import kr.entree.spicord.discord.Discord;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -16,7 +17,7 @@ public class Verification {
     @Getter
     private final UUID uuid;
     @Getter
-    private final Long discordId;
+    private final User user;
     @Getter
     private final String name;
     @Getter
@@ -26,17 +27,17 @@ public class Verification {
     @Getter
     private final Discord discord;
 
-    public Verification(UUID uuid, Long discordId, String name, String code, BukkitTask expireTask, Discord discord) {
+    public Verification(UUID uuid, User user, String name, String code, BukkitTask expireTask, Discord discord) {
         this.uuid = uuid;
-        this.discordId = discordId;
+        this.user = user;
         this.name = name;
         this.code = code;
         this.expireTask = expireTask;
         this.discord = discord;
     }
 
-    public Verification(Player player, String code, BukkitTask expireTask, Long discordId, Discord discord) {
-        this(player.getUniqueId(), discordId, player.getName(), code, expireTask, discord);
+    public Verification(Player player, User user, String code, BukkitTask expireTask, Discord discord) {
+        this(player.getUniqueId(), user, player.getName(), code, expireTask, discord);
     }
 
     public boolean match(String code) {
@@ -48,8 +49,6 @@ public class Verification {
     }
 
     public void cancelExpireTask() {
-        if (!expireTask.isCancelled()) {
-            expireTask.cancel();
-        }
+        expireTask.cancel();
     }
 }

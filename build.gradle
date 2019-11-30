@@ -27,6 +27,8 @@ dependencies {
     implementation 'club.minnced:discord-webhooks:0.1.8'
     implementation 'org.ahocorasick:ahocorasick:0.4.0'
     implementation 'org.bstats:bstats-bukkit:1.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.10.1' // For legacy
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.1.0'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
@@ -46,10 +48,13 @@ processResources {
 shadowJar {
     def prefix = 'kr.entree.spicord.libs'
     [
-            'net.dv8tion.jda'     : 'jda',
-            'club.minnced.discord': 'jda-webhook',
-            'org.ahocorasick'     : 'ahocorasick',
-            'org.bstats.bukkit'   : 'bstats'
+            'net.dv8tion.jda'      : 'jda',
+            'club.minnced.discord' : 'jda-webhook',
+            'org.ahocorasick'      : 'ahocorasick',
+            'org.bstats.bukkit'    : 'bstats',
+            'com.google.gson'      : 'gson',
+            'com.fasterxml.jackson': 'jackson'
+
     ].forEach { pattern, dest ->
         relocate(pattern, "$prefix.$dest")
     }
@@ -57,4 +62,4 @@ shadowJar {
     minimize()
 }
 
-tasks.build.dependsOn shadowJar
+tasks.build.dependsOn(shadowJar)

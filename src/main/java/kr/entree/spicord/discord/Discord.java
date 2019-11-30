@@ -1,9 +1,6 @@
 package kr.entree.spicord.discord;
 
 import kr.entree.spicord.bukkit.DiscordEventToBukkit;
-import kr.entree.spicord.bukkit.VerifiedMemberManager;
-import kr.entree.spicord.config.LangConfig;
-import kr.entree.spicord.config.SpicordConfig;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
@@ -21,20 +18,15 @@ import java.util.logging.Level;
  */
 public class Discord implements Runnable {
     private final Plugin plugin;
-    private final SpicordConfig config;
-    private final LangConfig langConfig;
-    private final VerifiedMemberManager verifiedManager;
     private final BlockingQueue<JDAHandler> consumers = new LinkedBlockingQueue<>();
+    @Getter
     private JDA jda = null;
     @Getter
     @Setter
     private String token = null;
 
-    public Discord(Plugin plugin, SpicordConfig config, LangConfig langConfig, VerifiedMemberManager verifiedManager) {
+    public Discord(Plugin plugin) {
         this.plugin = plugin;
-        this.config = config;
-        this.langConfig = langConfig;
-        this.verifiedManager = verifiedManager;
     }
 
     @Override
@@ -64,21 +56,25 @@ public class Discord implements Runnable {
     private void preProcess() throws InterruptedException {
         if (token != null && (jda == null || !jda.getToken().contains(token))) {
             shutdownJDA();
+            JDA newJda;
             try {
-                jda = new JDABuilder(token)
+                newJda = new JDABuilder(token)
                         .addEventListeners(new DiscordEventToBukkit(plugin, this))
                         .build();
-                jda.awaitReady();
+                newJda.awaitReady();
             } catch (LoginException e) {
                 plugin.getLogger().log(Level.WARNING, String.format("Error while starting discord bot with token: \"%s\"", token), e);
                 token = null;
+                jda = null;
+                return;
             }
+            jda = newJda;
         }
     }
 
     private void takeAndNotifyConsumer() throws InterruptedException {
         if (jda == null) {
-            Thread.sleep(500);
+            Thread.sleep(1000);
             return;
         }
         val consumer = consumers.take();

@@ -12,18 +12,25 @@ public class User {
     private final boolean bot;
     @Getter
     private final String name;
+    @Getter
+    private final String discriminator;
 
-    private User(long id, boolean bot, String name) {
+    private User(long id, boolean bot, String name, String discriminator) {
         this.id = id;
         this.bot = bot;
         this.name = name;
+        this.discriminator = discriminator;
     }
 
-    public static User of(long id, boolean bot, String name) {
-        return new User(id, bot, name);
+    public String getNameAsTag() {
+        return name + "#" + discriminator;
+    }
+
+    public static User of(long id, boolean bot, String name, String discriminator) {
+        return new User(id, bot, name, discriminator);
     }
 
     public static User of(net.dv8tion.jda.api.entities.User user) {
-        return of(user.getIdLong(), user.isBot(), user.getName());
+        return of(user.getIdLong(), user.isBot(), user.getName(), user.getDiscriminator());
     }
 }

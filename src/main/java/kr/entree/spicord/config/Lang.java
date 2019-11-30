@@ -11,8 +11,8 @@ public enum Lang {
     PREFIX("&c[Spicord] &f"),
     VERIFY_MESSAGE("%prefix% 디스코드 &e%discord% &f로부터 인증 요청이 왔습니다. 채팅으로 인증 코드를 입력하세요."),
     VERIFY_NEEDS("%prefix% 디스코드 인증이 필요합니다. 서버 디스코드 인증채널에서 &e'%command% 게임닉네임' &f을 입력하여 인증하세요."),
-    VERIFY_SUCCESS("인증되었습니다!"),
-    VERIFY_FAILED("인증에 실패했습니다. 다시 시도해주세요."),
+    VERIFY_SUCCESS("%prefix% 인증되었습니다!"),
+    NO_PERMISSION("%prefix% 권한이 없습니다."),
     ;
     @Getter
     private final String def;

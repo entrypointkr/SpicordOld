@@ -20,6 +20,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by JunHyung Lim on 2019-11-27
@@ -28,7 +29,7 @@ public class PlayerRestricter implements Listener {
     private final VerifiedMemberManager manager;
     private final SpicordConfig config;
     private final LangConfig langConfig;
-    private final CooldownMap cools = new CooldownMap();
+    private final CooldownMap<UUID> cools = new CooldownMap<>();
 
     public PlayerRestricter(VerifiedMemberManager manager, SpicordConfig config, LangConfig langConfig) {
         this.manager = manager;
@@ -37,6 +38,9 @@ public class PlayerRestricter implements Listener {
     }
 
     private void tryRestrict(Player player, Cancellable cancellable, RestrictType type) {
+        if (player.isOp() || player.hasPermission("spicord.verify.bypass")) {
+            return;
+        }
         VerificationConfig verifyConfig = config.getVerification();
         if (!verifyConfig.isEnabled()) {
             return;
@@ -46,7 +50,7 @@ public class PlayerRestricter implements Listener {
             Set<RestrictType> types = verifyConfig.getPlayerRestricts();
             if (types.contains(type)) {
                 cancellable.setCancelled(true);
-                if (cools.action(player.getUniqueId(), 3000)) {
+                if (cools.action(player.getUniqueId(), 3000) <= 0) {
                     player.sendMessage(langConfig.format(
                             Lang.VERIFY_NEEDS,
                             new Parameter().put(player)
@@ -62,31 +66,40 @@ public class PlayerRestricter implements Listener {
         tryRestrict(e.getPlayer(), e, RestrictType.CHAT);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlace(BlockPlaceEvent e) {
         tryRestrict(e.getPlayer(), e, RestrictType.BUILD);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onBreak(BlockBreakEvent e) {
         tryRestrict(e.getPlayer(), e, RestrictType.BUILD);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onWalk(PlayerMoveEvent e) {
-        Location from = e.getFrom();
         Location to = e.getTo();
         if (to == null) {
             return;
         }
+        Location from = e.getFrom();
+        Player player = e.getPlayer();
         if (from.getBlockX() != to.getBlockX()
                 || from.getBlockY() != to.getBlockY()
                 || from.getBlockZ() != to.getBlockZ()) {
-            tryRestrict(e.getPlayer(), e, RestrictType.MOVE);
+            tryRestrict(player, e, RestrictType.MOVE);
+            if (e.isCancelled()) {
+                e.setCancelled(false);
+                e.setTo(new Location(
+                        from.getWorld(),
+                        from.getBlockX(), from.getBlockY(), from.getBlockZ(),
+                        to.getYaw(), to.getPitch()
+                ));
+            }
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
             Player damagerPlayer = ((Player) e.getDamager());

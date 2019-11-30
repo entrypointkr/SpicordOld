@@ -13,6 +13,8 @@ import kr.entree.spicord.discord.task.ChannelHandler;
 import kr.entree.spicord.discord.task.CombinedHandler;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -21,6 +23,7 @@ import net.dv8tion.jda.api.entities.User;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -38,6 +41,7 @@ import java.util.stream.Collectors;
  * Created by JunHyung Lim on 2019-11-16
  */
 public class SpicordConfig extends PluginConfiguration {
+    public static final String FEATURES = "features";
     private VerificationConfig verifyConfig = null;
 
     public SpicordConfig(YamlConfiguration config, Plugin plugin) {
@@ -46,6 +50,10 @@ public class SpicordConfig extends PluginConfiguration {
 
     public SpicordConfig(Plugin plugin) {
         super(plugin);
+    }
+
+    public static String featureKey(String key) {
+        return FEATURES + "." + key;
     }
 
     @Override
@@ -67,19 +75,28 @@ public class SpicordConfig extends PluginConfiguration {
         return getBoolean(key + ".enabled", true);
     }
 
+    public String getGuild() {
+        return getString("guild");
+    }
+
+    public Guild getGuild(JDA jda) {
+        return jda.getGuildById(getGuild());
+    }
+
     public Set<String> getChannelIds(String key) {
         Object ids = get(key);
         if (ids instanceof Collection) {
             return ((Collection<?>) ids).stream()
                     .map(Object::toString)
+                    .map(this::remapChannel)
                     .collect(Collectors.toSet());
         }
         return ids != null
-                ? Collections.singleton(ids.toString())
+                ? Collections.singleton(remapChannel(ids.toString()))
                 : Collections.emptySet();
     }
 
-    public String formatChannel(String channel) {
+    public String remapChannel(String channel) {
         ConfigurationSection section = getChannelSection();
         if (section != null) {
             Object mapped = section.get(channel);
@@ -93,6 +110,11 @@ public class SpicordConfig extends PluginConfiguration {
     @Nullable
     public ConfigurationSection getChannelSection() {
         return getConfigurationSection("channels");
+    }
+
+    @Nullable
+    public ConfigurationSection getMessageSection() {
+        return getConfigurationSection("messages");
     }
 
     public String formatChat(Message message) {
@@ -116,26 +138,27 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     public JDAHandler getSendMessage(String id, MessageChannelHandler<TextChannel> handler) {
-        id = "events." + id;
+        id = featureKey(id);
         if (!isEnabled(id)) {
             return EmptyHandler.INSTANCE;
         }
         Set<String> channels = getChannelIds(id + ".channel");
         CombinedHandler combined = new CombinedHandler();
         for (String channel : channels) {
-            combined.add(ChannelHandler.ofText(this, channel, handler));
+            combined.add(ChannelHandler.ofText(channel, handler));
         }
         return combined;
     }
 
     public JDAHandler getServerOnMessage() {
-        return getSendMessage("messages.server-on");
+        return getSendMessage("server-on");
     }
 
     public JDAHandler getServerOffMessage(Parameter parameter) {
-        return getSendMessage("messages.server-off", parameter);
+        return getSendMessage("server-off", parameter);
     }
 
+    @NotNull
     public static <T extends MessageChannel> MessageChannelHandler<T> parseMessage(Object val, Parameter parameter) {
         if (val instanceof ConfigurationSection) {
             val = ((ConfigurationSection) val).getValues(false);
@@ -145,7 +168,7 @@ public class SpicordConfig extends PluginConfiguration {
         } else if (val instanceof Collection) {
             return parseMessage(((Collection<?>) val), parameter);
         } else if (val != null) {
-            return new PlainMessage<>(val.toString());
+            return new PlainMessage<>(parameter.format(val.toString()));
         }
         return new EmptyMessageChannelHandler<>();
     }
@@ -175,6 +198,7 @@ public class SpicordConfig extends PluginConfiguration {
         return ret;
     }
 
+    @NotNull
     public <T extends MessageChannel> MessageChannelHandler<T> getMessage(String key, Parameter parameter) {
         Object messageObj = get("messages." + key);
         if (messageObj instanceof ConfigurationSection) {
@@ -183,19 +207,24 @@ public class SpicordConfig extends PluginConfiguration {
         return parseMessage(messageObj, parameter);
     }
 
-    public MessageChannelHandler<MessageChannel> getMessage(String key) {
+    @NotNull
+    public <T extends MessageChannel> MessageChannelHandler<T> getMessage(String key) {
         return getMessage(key, new Parameter());
     }
 
     public boolean isSlowModePlayerChat() {
-        return getBoolean("messages.player-chat.slow-mode", false);
+        return getBoolean(featureKey("player-chat.slow-mode"));
+    }
+
+    public boolean isFakeProfilePlayerChat() {
+        return getBoolean(featureKey("player-chat.fake-profile"));
     }
 
     public MinecraftChat getDiscordChat() {
         boolean enabled = true;
         String message = "&7[Discord] [%name%]: &f%message%";
         Collection<String> worlds = new ArrayList<>();
-        ConfigurationSection section = getConfigurationSection("messages.discord-chat");
+        ConfigurationSection section = getConfigurationSection(featureKey("discord-chat"));
         if (section != null) {
             enabled = section.getBoolean("enabled", true);
             message = section.getString("message", message);

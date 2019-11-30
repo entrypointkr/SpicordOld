@@ -3,18 +3,19 @@ package kr.entree.spicord.bukkit;
 import kr.entree.spicord.bukkit.event.GuildChatEvent;
 import kr.entree.spicord.bukkit.event.PrivateChatEvent;
 import kr.entree.spicord.bukkit.structure.Message;
+import kr.entree.spicord.bukkit.util.CooldownMap;
 import kr.entree.spicord.config.Lang;
 import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.config.VerificationConfig;
-import kr.entree.spicord.discord.ChannelSupplier;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.supplier.PrivateChannelOpener;
-import kr.entree.spicord.discord.supplier.TextChannelSupplier;
 import kr.entree.spicord.discord.task.ChannelHandler;
+import kr.entree.spicord.discord.task.ChannelHandlerBuilder;
 import lombok.val;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.Role;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -37,6 +38,7 @@ public class PlayerVerifier implements Listener {
     private final VerifiedMemberManager manager;
     private final Map<UUID, Verification> verifies = new HashMap<>();
     private final Random random = new Random();
+    private final CooldownMap<Long> cooldowns = new CooldownMap<>();
 
     public PlayerVerifier(Plugin plugin, SpicordConfig config, LangConfig langConfig, VerifiedMemberManager manager) {
         this.plugin = plugin;
@@ -64,18 +66,14 @@ public class PlayerVerifier implements Listener {
         return builder.toString();
     }
 
-    private BukkitTask createTask(UUID id, Discord discord, ChannelSupplier<? extends MessageChannel> supplier) {
+    private BukkitTask createTask(UUID id, Discord discord, ChannelHandlerBuilder<?> builder) {
         long seconds = getConfig().getExpireSeconds();
         return Bukkit.getScheduler().runTaskLater(plugin, () -> {
             verifies.remove(id);
-            discord.addTask(ChannelHandler.of(
-                    supplier,
-                    config.getMessage(
-                            "verify-expired",
-                            new Parameter().put("%seconds%", seconds)
-                    )
-            ));
-        }, seconds);
+            Parameter parameter = new Parameter().put("%seconds%", seconds);
+            builder.message(config, "verify-expired", parameter)
+                    .queue(discord);
+        }, seconds * 20L);
     }
 
     private void putVerification(UUID id, Verification verification) {
@@ -85,73 +83,105 @@ public class PlayerVerifier implements Listener {
         }
     }
 
-    private void processCommand(Message message, Discord discord, ChannelSupplier<? extends MessageChannel> supplier) {
-        if (!getConfig().isEnabled()) {
+    private boolean checkCooldown(Long userId, Parameter parameter) {
+        val cools = getConfig().getCooldownSeconds() * 1000L;
+        long remain = cooldowns.action(userId, cools);
+        if (remain > 0) {
+            parameter.put("%seconds%", remain / 1000);
+            return false;
+        }
+        return true;
+    }
+
+    private void processCommand(Message message, Discord discord) {
+        val verifyConfig = getConfig();
+        if (!verifyConfig.isEnabled()) {
             return;
         }
+        val prefix = verifyConfig.getVerificationCommandPrefix();
         val contents = message.getContents();
+        if (!contents.startsWith(prefix)) {
+            return;
+        }
         val author = message.getAuthor();
         val minecraft = manager.getMinecraft(author.getId());
+        val builder = new ChannelHandlerBuilder<PrivateChannel>()
+                .channel(new PrivateChannelOpener(author.getId()));
+        val parameter = new Parameter().put(author);
         if (minecraft != null) {
-            discord.addTask(ChannelHandler.of(supplier, config.getMessage(
-                    "already-verified",
-                    new Parameter().put("%uuid%", minecraft)
-            )));
+            builder.message(config, "already-verified", parameter.put("%uuid%", minecraft))
+                    .queue(discord);
             return;
         }
-        val prefix = getConfig().getVerificationCommandPrefix();
-        if (contents.startsWith(prefix) && contents.length() > prefix.length()) {
-            val argument = contents.substring(prefix.length() + 1);
+        parameter.put("%command%", prefix);
+        val pieces = contents.split(" ", 2);
+        if (pieces.length >= 2) {
+            val argument = pieces[1];
             val player = Bukkit.getPlayer(argument);
+            parameter.put("%name%", argument);
             if (player != null) {
+                if (!checkCooldown(author.getId(), parameter)) {
+                    builder.message(config, "verify-cooldown", parameter)
+                            .queue(discord);
+                    return;
+                }
                 val code = generateCode(6);
                 val id = player.getUniqueId();
-                putVerification(id, new Verification(player, code, createTask(id, discord, supplier), author.getId(), discord));
-                discord.addTask(ChannelHandler.of(supplier, config.getMessage(
-                        "verify-code",
-                        new Parameter().put(player)
-                                .put("%code%", code)
-                )));
-                player.sendMessage(langConfig.format(
-                        Lang.VERIFY_MESSAGE,
-                        new Parameter().put("%discord%", author.getName())
-                ));
+                parameter.put(player).put("%code%", code);
+                putVerification(id, new Verification(player, author, code, createTask(id, discord, builder), discord));
+                builder.message(config, "verify-code", parameter)
+                        .queue(discord);
+                player.sendMessage(langConfig.format(Lang.VERIFY_MESSAGE, parameter));
             } else {
-                discord.addTask(ChannelHandler.of(
-                        supplier,
-                        config.getMessage(
-                                "player-offline",
-                                new Parameter().put("%name%", argument)
-                        )
-                ));
+                builder.message(config, "player-offline", parameter)
+                        .queue(discord);
             }
+        } else {
+            builder.message(config, "verify-usage", parameter)
+                    .queue(discord);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent e) {
-        Verification verification = verifies.remove(e.getPlayer().getUniqueId());
+        val player = e.getPlayer();
+        val verification = verifies.remove(player.getUniqueId());
         if (verification == null) {
             return;
         }
+        val user = verification.getUser();
+        val parameter = new Parameter().put(user)
+                .put(player);
         if (verification.match(e.getMessage().toLowerCase())) {
-            manager.put(verification.getDiscordId(), verification.getUuid());
-            Parameter parameter = new Parameter().put("%discord%", verification.getUuid())
-                    .put(e.getPlayer());
-            e.getPlayer().sendMessage(langConfig.format(Lang.VERIFY_SUCCESS, parameter));
+            manager.put(user.getId(), verification.getUuid());
+            player.sendMessage(langConfig.format(Lang.VERIFY_SUCCESS, parameter));
             verification.getDiscord().addTask(ChannelHandler.of(
-                    new PrivateChannelOpener(verification.getDiscordId()),
+                    new PrivateChannelOpener(user.getId()),
                     config.getMessage("verify-success", parameter)
             ));
-            verification.cancelExpireTask();
+            getConfig().executeCommands(Bukkit.getConsoleSender(), parameter);
+            verification.getDiscord().addTask(jda -> {
+                val guild = config.getGuild(jda);
+                if (guild == null) {
+                    return;
+                }
+                val roles = getConfig().getDiscordRoles(guild);
+                val member = guild.getMemberById(verification.getUser().getId());
+                if (member == null) {
+                    return;
+                }
+                for (Role role : roles) {
+                    guild.addRoleToMember(member, role).queue();
+                }
+            });
+            e.setCancelled(true);
         } else {
-            Parameter parameter = new Parameter();
-            e.getPlayer().sendMessage(langConfig.format(Lang.VERIFY_FAILED, parameter));
             verification.getDiscord().addTask(ChannelHandler.of(
-                    new PrivateChannelOpener(verification.getDiscordId()),
+                    new PrivateChannelOpener(user.getId()),
                     config.getMessage("verify-failed", parameter)
             ));
         }
+        verification.cancelExpireTask();
     }
 
     @EventHandler
@@ -161,15 +191,18 @@ public class PlayerVerifier implements Listener {
             return;
         }
         String channel = e.getChannel().toString();
-        String verifyChannel = config.formatChannel(getConfig().getChannel());
+        String verifyChannel = config.remapChannel(getConfig().getChannel());
         if (!verifyChannel.equals(channel)) {
             return;
         }
-        processCommand(e.getMessage(), e.getDiscord(), TextChannelSupplier.of(e.getChannel().toString()));
+        processCommand(e.getMessage(), e.getDiscord());
     }
 
     @EventHandler
     public void onPrivateChat(PrivateChatEvent e) {
-        processCommand(e.getMessage(), e.getDiscord(), new PrivateChannelOpener(e.getAuthor().getId()));
+        if (e.getAuthor().isBot()) {
+            return;
+        }
+        processCommand(e.getMessage(), e.getDiscord());
     }
 }

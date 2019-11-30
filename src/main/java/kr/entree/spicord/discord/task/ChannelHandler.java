@@ -1,6 +1,5 @@
 package kr.entree.spicord.discord.task;
 
-import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.ChannelSupplier;
 import kr.entree.spicord.discord.JDAHandler;
 import kr.entree.spicord.discord.handler.MessageChannelHandler;
@@ -28,20 +27,28 @@ public class ChannelHandler<T extends MessageChannel> implements JDAHandler {
         return new ChannelHandler<>(channelSupplier, handler);
     }
 
-    public static ChannelHandler<TextChannel> ofText(SpicordConfig config, String channel, MessageChannelHandler<TextChannel> handler) {
-        return of(TextChannelSupplier.ofConfigurized(config, channel), handler);
+    public static ChannelHandler<TextChannel> ofText(String channel, MessageChannelHandler<TextChannel> handler) {
+        return of(TextChannelSupplier.of(channel), handler);
     }
 
-    public static ChannelHandler<TextChannel> ofText(SpicordConfig config, String channel, String message) {
-        return ofText(config, channel, new PlainMessage<>(message));
+    public static ChannelHandler<TextChannel> ofText(String channel, String message) {
+        return ofText(channel, new PlainMessage<>(message));
     }
 
     public static ChannelHandler<PrivateChannel> ofPrivate(long channel, MessageChannelHandler<PrivateChannel> handler) {
         return of(new PrivateChannelSupplier(channel), handler);
     }
 
+    private void notify(T channel) {
+        if (channel != null) {
+            handler.handle(channel);
+        } else {
+            throw new IllegalStateException("Given channel is null!");
+        }
+    }
+
     @Override
     public void handle(JDA jda) {
-        supplier.get(jda, handler::handle);
+        supplier.get(jda, this::notify);
     }
 }

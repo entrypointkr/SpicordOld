@@ -1,9 +1,9 @@
 package kr.entree.spicord;
 
-import kr.entree.spicord.bukkit.DiscordChatToMinecraft;
-import kr.entree.spicord.bukkit.MinecraftToDiscord;
 import kr.entree.spicord.bukkit.PlayerRestricter;
+import kr.entree.spicord.bukkit.PlayerVerifier;
 import kr.entree.spicord.bukkit.SpicordCommand;
+import kr.entree.spicord.bukkit.SpicordOperator;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
 import kr.entree.spicord.bukkit.util.Compatibles;
 import kr.entree.spicord.config.LangConfig;
@@ -36,7 +36,7 @@ public class Spicord extends JavaPlugin {
     @Getter
     private final VerifiedMemberManager verifiedManager = new VerifiedMemberManager(this);
     @Getter
-    private final Discord discord = new Discord(this, spicordConfig, langConfig, verifiedManager);
+    private final Discord discord = new Discord(this);
     @Getter
     private final WebhookManager webhookManager = new WebhookManager(this);
     private final Thread discordThread = new Thread(discord, "SpicordThread");
@@ -82,8 +82,8 @@ public class Spicord extends JavaPlugin {
 
     private void initFunctions() {
         registerEvents(
-                new DiscordChatToMinecraft(this, spicordConfig),
-                new MinecraftToDiscord(discord, spicordConfig, verifiedManager, webhookManager),
+                new SpicordOperator(this, discord, spicordConfig, webhookManager),
+                new PlayerVerifier(this, spicordConfig, langConfig, verifiedManager),
                 new PlayerRestricter(verifiedManager, spicordConfig, langConfig)
         );
         discordThread.start();
@@ -108,6 +108,9 @@ public class Spicord extends JavaPlugin {
     }
 
     private void awaitDiscordThread() {
+        if (discord.getJda() == null) {
+            return;
+        }
         val latch = new CountDownLatch(1);
         discord.addTask(new CompleterBuilder(spicordConfig.getServerOffMessage(
                 new Parameter().put("%players%", Compatibles.getOnlinePlayers().size())

@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.Role;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -86,14 +85,17 @@ public class VerificationConfig {
         return section.getStringList("after.command");
     }
 
-    public void executeCommands(CommandSender sender, Player player) {
-        Parameter parameter = new Parameter().put(player);
+    public void executeCommands(CommandSender sender, Parameter parameter) {
         for (String command : getCommands()) {
             Bukkit.dispatchCommand(sender, parameter.format(command));
         }
     }
 
     public long getExpireSeconds() {
-        return section.getLong("expire-second");
+        return section.getLong("expire-seconds");
+    }
+
+    public long getCooldownSeconds() {
+        return section.getLong("cooldown-seconds");
     }
 }

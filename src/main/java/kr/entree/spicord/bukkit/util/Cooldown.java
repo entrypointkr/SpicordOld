@@ -6,17 +6,17 @@ package kr.entree.spicord.bukkit.util;
 public class Cooldown {
     private long last = 0;
 
-    public boolean action(long coolMillis) {
+    public long action(long coolMillis) {
         if (coolMillis <= 0) {
-            return true;
+            return 0;
         }
         long now = System.currentTimeMillis();
         long diff = now - last;
         if (diff >= coolMillis) {
             last = now;
-            return true;
+            return 0;
         }
-        return false;
+        return coolMillis - diff;
     }
 
     public long getLast() {
