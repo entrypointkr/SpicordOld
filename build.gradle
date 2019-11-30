@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'kr.entree'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
