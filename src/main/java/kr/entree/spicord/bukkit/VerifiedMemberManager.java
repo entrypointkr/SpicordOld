@@ -10,10 +10,10 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 /**
@@ -21,8 +21,8 @@ import java.util.logging.Level;
  */
 public class VerifiedMemberManager {
     private final Plugin plugin;
-    private final Map<Long, UUID> mcByDiscord = new HashMap<>();
-    private final Map<UUID, Long> discordByMc = new HashMap<>();
+    private final Map<Long, UUID> mcByDiscord = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> discordByMc = new ConcurrentHashMap<>();
 
     public VerifiedMemberManager(Plugin plugin) {
         this.plugin = plugin;

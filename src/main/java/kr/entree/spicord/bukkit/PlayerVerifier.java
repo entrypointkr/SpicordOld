@@ -23,10 +23,10 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by JunHyung Lim on 2019-11-29
@@ -36,7 +36,7 @@ public class PlayerVerifier implements Listener {
     private final SpicordConfig config;
     private final LangConfig langConfig;
     private final VerifiedMemberManager manager;
-    private final Map<UUID, Verification> verifies = new HashMap<>();
+    private final Map<UUID, Verification> verifies = new ConcurrentHashMap<>();
     private final Random random = new Random();
     private final CooldownMap<Long> cooldowns = new CooldownMap<>();
 
@@ -154,12 +154,14 @@ public class PlayerVerifier implements Listener {
                 .put(player);
         if (verification.match(e.getMessage().toLowerCase())) {
             manager.put(user.getId(), verification.getUuid());
-            player.sendMessage(langConfig.format(Lang.VERIFY_SUCCESS, parameter));
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                player.sendMessage(langConfig.format(Lang.VERIFY_SUCCESS, parameter));
+                getConfig().executeCommands(Bukkit.getConsoleSender(), parameter);
+            });
             verification.getDiscord().addTask(new ChannelHandler<>(
                     PrivateChannelOpener.of(user.getId()),
                     config.getMessage("verify-success", parameter)
             ));
-            getConfig().executeCommands(Bukkit.getConsoleSender(), parameter);
             verification.getDiscord().addTask(jda -> {
                 val guild = config.getGuild(jda);
                 if (guild == null) {

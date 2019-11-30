@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.JDABuilder;
 import org.bukkit.plugin.Plugin;
 
 import javax.security.auth.login.LoginException;
-import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Level;
 
 /**
@@ -18,7 +18,7 @@ import java.util.logging.Level;
  */
 public class Discord implements Runnable {
     private final Plugin plugin;
-    private final Queue<JDAHandler> consumers = new ArrayDeque<>();
+    private final Queue<JDAHandler> consumers = new ConcurrentLinkedDeque<>();
     @Getter
     private JDA jda = null;
     @Getter
