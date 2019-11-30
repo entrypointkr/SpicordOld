@@ -7,6 +7,7 @@ import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.handler.EmptyMessageChannelHandler;
 import kr.entree.spicord.discord.handler.MessageChannelHandler;
 import kr.entree.spicord.discord.handler.PlainMessage;
+import kr.entree.spicord.discord.supplier.TextChannelSupplier;
 import kr.entree.spicord.discord.task.ChannelHandler;
 import kr.entree.spicord.discord.task.CompleterBuilder;
 import lombok.val;
@@ -85,7 +86,10 @@ public class SpicordCommand implements CommandExecutor, TabExecutor {
                     if (messageHandler instanceof EmptyMessageChannelHandler) {
                         messageHandler = new PlainMessage<>(message);
                     }
-                    val handler = ChannelHandler.ofText(config.remapChannel(channel), messageHandler);
+                    val handler = new ChannelHandler<>(
+                            TextChannelSupplier.ofConfigurized(config, channel),
+                            messageHandler
+                    );
                     discord.addTask(new CompleterBuilder(handler)
                             .success(() -> addRecentInputChannelId(sender, channel))
                             .failure(plugin.getLogger())

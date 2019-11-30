@@ -106,7 +106,7 @@ public class PlayerVerifier implements Listener {
         val author = message.getAuthor();
         val minecraft = manager.getMinecraft(author.getId());
         val builder = new ChannelHandlerBuilder<PrivateChannel>()
-                .channel(new PrivateChannelOpener(author.getId()));
+                .channel(PrivateChannelOpener.of(author.getId()));
         val parameter = new Parameter().put(author);
         if (minecraft != null) {
             builder.message(config, "already-verified", parameter.put("%uuid%", minecraft))
@@ -155,8 +155,8 @@ public class PlayerVerifier implements Listener {
         if (verification.match(e.getMessage().toLowerCase())) {
             manager.put(user.getId(), verification.getUuid());
             player.sendMessage(langConfig.format(Lang.VERIFY_SUCCESS, parameter));
-            verification.getDiscord().addTask(ChannelHandler.of(
-                    new PrivateChannelOpener(user.getId()),
+            verification.getDiscord().addTask(new ChannelHandler<>(
+                    PrivateChannelOpener.of(user.getId()),
                     config.getMessage("verify-success", parameter)
             ));
             getConfig().executeCommands(Bukkit.getConsoleSender(), parameter);
@@ -176,8 +176,8 @@ public class PlayerVerifier implements Listener {
             });
             e.setCancelled(true);
         } else {
-            verification.getDiscord().addTask(ChannelHandler.of(
-                    new PrivateChannelOpener(user.getId()),
+            verification.getDiscord().addTask(new ChannelHandler<>(
+                    PrivateChannelOpener.of(user.getId()),
                     config.getMessage("verify-failed", parameter)
             ));
         }

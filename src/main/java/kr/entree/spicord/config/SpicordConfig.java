@@ -9,6 +9,7 @@ import kr.entree.spicord.discord.handler.EmbedMessage;
 import kr.entree.spicord.discord.handler.EmptyMessageChannelHandler;
 import kr.entree.spicord.discord.handler.MessageChannelHandler;
 import kr.entree.spicord.discord.handler.PlainMessage;
+import kr.entree.spicord.discord.supplier.TextChannelSupplier;
 import kr.entree.spicord.discord.task.ChannelHandler;
 import kr.entree.spicord.discord.task.CombinedHandler;
 import lombok.val;
@@ -36,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by JunHyung Lim on 2019-11-16
@@ -83,17 +85,21 @@ public class SpicordConfig extends PluginConfiguration {
         return jda.getGuildById(getGuild());
     }
 
-    public Set<String> getChannelIds(String key) {
+    public Set<String> getChannelIds(String key, boolean remap) {
         Object ids = get(key);
         if (ids instanceof Collection) {
-            return ((Collection<?>) ids).stream()
-                    .map(Object::toString)
-                    .map(this::remapChannel)
-                    .collect(Collectors.toSet());
+            Stream<String> stream = ((Collection<?>) ids).stream()
+                    .map(Object::toString);
+            if (remap) {
+                stream = stream.map(this::remapChannel);
+            }
+            return stream.collect(Collectors.toSet());
         }
-        return ids != null
-                ? Collections.singleton(remapChannel(ids.toString()))
-                : Collections.emptySet();
+        if (ids != null) {
+            String idString = ids.toString();
+            return Collections.singleton(remap ? remapChannel(idString) : idString);
+        }
+        return Collections.emptySet();
     }
 
     public String remapChannel(String channel) {
@@ -142,10 +148,13 @@ public class SpicordConfig extends PluginConfiguration {
         if (!isEnabled(id)) {
             return EmptyHandler.INSTANCE;
         }
-        Set<String> channels = getChannelIds(id + ".channel");
+        Set<String> channels = getChannelIds(id + ".channel", false);
         CombinedHandler combined = new CombinedHandler();
         for (String channel : channels) {
-            combined.add(ChannelHandler.ofText(channel, handler));
+            combined.add(new ChannelHandler<>(
+                    TextChannelSupplier.ofConfigurized(this, channel),
+                    handler
+            ));
         }
         return combined;
     }

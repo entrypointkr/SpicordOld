@@ -40,7 +40,7 @@ public class ChannelHandlerBuilder<T extends MessageChannel> {
         if (supplier == null || handler == null) {
             return EmptyHandler.INSTANCE;
         }
-        return ChannelHandler.of(supplier, handler);
+        return new ChannelHandler<>(supplier, handler);
     }
 
     public void queue(Discord discord) {

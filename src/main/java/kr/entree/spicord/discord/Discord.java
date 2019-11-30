@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.JDABuilder;
 import org.bukkit.plugin.Plugin;
 
 import javax.security.auth.login.LoginException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.logging.Level;
 
 /**
@@ -18,7 +18,7 @@ import java.util.logging.Level;
  */
 public class Discord implements Runnable {
     private final Plugin plugin;
-    private final BlockingQueue<JDAHandler> consumers = new LinkedBlockingQueue<>();
+    private final Queue<JDAHandler> consumers = new ArrayDeque<>();
     @Getter
     private JDA jda = null;
     @Getter
@@ -35,6 +35,7 @@ public class Discord implements Runnable {
             try {
                 preProcess();
                 takeAndNotifyConsumer();
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
@@ -72,12 +73,14 @@ public class Discord implements Runnable {
         }
     }
 
-    private void takeAndNotifyConsumer() throws InterruptedException {
+    private void takeAndNotifyConsumer() {
         if (jda == null) {
-            Thread.sleep(1000);
             return;
         }
-        val consumer = consumers.take();
+        val consumer = consumers.poll();
+        if (consumer == null) {
+            return;
+        }
         try {
             consumer.handle(jda);
         } catch (Exception ex) {

@@ -118,9 +118,12 @@ public class SpicordOperator implements Listener {
         if (!config.isEnabled(featureKey("welcome"))) {
             return;
         }
+        if (e.getUser().isBot()) {
+            return;
+        }
         val parameter = new Parameter().put(e.getUser());
-        e.getDiscord().addTask(ChannelHandler.of(
-                new PrivateChannelOpener(e.getUser().getId()),
+        e.getDiscord().addTask(new ChannelHandler<>(
+                PrivateChannelOpener.of(e.getUser().getId()),
                 config.getMessage("welcome", parameter)
         ));
     }
@@ -134,7 +137,7 @@ public class SpicordOperator implements Listener {
         if (!config.isEnabled(baseKey)) {
             return;
         }
-        val channels = config.getChannelIds(baseKey + ".channel");
+        val channels = config.getChannelIds(baseKey + ".channel", true);
         if (!channels.contains(e.getChannel().toString())) {
             return;
         }
