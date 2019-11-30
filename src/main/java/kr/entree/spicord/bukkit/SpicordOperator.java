@@ -17,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
@@ -89,18 +90,30 @@ public class SpicordOperator implements Listener {
         }
     }
 
-    @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
-        webhookManager.remove(e.getPlayer());
+    private void chat(Player player, String message) {
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (config.isSlowModePlayerChat()) {
+                queueSlowly(player, message);
+            } else {
+                queueNow(player, message);
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent e) {
-        if (config.isSlowModePlayerChat()) {
-            queueSlowly(e.getPlayer(), e.getMessage());
-        } else {
-            queueNow(e.getPlayer(), e.getMessage());
-        }
+        chat(e.getPlayer(), e.getMessage());
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        webhookManager.remove(e.getPlayer());
+        chat(e.getPlayer(), e.getQuitMessage());
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        chat(e.getPlayer(), e.getJoinMessage());
     }
 
     @EventHandler
