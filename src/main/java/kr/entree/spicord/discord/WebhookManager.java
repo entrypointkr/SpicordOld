@@ -27,7 +27,7 @@ import java.util.logging.Level;
  * Created by JunHyung Lim on 2019-11-17
  */
 public class WebhookManager {
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
     private final Map<UUID, WebhookClient> clientByPlayer = new HashMap<>();
     private final Plugin plugin;
 
