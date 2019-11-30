@@ -103,7 +103,7 @@ public class SpicordCommand implements CommandExecutor, TabExecutor {
                 plugin.getVerifiedManager().save(plugin);
                 done(sender);
                 return true;
-            } else if ("reloadverifiy".equals(head)) {
+            } else if ("reloadverify".equals(head)) {
                 plugin.getVerifiedManager().load(plugin);
                 done(sender);
                 return true;
