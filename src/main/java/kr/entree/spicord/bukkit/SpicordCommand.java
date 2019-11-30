@@ -74,39 +74,40 @@ public class SpicordCommand implements CommandExecutor, TabExecutor {
         SpicordConfig config = plugin.getSpicordConfig();
         if (args.length >= 1) {
             String head = args[0].toLowerCase();
-            if ("reload".equals(head)) {
-                plugin.loadConfigs();
-                done(sender);
-                return true;
-            } else if ("send".equals(head)) {
-                if (args.length >= 3) {
-                    val channel = args[1];
-                    val message = StringUtils.join(args, ' ', 2, args.length);
-                    MessageChannelHandler<TextChannel> messageHandler = config.getMessage(message);
-                    if (messageHandler instanceof EmptyMessageChannelHandler) {
-                        messageHandler = new PlainMessage<>(message);
-                    }
-                    val handler = new ChannelHandler<>(
-                            TextChannelSupplier.ofConfigurized(config, channel),
-                            messageHandler
-                    );
-                    discord.addTask(new CompleterBuilder(handler)
-                            .success(() -> addRecentInputChannelId(sender, channel))
-                            .failure(plugin.getLogger())
-                            .build());
+            switch (head) {
+                case "reload":
+                    plugin.loadConfigs();
                     done(sender);
-                } else {
-                    sender.sendMessage(String.format("/%s send (channel) (message)", label));
-                }
-                return true;
-            } else if ("saveverify".equals(head)) {
-                plugin.getVerifiedManager().save(plugin);
-                done(sender);
-                return true;
-            } else if ("reloadverify".equals(head)) {
-                plugin.getVerifiedManager().load(plugin);
-                done(sender);
-                return true;
+                    return true;
+                case "send":
+                    if (args.length >= 3) {
+                        val channel = args[1];
+                        val message = StringUtils.join(args, ' ', 2, args.length);
+                        MessageChannelHandler<TextChannel> messageHandler = config.getMessage(message);
+                        if (messageHandler instanceof EmptyMessageChannelHandler) {
+                            messageHandler = new PlainMessage<>(message);
+                        }
+                        val handler = new ChannelHandler<>(
+                                TextChannelSupplier.ofConfigurized(config, channel),
+                                messageHandler
+                        );
+                        discord.addTask(new CompleterBuilder(handler)
+                                .success(() -> addRecentInputChannelId(sender, channel))
+                                .failure(plugin.getLogger())
+                                .build());
+                        done(sender);
+                    } else {
+                        sender.sendMessage(String.format("/%s send (channel) (message)", label));
+                    }
+                    return true;
+                case "saveverify":
+                    plugin.getVerifiedManager().save(plugin);
+                    done(sender);
+                    return true;
+                case "reloadverify":
+                    plugin.getVerifiedManager().load(plugin);
+                    done(sender);
+                    return true;
             }
         }
         sender.sendMessage(String.format("/%s (reload|send|saveverify|reloadverify)", label));
