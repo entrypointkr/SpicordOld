@@ -1,5 +1,7 @@
 package kr.entree.spicord.config;
 
+import kr.entree.spicord.config.option.ConfigOption;
+import kr.entree.spicord.config.option.getter.NumberGetter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
@@ -15,8 +17,18 @@ public class DataStorage extends PluginConfiguration {
         super(plugin);
     }
 
-    public long getPlayerChatWebhookId() {
-        return getLong("webhook.chat", -1);
+    public ConfigOption<Number> getPlayerChatWebhookId() {
+        String key = "webhook-id";
+        return ConfigOption.of(
+                this,
+                new NumberGetter(key),
+                (config, value) -> {
+                    if (!value.equals(config.get(key))) {
+                        config.set(key, value);
+                        saveAsync();
+                    }
+                }
+        );
     }
 
     @Override

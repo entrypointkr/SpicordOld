@@ -26,8 +26,10 @@ public class PlayerData {
 
     @Override
     public String toString() {
-        return name != null
-                ? id + name
-                : id.toString();
+        StringBuilder builder = new StringBuilder(id.toString());
+        if (name != null) {
+            builder.append('|').append(name);
+        }
+        return builder.toString();
     }
 }

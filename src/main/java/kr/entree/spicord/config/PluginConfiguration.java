@@ -1,6 +1,7 @@
 package kr.entree.spicord.config;
 
 import lombok.experimental.Delegate;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -58,6 +59,14 @@ public abstract class PluginConfiguration implements ConfigurationSection {
         }
     }
 
+    private void write(File file, String contents) {
+        try {
+            writeText(file, contents);
+        } catch (IOException e) {
+            getLogger().log(Level.WARNING, e, () -> "Failed while saving: " + file);
+        }
+    }
+
     public void load() {
         File file = createFile(plugin);
         try {
@@ -71,11 +80,12 @@ public abstract class PluginConfiguration implements ConfigurationSection {
 
     public void save() {
         File file = createFile(plugin);
-        try {
-            String contents = config.saveToString();
-            writeText(file, contents);
-        } catch (IOException e) {
-            getLogger().log(Level.WARNING, e, () -> "Failed while saving: " + file);
-        }
+        write(file, config.saveToString());
+    }
+
+    public void saveAsync() {
+        File file = createFile(plugin);
+        String contents = config.saveToString();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> write(file, contents));
     }
 }

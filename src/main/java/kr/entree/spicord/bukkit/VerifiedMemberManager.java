@@ -67,8 +67,8 @@ public class VerifiedMemberManager {
     }
 
     public void load(Plugin plugin) {
+        File file = createFile(plugin);
         try {
-            File file = createFile(plugin);
             YamlConfiguration config = new YamlConfiguration();
             config.load(file);
             for (String discordId : config.getKeys(false)) {
@@ -78,8 +78,10 @@ public class VerifiedMemberManager {
                     put(discordId, idAndName);
                 }
             }
-        } catch (IOException | InvalidConfigurationException e) {
+        } catch (IOException e) {
             // Ignore
+        } catch (InvalidConfigurationException e) {
+            plugin.getLogger().log(Level.WARNING, e, () -> "Failed while loading: " + file);
         }
     }
 

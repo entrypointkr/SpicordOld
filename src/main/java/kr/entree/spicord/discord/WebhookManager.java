@@ -4,10 +4,11 @@ import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.requests.restaction.WebhookAction;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -17,22 +18,30 @@ public class WebhookManager {
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
     private Webhook cachedWebhook = null;
 
-    public void getClient(TextChannel channel, Consumer<WebhookClient> receiver) {
-        createWebhook(channel, webhook ->
-                receiver.accept(new WebhookClientBuilder(webhook.getUrl())
-                        .setExecutorService(executor)
-                        .build()));
+    private WebhookClient createClient(Webhook webhook) {
+        return new WebhookClientBuilder(webhook.getUrl())
+                .setExecutorService(executor)
+                .build();
     }
 
-    private void createWebhook(TextChannel channel, Consumer<Webhook> receiver) {
-        channel.createWebhook("Spicord").queue(receiver);
+    public void getClient(TextChannel channel, long webhookId, Consumer<WebhookClient> receiver, Consumer<Throwable> failure) {
+        getWebhook(channel, webhookId, webhook -> receiver.accept(createClient(webhook)), failure);
+    }
+
+    private void createWebhook(TextChannel channel, Consumer<Webhook> receiver, @Nullable Consumer<Throwable> failure) {
+        WebhookAction action = channel.createWebhook("Spicord");
+        if (failure != null) {
+            action.queue(receiver, failure);
+        } else {
+            action.queue(receiver);
+        }
     }
 
     public void clearCache() {
         cachedWebhook = null;
     }
 
-    public void getWebhook(TextChannel channel, long webhookId, Consumer<Webhook> receiver) {
+    public void getWebhook(TextChannel channel, long webhookId, Consumer<Webhook> receiver, Consumer<Throwable> failure) {
         if (cachedWebhook != null) {
             receiver.accept(cachedWebhook);
         } else {
@@ -45,20 +54,20 @@ public class WebhookManager {
                             return;
                         }
                     }
-                    createWebhook(channel, receiver);
+                    createWebhook(channel, receiver, failure);
                 });
             } else {
-                createWebhook(channel, receiver);
+                createWebhook(channel, receiver, failure);
             }
         }
     }
 
-    public boolean await() {
-        try {
-            return executor.awaitTermination(15, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+    private boolean await() {
         return false;
+    }
+
+    public boolean interrupt() {
+        executor.shutdownNow();
+        return await();
     }
 }

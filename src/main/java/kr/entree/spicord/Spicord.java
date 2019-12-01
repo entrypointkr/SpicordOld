@@ -62,7 +62,7 @@ public class Spicord extends JavaPlugin {
         awaitDiscordThread();
         interruptDiscordThread();
         getLogger().info("Waiting webhooks...");
-        if (!webhookManager.await()) {
+        if (!webhookManager.interrupt()) {
             getLogger().info("Timeout");
         }
         saveConfigs();
@@ -90,7 +90,7 @@ public class Spicord extends JavaPlugin {
 
     private void initFunctions() {
         registerEvents(
-                new ChatToDiscord(this, discord, spicordConfig, webhookManager),
+                new ChatToDiscord(this, discord, spicordConfig, dataStorage, webhookManager),
                 new DiscordToBukkit(this, spicordConfig),
                 new DiscordToDiscord(spicordConfig, verifiedManager),
                 new BukkitToDiscord(spicordConfig, discord, verifiedManager),

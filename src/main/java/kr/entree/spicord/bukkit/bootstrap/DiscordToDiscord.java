@@ -15,6 +15,7 @@ import lombok.val;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.Nullable;
 
 import static kr.entree.spicord.config.SpicordConfig.featureKey;
 
@@ -45,7 +46,7 @@ public class DiscordToDiscord implements Listener {
         ));
     }
 
-    private void syncName(Discord discord, long guildId, long userId) {
+    private void syncName(Discord discord, long guildId, long userId, @Nullable String newName) {
         if (!config.getVerification().isNameSync()) {
             return;
         }
@@ -59,6 +60,9 @@ public class DiscordToDiscord implements Listener {
             return;
         }
         val name = nameOpt.get();
+        if (name.equals(newName)) {
+            return;
+        }
         discord.addTask(jda -> {
             val guild = jda.getGuildById(guildId);
             if (guild == null) {
@@ -72,17 +76,17 @@ public class DiscordToDiscord implements Listener {
         });
     }
 
-    private void syncName(GuildMemberEvent e) {
-        syncName(e.getDiscord(), e.getGuild().getId(), e.getMember().getId());
+    private void syncName(GuildMemberEvent e, @Nullable String newName) {
+        syncName(e.getDiscord(), e.getGuild().getId(), e.getMember().getId(), newName);
     }
 
     @EventHandler
     public void onNaming(GuildMemberNamingEvent e) {
-        syncName(e);
+        syncName(e, e.getTo());
     }
 
     @EventHandler
     public void onChat(GuildChatEvent e) {
-        syncName(e);
+        syncName(e, null);
     }
 }
