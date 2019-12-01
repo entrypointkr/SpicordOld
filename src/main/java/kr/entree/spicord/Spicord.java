@@ -84,8 +84,6 @@ public class Spicord extends JavaPlugin {
     private void initConfigs() {
         loadConfigs();
         verifiedManager.load(this);
-        val period = 15L * 60L * 20L;
-        Bukkit.getScheduler().runTaskTimer(this, verifiedManager::saveAsync, period, period);
     }
 
     private void initFunctions() {

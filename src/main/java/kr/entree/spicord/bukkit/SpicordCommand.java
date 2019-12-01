@@ -4,12 +4,12 @@ import kr.entree.spicord.Spicord;
 import kr.entree.spicord.config.Lang;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
-import kr.entree.spicord.discord.handler.EmptyMessageChannelHandler;
-import kr.entree.spicord.discord.handler.MessageChannelHandler;
-import kr.entree.spicord.discord.handler.PlainMessage;
-import kr.entree.spicord.discord.supplier.TextChannelSupplier;
-import kr.entree.spicord.discord.task.ChannelHandler;
 import kr.entree.spicord.discord.task.CompleterBuilder;
+import kr.entree.spicord.discord.task.channel.ChannelTask;
+import kr.entree.spicord.discord.task.channel.handler.EmptyMessageChannelHandler;
+import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
+import kr.entree.spicord.discord.task.channel.handler.PlainMessage;
+import kr.entree.spicord.discord.task.channel.supplier.TextChannelSupplier;
 import lombok.val;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.commons.lang.StringUtils;
@@ -87,7 +87,7 @@ public class SpicordCommand implements CommandExecutor, TabExecutor {
                         if (messageHandler instanceof EmptyMessageChannelHandler) {
                             messageHandler = new PlainMessage<>(message);
                         }
-                        val handler = new ChannelHandler<>(
+                        val handler = new ChannelTask<>(
                                 TextChannelSupplier.ofConfigurized(config, channel),
                                 messageHandler
                         );

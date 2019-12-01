@@ -103,8 +103,10 @@ public class PlayerRestricter implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
-            Player damagerPlayer = ((Player) e.getDamager());
-            tryRestrict(damagerPlayer, e, RestrictType.PVP);
+            tryRestrict((Player) e.getDamager(), e, RestrictType.PVP);
+        }
+        if (e.getEntity() instanceof Player) {
+            tryRestrict((Player) e.getEntity(), e, RestrictType.PVP);
         }
     }
 }

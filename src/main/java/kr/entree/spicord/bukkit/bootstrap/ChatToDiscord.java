@@ -60,12 +60,12 @@ public class ChatToDiscord implements Listener {
     private void failedWebhook(Throwable throwable, Player player, String message) {
         plugin.getLogger().log(Level.SEVERE, throwable, () ->
                 "Failed creating webhook. This feature will be disabled.");
-        config.isFakeProfilePlayerChat().set(false);
+        config.getFakeProfilePlayerChat().set(false);
         sendPlainMessage(player, message);
     }
 
     private void queueNow(Player player, String message) {
-        if (config.isFakeProfilePlayerChat().get()) {
+        if (config.getFakeProfilePlayerChat().isTrue()) {
             val builder = new WebhookMessageBuilder()
                     .setUsername(player.getName())
                     .setAvatarUrl(createAvatarUrl(player.getUniqueId()))
@@ -80,6 +80,7 @@ public class ChatToDiscord implements Listener {
         } else {
             sendPlainMessage(player, message);
         }
+
     }
 
     private void cancelTask() {

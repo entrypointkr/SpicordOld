@@ -38,6 +38,10 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 
+compileJava {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+
 processResources {
     filteringCharset = 'UTF-8'
     from(sourceSets.main.resources.srcDirs) {

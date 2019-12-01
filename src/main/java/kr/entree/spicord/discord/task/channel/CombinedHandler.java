@@ -1,4 +1,4 @@
-package kr.entree.spicord.discord.task;
+package kr.entree.spicord.discord.task.channel;
 
 import kr.entree.spicord.discord.JDAHandler;
 import net.dv8tion.jda.api.JDA;

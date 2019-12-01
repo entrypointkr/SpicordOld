@@ -1,18 +1,20 @@
 package kr.entree.spicord.config;
 
 import kr.entree.spicord.Spicord;
-import kr.entree.spicord.config.option.ConfigOption;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.EmptyHandler;
 import kr.entree.spicord.discord.JDAHandler;
-import kr.entree.spicord.discord.handler.CombinedMessage;
-import kr.entree.spicord.discord.handler.EmbedMessage;
-import kr.entree.spicord.discord.handler.EmptyMessageChannelHandler;
-import kr.entree.spicord.discord.handler.MessageChannelHandler;
-import kr.entree.spicord.discord.handler.PlainMessage;
-import kr.entree.spicord.discord.supplier.TextChannelSupplier;
-import kr.entree.spicord.discord.task.ChannelHandler;
-import kr.entree.spicord.discord.task.CombinedHandler;
+import kr.entree.spicord.discord.task.channel.ChannelTask;
+import kr.entree.spicord.discord.task.channel.CombinedHandler;
+import kr.entree.spicord.discord.task.channel.handler.CombinedMessage;
+import kr.entree.spicord.discord.task.channel.handler.EmbedMessage;
+import kr.entree.spicord.discord.task.channel.handler.EmptyMessageChannelHandler;
+import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
+import kr.entree.spicord.discord.task.channel.handler.PlainMessage;
+import kr.entree.spicord.discord.task.channel.supplier.TextChannelSupplier;
+import kr.entree.spicord.option.BooleanOption;
+import kr.entree.spicord.option.NumberOption;
+import kr.entree.spicord.option.config.ConfigOption;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -78,12 +80,12 @@ public class SpicordConfig extends PluginConfiguration {
         return getBoolean(key + ".enabled", true);
     }
 
-    public String getGuild() {
-        return getString("guild");
+    public NumberOption getGuild() {
+        return new NumberOption(ConfigOption.ofNumber(this, "guild"));
     }
 
     public Guild getGuild(JDA jda) {
-        return jda.getGuildById(getGuild());
+        return jda.getGuildById(getGuild().getLong());
     }
 
     public Set<String> getChannelIds(String key, boolean remap) {
@@ -152,7 +154,7 @@ public class SpicordConfig extends PluginConfiguration {
         Set<String> channels = getChannelIds(id + ".channel", false);
         CombinedHandler combined = new CombinedHandler();
         for (String channel : channels) {
-            combined.add(new ChannelHandler<>(
+            combined.add(new ChannelTask<>(
                     TextChannelSupplier.ofConfigurized(this, channel),
                     handler
             ));
@@ -226,8 +228,8 @@ public class SpicordConfig extends PluginConfiguration {
         return getBoolean(featureKey("player-chat.slow-mode"));
     }
 
-    public ConfigOption<Boolean> isFakeProfilePlayerChat() {
-        return ConfigOption.ofBoolean(this, featureKey("player-chat.fake-profile"));
+    public BooleanOption getFakeProfilePlayerChat() {
+        return new BooleanOption(ConfigOption.ofBoolean(this, featureKey("player-chat.fake-profile")));
     }
 
     public MinecraftChat getDiscordChat() {
@@ -339,9 +341,9 @@ public class SpicordConfig extends PluginConfiguration {
                     String field = obj.toString();
                     String[] values = field.split("\\|");
                     String name = values[0];
-                    String value = values.length >= 2 ? values[1] : null;
+                    String value = values.length >= 2 ? parameter.format(values[1]) : null;
                     boolean inline = values.length >= 3 && parseBoolean(values[2], false);
-                    ret.add(new MessageEmbed.Field(parameter.format(name), parameter.format(value), inline));
+                    ret.add(new MessageEmbed.Field(parameter.format(name), value, inline));
                 }
             }
             return ret;

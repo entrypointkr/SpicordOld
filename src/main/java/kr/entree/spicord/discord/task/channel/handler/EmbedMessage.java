@@ -1,4 +1,4 @@
-package kr.entree.spicord.discord.handler;
+package kr.entree.spicord.discord.task.channel.handler;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;

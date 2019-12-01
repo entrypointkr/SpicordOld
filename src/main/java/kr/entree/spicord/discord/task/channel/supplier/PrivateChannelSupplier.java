@@ -1,6 +1,8 @@
-package kr.entree.spicord.discord.supplier;
+package kr.entree.spicord.discord.task.channel.supplier;
 
 import kr.entree.spicord.discord.ChannelSupplier;
+import kr.entree.spicord.discord.exception.NoChannelFoundException;
+import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 
@@ -27,6 +29,11 @@ public class PrivateChannelSupplier implements ChannelSupplier<PrivateChannel> {
 
     @Override
     public void get(JDA jda, Consumer<PrivateChannel> consumer) {
-        consumer.accept(jda.getPrivateChannelById(supplier.get()));
+        val id = supplier.get();
+        val channel = jda.getPrivateChannelById(id);
+        if (channel == null) {
+            throw new NoChannelFoundException(id);
+        }
+        consumer.accept(jda.getPrivateChannelById(id));
     }
 }

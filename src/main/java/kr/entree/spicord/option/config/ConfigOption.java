@@ -1,14 +1,15 @@
-package kr.entree.spicord.config.option;
+package kr.entree.spicord.option.config;
 
-import kr.entree.spicord.config.option.getter.BooleanGetter;
-import kr.entree.spicord.config.option.getter.NumberGetter;
-import kr.entree.spicord.config.option.setter.NormalSetter;
+import kr.entree.spicord.option.Option;
+import kr.entree.spicord.option.config.getter.BooleanGetter;
+import kr.entree.spicord.option.config.getter.NumberGetter;
+import kr.entree.spicord.option.config.setter.NormalSetter;
 import org.bukkit.configuration.ConfigurationSection;
 
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
-public class ConfigOption<T> {
+public class ConfigOption<T> implements Option<T> {
     private final ConfigurationSection section;
     private final ConfigGetter<T> getter;
     private final ConfigSetter<T> setter;
@@ -35,10 +36,12 @@ public class ConfigOption<T> {
         return of(section, new BooleanGetter(key), key);
     }
 
+    @Override
     public T get() {
         return getter.get(section);
     }
 
+    @Override
     public void set(T value) {
         setter.set(section, value);
     }

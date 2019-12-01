@@ -4,7 +4,7 @@ import kr.entree.spicord.config.Lang;
 import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
-import kr.entree.spicord.discord.handler.MessageChannelHandler;
+import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;

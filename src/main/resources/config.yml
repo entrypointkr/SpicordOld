@@ -82,8 +82,8 @@ verification:
   enabled: true
   channel: verify
   command: "!인증"
-  expire-seconds: 15
-  cooldown-seconds: 30
+  expire-seconds: 20
+  cooldown-seconds: 40
   before:
     player-restrict:
       - chat

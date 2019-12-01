@@ -1,4 +1,4 @@
-package kr.entree.spicord.config.option.getter;
+package kr.entree.spicord.option.config.getter;
 
 import lombok.val;
 import org.apache.commons.lang.math.NumberUtils;

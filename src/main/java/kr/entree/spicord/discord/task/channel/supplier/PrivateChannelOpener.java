@@ -1,6 +1,7 @@
-package kr.entree.spicord.discord.supplier;
+package kr.entree.spicord.discord.task.channel.supplier;
 
 import kr.entree.spicord.discord.ChannelSupplier;
+import kr.entree.spicord.discord.exception.NoUserFoundException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -34,10 +35,9 @@ public class PrivateChannelOpener implements ChannelSupplier<PrivateChannel> {
     public void get(JDA jda, Consumer<PrivateChannel> consumer) {
         long id = supplier.getAsLong();
         User user = jda.getUserById(id);
-        if (user != null) {
-            user.openPrivateChannel().queue(consumer);
-        } else {
-            throw new IllegalArgumentException("Unknown user id: " + id);
+        if (user == null) {
+            throw new NoUserFoundException(id);
         }
+        user.openPrivateChannel().queue(consumer);
     }
 }

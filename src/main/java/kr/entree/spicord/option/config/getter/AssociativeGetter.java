@@ -1,6 +1,6 @@
-package kr.entree.spicord.config.option.getter;
+package kr.entree.spicord.option.config.getter;
 
-import kr.entree.spicord.config.option.ConfigGetter;
+import kr.entree.spicord.option.config.ConfigGetter;
 import org.bukkit.configuration.ConfigurationSection;
 
 /**

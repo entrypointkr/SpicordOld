@@ -71,6 +71,7 @@ public class VerifiedMemberManager {
         try {
             YamlConfiguration config = new YamlConfiguration();
             config.load(file);
+            clear();
             for (String discordId : config.getKeys(false)) {
                 Object val = config.get(discordId);
                 if (val != null) {
@@ -113,6 +114,11 @@ public class VerifiedMemberManager {
     public void put(Long discordUser, PlayerData mcUser) {
         mcByDiscord.put(discordUser, mcUser);
         discordByMc.put(mcUser.getId(), discordUser);
+    }
+
+    public void clear() {
+        mcByDiscord.clear();
+        discordByMc.clear();
     }
 
     @Nullable

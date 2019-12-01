@@ -1,7 +1,8 @@
-package kr.entree.spicord.discord.supplier;
+package kr.entree.spicord.discord.task.channel.supplier;
 
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.ChannelSupplier;
+import kr.entree.spicord.discord.exception.NoChannelFoundException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -23,7 +24,7 @@ public class TextChannelSupplier implements ChannelSupplier<TextChannel> {
         String id = supplier.get();
         TextChannel channel = jda.getTextChannelById(id);
         if (channel == null) {
-            throw new IllegalArgumentException("Unknown channel id: " + id);
+            throw new NoChannelFoundException(id);
         }
         consumer.accept(channel);
     }

@@ -1,4 +1,4 @@
-package kr.entree.spicord.discord.task;
+package kr.entree.spicord.discord.task.channel;
 
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
@@ -6,7 +6,7 @@ import kr.entree.spicord.discord.ChannelSupplier;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.EmptyHandler;
 import kr.entree.spicord.discord.JDAHandler;
-import kr.entree.spicord.discord.handler.MessageChannelHandler;
+import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +40,7 @@ public class ChannelHandlerBuilder<T extends MessageChannel> {
         if (supplier == null || handler == null) {
             return EmptyHandler.INSTANCE;
         }
-        return new ChannelHandler<>(supplier, handler);
+        return new ChannelTask<>(supplier, handler);
     }
 
     public void queue(Discord discord) {

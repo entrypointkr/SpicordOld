@@ -1,6 +1,9 @@
 package kr.entree.spicord.discord;
 
 import kr.entree.spicord.bukkit.DiscordEventToBukkit;
+import kr.entree.spicord.discord.exception.NoChannelFoundException;
+import kr.entree.spicord.discord.exception.NoGuildFoundException;
+import kr.entree.spicord.discord.exception.NoUserFoundException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
@@ -9,6 +12,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import org.bukkit.plugin.Plugin;
 
 import javax.security.auth.login.LoginException;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Level;
@@ -44,8 +48,8 @@ public class Discord implements Runnable {
         shutdownJDA();
     }
 
-    public void addTask(JDAHandler consumer) {
-        consumers.add(consumer);
+    public void addTask(JDAHandler... consumers) {
+        this.consumers.addAll(Arrays.asList(consumers));
     }
 
     private void shutdownJDA() {
@@ -81,10 +85,17 @@ public class Discord implements Runnable {
         if (consumer == null) {
             return;
         }
+        val logger = plugin.getLogger();
         try {
             consumer.handle(jda);
+        } catch (NoGuildFoundException ex) {
+            logger.log(Level.WARNING, "Unknown guild id: {0}", ex.getGuildId());
+        } catch (NoChannelFoundException ex) {
+            logger.log(Level.WARNING, "Unknown channel id: {0}", ex.getChannelId());
+        } catch (NoUserFoundException ex) {
+            logger.log(Level.WARNING, "Unknown user id: {0}", ex.getUserId());
         } catch (Exception ex) {
-            plugin.getLogger().log(Level.WARNING, ex, () -> "Exception");
+            logger.log(Level.WARNING, ex, () -> "Exception!");
         }
     }
 }

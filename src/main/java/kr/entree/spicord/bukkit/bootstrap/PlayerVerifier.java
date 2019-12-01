@@ -13,12 +13,14 @@ import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.config.VerificationConfig;
 import kr.entree.spicord.discord.Discord;
-import kr.entree.spicord.discord.supplier.PrivateChannelOpener;
-import kr.entree.spicord.discord.task.ChannelHandler;
-import kr.entree.spicord.discord.task.ChannelHandlerBuilder;
+import kr.entree.spicord.discord.task.channel.ChannelHandlerBuilder;
+import kr.entree.spicord.discord.task.channel.ChannelTask;
+import kr.entree.spicord.discord.task.channel.supplier.PrivateChannelOpener;
+import kr.entree.spicord.discord.task.guild.handler.AddRole;
+import kr.entree.spicord.discord.task.guild.handler.GuildMemberHandler;
+import kr.entree.spicord.discord.task.guild.handler.Rename;
 import lombok.val;
 import net.dv8tion.jda.api.entities.PrivateChannel;
-import net.dv8tion.jda.api.entities.Role;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -164,31 +166,27 @@ public class PlayerVerifier implements Listener {
                 .put(player);
         if (verification.match(e.getMessage().toLowerCase())) {
             manager.put(user.getId(), new PlayerData(verification.getUuid()).name(player.getName()));
+            manager.saveAsync();
             Bukkit.getScheduler().runTask(plugin, () -> {
                 player.sendMessage(langConfig.format(Lang.VERIFY_SUCCESS, parameter));
                 getConfig().executeCommands(Bukkit.getConsoleSender(), parameter);
             });
-            verification.getDiscord().addTask(new ChannelHandler<>(
-                    PrivateChannelOpener.of(user.getId()),
-                    config.getMessage("verify-success", parameter)
-            ));
-            verification.getDiscord().addTask(jda -> {
-                val guild = config.getGuild(jda);
-                if (guild == null) {
-                    return;
-                }
-                val roles = getConfig().getDiscordRoles(guild);
-                val member = guild.getMemberById(verification.getUser().getId());
-                if (member == null) {
-                    return;
-                }
-                for (Role role : roles) {
-                    guild.addRoleToMember(member, role).queue();
-                }
-            });
+            verification.getDiscord().addTask(
+                    new ChannelTask<>(
+                            PrivateChannelOpener.of(user.getId()),
+                            config.getMessage("verify-success", parameter)
+                    ),
+                    GuildMemberHandler.createTask(
+                            config.getGuild().getLong(),
+                            verification.getUser().getId(),
+                            new AddRole(getConfig()::getDiscordRoles),
+                            new Rename(player.getName())
+                    )
+            );
+            verification.getDiscord().addTask();
             e.setCancelled(true);
         } else {
-            verification.getDiscord().addTask(new ChannelHandler<>(
+            verification.getDiscord().addTask(new ChannelTask<>(
                     PrivateChannelOpener.of(user.getId()),
                     config.getMessage("verify-failed", parameter)
             ));

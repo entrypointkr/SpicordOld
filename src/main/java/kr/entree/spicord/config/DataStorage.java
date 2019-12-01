@@ -1,7 +1,7 @@
 package kr.entree.spicord.config;
 
-import kr.entree.spicord.config.option.ConfigOption;
-import kr.entree.spicord.config.option.getter.NumberGetter;
+import kr.entree.spicord.option.config.ConfigOption;
+import kr.entree.spicord.option.config.getter.NumberGetter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 

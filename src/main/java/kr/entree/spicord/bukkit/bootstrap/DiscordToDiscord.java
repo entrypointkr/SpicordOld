@@ -9,8 +9,10 @@ import kr.entree.spicord.bukkit.util.Compatibles;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
-import kr.entree.spicord.discord.supplier.PrivateChannelOpener;
-import kr.entree.spicord.discord.task.ChannelHandler;
+import kr.entree.spicord.discord.task.channel.ChannelTask;
+import kr.entree.spicord.discord.task.channel.supplier.PrivateChannelOpener;
+import kr.entree.spicord.discord.task.guild.handler.GuildMemberHandler;
+import kr.entree.spicord.discord.task.guild.handler.Rename;
 import lombok.val;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
@@ -40,7 +42,7 @@ public class DiscordToDiscord implements Listener {
             return;
         }
         val parameter = new Parameter().put(e.getUser());
-        e.getDiscord().addTask(new ChannelHandler<>(
+        e.getDiscord().addTask(new ChannelTask<>(
                 PrivateChannelOpener.of(e.getUser().getId()),
                 config.getMessage("welcome", parameter)
         ));
@@ -63,17 +65,7 @@ public class DiscordToDiscord implements Listener {
         if (name.equals(newName)) {
             return;
         }
-        discord.addTask(jda -> {
-            val guild = jda.getGuildById(guildId);
-            if (guild == null) {
-                return;
-            }
-            val member = guild.getMemberById(userId);
-            if (member == null) {
-                return;
-            }
-            member.modifyNickname(name).queue();
-        });
+        discord.addTask(GuildMemberHandler.createTask(guildId, userId, new Rename(name)));
     }
 
     private void syncName(GuildMemberEvent e, @Nullable String newName) {
