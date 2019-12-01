@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 /**
  * Created by JunHyung Lim on 2019-11-16
  */
-public class EmbedMessage<T extends MessageChannel> extends RestActor<T> {
+public class EmbedMessage<T extends MessageChannel> extends RestActor<T, Message> {
     private final MessageEmbed message;
 
     public EmbedMessage(MessageEmbed message) {

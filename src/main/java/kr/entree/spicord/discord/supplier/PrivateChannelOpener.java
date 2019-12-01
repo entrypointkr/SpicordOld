@@ -6,19 +6,19 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
 
 /**
  * Created by JunHyung Lim on 2019-11-24
  */
 public class PrivateChannelOpener implements ChannelSupplier<PrivateChannel> {
-    private final Supplier<Long> supplier;
+    private final LongSupplier supplier;
 
-    public PrivateChannelOpener(Supplier<Long> supplier) {
+    public PrivateChannelOpener(LongSupplier supplier) {
         this.supplier = supplier;
     }
 
-    public static PrivateChannelOpener of(Supplier<Long> supplier) {
+    public static PrivateChannelOpener of(LongSupplier supplier) {
         return new PrivateChannelOpener(supplier);
     }
 
@@ -32,7 +32,7 @@ public class PrivateChannelOpener implements ChannelSupplier<PrivateChannel> {
 
     @Override
     public void get(JDA jda, Consumer<PrivateChannel> consumer) {
-        Long id = supplier.get();
+        long id = supplier.getAsLong();
         User user = jda.getUserById(id);
         if (user != null) {
             user.openPrivateChannel().queue(consumer);

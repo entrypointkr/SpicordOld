@@ -1,8 +1,6 @@
 package kr.entree.spicord.config;
 
 import lombok.Getter;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
