@@ -1,24 +1,20 @@
-package kr.entree.spicord.bukkit;
+package kr.entree.spicord.bukkit.bootstrap;
 
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.discord.BukkitMessage;
-import kr.entree.spicord.bukkit.event.GuildChatEvent;
-import kr.entree.spicord.bukkit.event.GuildJoinEvent;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.WebhookManager;
-import kr.entree.spicord.discord.supplier.PrivateChannelOpener;
-import kr.entree.spicord.discord.task.ChannelHandler;
 import lombok.val;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -28,7 +24,7 @@ import static kr.entree.spicord.config.SpicordConfig.featureKey;
 /**
  * Created by JunHyung Lim on 2019-11-17
  */
-public class SpicordOperator implements Listener {
+public class DiscordChatToBukkit implements Listener {
     private final Plugin plugin;
     private final Discord discord;
     private final SpicordConfig config;
@@ -38,7 +34,7 @@ public class SpicordOperator implements Listener {
     private BukkitTask task = null;
     private long lastFlushTime = 0;
 
-    public SpicordOperator(Plugin plugin, Discord discord, SpicordConfig config, WebhookManager webhookManager) {
+    public DiscordChatToBukkit(Plugin plugin, Discord discord, SpicordConfig config, WebhookManager webhookManager) {
         this.plugin = plugin;
         this.discord = discord;
         this.config = config;
@@ -92,10 +88,11 @@ public class SpicordOperator implements Listener {
 
     private void chat(Player player, String message) {
         Bukkit.getScheduler().runTask(plugin, () -> {
+            String uncolored = ChatColor.stripColor(message);
             if (config.isSlowModePlayerChat()) {
-                queueSlowly(player, message);
+                queueSlowly(player, uncolored);
             } else {
-                queueNow(player, message);
+                queueNow(player, uncolored);
             }
         });
     }
@@ -105,57 +102,22 @@ public class SpicordOperator implements Listener {
         chat(e.getPlayer(), e.getMessage());
     }
 
-    @EventHandler
+    private boolean isJoinQuitEnabled() {
+        return config.getBoolean(featureKey("player-chat.join-quit"));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent e) {
-        webhookManager.remove(e.getPlayer());
-        chat(e.getPlayer(), e.getQuitMessage());
+        if (isJoinQuitEnabled()) {
+            webhookManager.remove(e.getPlayer());
+            chat(e.getPlayer(), e.getQuitMessage());
+        }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent e) {
-        chat(e.getPlayer(), e.getJoinMessage());
-    }
-
-    @EventHandler
-    public void onKick(PlayerKickEvent e) {
-        Player player = e.getPlayer();
-        discord.addTask(config.getSendMessage(
-                "player-kick",
-                new Parameter().put(player)
-                        .put("%reason%", e.getReason())
-        ));
-    }
-
-    @EventHandler
-    public void onGuildJoin(GuildJoinEvent e) {
-        if (!config.isEnabled(featureKey("welcome"))) {
-            return;
+        if (isJoinQuitEnabled()) {
+            chat(e.getPlayer(), e.getJoinMessage());
         }
-        if (e.getUser().isBot()) {
-            return;
-        }
-        val parameter = new Parameter().put(e.getUser());
-        e.getDiscord().addTask(new ChannelHandler<>(
-                PrivateChannelOpener.of(e.getUser().getId()),
-                config.getMessage("welcome", parameter)
-        ));
-    }
-
-    @EventHandler
-    public void onGuildChat(GuildChatEvent e) {
-        if (e.getAuthor().isBot()) {
-            return;
-        }
-        String baseKey = featureKey("discord-chat");
-        if (!config.isEnabled(baseKey)) {
-            return;
-        }
-        val channels = config.getChannelIds(baseKey + ".channel", true);
-        if (!channels.contains(e.getChannel().toString())) {
-            return;
-        }
-        val discordChat = config.getDiscordChat();
-        Bukkit.getScheduler().runTask(plugin, () ->
-                discordChat.send(e.getMember().getName(), e.getMessage().getContents()));
     }
 }

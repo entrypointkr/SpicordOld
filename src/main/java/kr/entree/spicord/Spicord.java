@@ -1,10 +1,13 @@
 package kr.entree.spicord;
 
-import kr.entree.spicord.bukkit.PlayerRestricter;
-import kr.entree.spicord.bukkit.PlayerVerifier;
 import kr.entree.spicord.bukkit.SpicordCommand;
-import kr.entree.spicord.bukkit.SpicordOperator;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
+import kr.entree.spicord.bukkit.bootstrap.BukkitToDiscord;
+import kr.entree.spicord.bukkit.bootstrap.DiscordChatToBukkit;
+import kr.entree.spicord.bukkit.bootstrap.DiscordToBukkit;
+import kr.entree.spicord.bukkit.bootstrap.DiscordToDiscord;
+import kr.entree.spicord.bukkit.bootstrap.PlayerRestricter;
+import kr.entree.spicord.bukkit.bootstrap.PlayerVerifier;
 import kr.entree.spicord.bukkit.util.Compatibles;
 import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.Parameter;
@@ -82,7 +85,10 @@ public class Spicord extends JavaPlugin {
 
     private void initFunctions() {
         registerEvents(
-                new SpicordOperator(this, discord, spicordConfig, webhookManager),
+                new DiscordChatToBukkit(this, discord, spicordConfig, webhookManager),
+                new DiscordToBukkit(this, spicordConfig),
+                new DiscordToDiscord(spicordConfig),
+                new BukkitToDiscord(spicordConfig, discord),
                 new PlayerVerifier(this, spicordConfig, langConfig, verifiedManager),
                 new PlayerRestricter(verifiedManager, spicordConfig, langConfig)
         );

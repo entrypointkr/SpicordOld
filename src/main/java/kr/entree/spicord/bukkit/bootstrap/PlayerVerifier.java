@@ -1,5 +1,7 @@
-package kr.entree.spicord.bukkit;
+package kr.entree.spicord.bukkit.bootstrap;
 
+import kr.entree.spicord.bukkit.Verification;
+import kr.entree.spicord.bukkit.VerifiedMemberManager;
 import kr.entree.spicord.bukkit.event.GuildChatEvent;
 import kr.entree.spicord.bukkit.event.PrivateChatEvent;
 import kr.entree.spicord.bukkit.structure.Message;

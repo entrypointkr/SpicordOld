@@ -1,5 +1,6 @@
-package kr.entree.spicord.bukkit;
+package kr.entree.spicord.bukkit.bootstrap;
 
+import kr.entree.spicord.bukkit.VerifiedMemberManager;
 import kr.entree.spicord.bukkit.restrict.RestrictType;
 import kr.entree.spicord.bukkit.util.CooldownMap;
 import kr.entree.spicord.config.Lang;

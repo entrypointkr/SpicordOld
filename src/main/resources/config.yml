@@ -1,9 +1,11 @@
+# 설정 영상 https://youtu.be/k2KegzmZOPU
 token: "Input your bot token"
 guild: "Guild ID"
 channels:
   announce: "Channel ID"
   chat: "Channel ID"
   verify: "Channel ID"
+  # ... 원하는 채널 계속 추가 가능
 messages:
   welcome:
     # 임베드 형식, 참고: https://cog-creators.github.io/discord-embed-sandbox/
@@ -47,6 +49,7 @@ messages:
   verify-success: "인증되었습니다! 연동 계정: **%discord%**"
   verify-failed: "인증에 실패했습니다. 다시 시도해주세요"
   verify-cooldown: "%seconds% 초 후 다시 시도해주세요."
+  # ... 원하는 메세지 계속 추가 가능
 features:
   welcome:
     enabled: true
@@ -59,16 +62,17 @@ features:
     enabled: true
     channel: announce
     message: server-off
+  player-kick:
+    enabled: true
+    channel: announce
+    message: player-kick
   player-chat:
     enabled: true
     channel: chat
     slow-mode: true
     fake-profile: true
+    join-quit: true
     message: player-chat
-  player-kick:
-    enabled: true
-    channel: announce
-    message: player-kick
   discord-chat:
     enabled: true
     channel: chat
@@ -87,6 +91,7 @@ verification:
       - pvp
       - move
   after:
+    name-sync: false
     discord-role:
       - verified
     command:
