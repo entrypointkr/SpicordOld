@@ -4,11 +4,13 @@ import kr.entree.spicord.bukkit.event.GuildBoostEvent;
 import kr.entree.spicord.bukkit.event.GuildChatEvent;
 import kr.entree.spicord.bukkit.event.GuildJoinEvent;
 import kr.entree.spicord.bukkit.event.GuildLeaveEvent;
+import kr.entree.spicord.bukkit.event.GuildMemberNamingEvent;
 import kr.entree.spicord.bukkit.event.PrivateChatEvent;
 import kr.entree.spicord.discord.Discord;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -59,5 +61,10 @@ public class DiscordEventToBukkit extends ListenerAdapter {
     @Override
     public void onPrivateMessageReceived(@Nonnull PrivateMessageReceivedEvent event) {
         callEvent(PrivateChatEvent.from(discord, event));
+    }
+
+    @Override
+    public void onGuildMemberUpdateNickname(@Nonnull GuildMemberUpdateNicknameEvent event) {
+        callEvent(GuildMemberNamingEvent.from(discord, event));
     }
 }
