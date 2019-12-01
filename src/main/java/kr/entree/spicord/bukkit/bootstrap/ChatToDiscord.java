@@ -38,7 +38,6 @@ public class ChatToDiscord implements Listener {
     private Player last = null;
     private BukkitTask task = null;
     private long lastFlushTime = 0;
-    private boolean forcePlainMessage = false;
 
     public ChatToDiscord(Plugin plugin, Discord discord, SpicordConfig config, DataStorage storage, WebhookManager manager) {
         this.plugin = plugin;
@@ -61,12 +60,12 @@ public class ChatToDiscord implements Listener {
     private void failedWebhook(Throwable throwable, Player player, String message) {
         plugin.getLogger().log(Level.SEVERE, throwable, () ->
                 "Failed creating webhook. This feature will be disabled.");
-        forcePlainMessage = true;
+        config.isFakeProfilePlayerChat().set(false);
         sendPlainMessage(player, message);
     }
 
     private void queueNow(Player player, String message) {
-        if (!forcePlainMessage && config.isFakeProfilePlayerChat()) {
+        if (config.isFakeProfilePlayerChat().get()) {
             val builder = new WebhookMessageBuilder()
                     .setUsername(player.getName())
                     .setAvatarUrl(createAvatarUrl(player.getUniqueId()))

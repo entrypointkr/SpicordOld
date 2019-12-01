@@ -1,6 +1,5 @@
 package kr.entree.spicord.config.option.getter;
 
-import kr.entree.spicord.config.option.ConfigGetter;
 import lombok.val;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.configuration.ConfigurationSection;
@@ -8,15 +7,13 @@ import org.bukkit.configuration.ConfigurationSection;
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
-public class NumberGetter implements ConfigGetter<Number> {
-    private final String key;
-
+public class NumberGetter extends AssociativeGetter<Number> {
     public NumberGetter(String key) {
-        this.key = key;
+        super(key);
     }
 
     @Override
-    public Number get(ConfigurationSection config) {
+    public Number get(ConfigurationSection config, String key) {
         val value = config.get(key);
         if (value instanceof Number) {
             return ((Number) value);

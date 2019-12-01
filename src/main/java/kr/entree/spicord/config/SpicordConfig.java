@@ -1,6 +1,7 @@
 package kr.entree.spicord.config;
 
 import kr.entree.spicord.Spicord;
+import kr.entree.spicord.config.option.ConfigOption;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.EmptyHandler;
 import kr.entree.spicord.discord.JDAHandler;
@@ -225,8 +226,8 @@ public class SpicordConfig extends PluginConfiguration {
         return getBoolean(featureKey("player-chat.slow-mode"));
     }
 
-    public boolean isFakeProfilePlayerChat() {
-        return getBoolean(featureKey("player-chat.fake-profile"));
+    public ConfigOption<Boolean> isFakeProfilePlayerChat() {
+        return ConfigOption.ofBoolean(this, featureKey("player-chat.fake-profile"));
     }
 
     public MinecraftChat getDiscordChat() {
