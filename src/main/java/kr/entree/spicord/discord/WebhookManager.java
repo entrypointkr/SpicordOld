@@ -66,7 +66,7 @@ public class WebhookManager {
         return false;
     }
 
-    public boolean interrupt() {
+    public boolean stop() {
         executor.shutdownNow();
         return await();
     }

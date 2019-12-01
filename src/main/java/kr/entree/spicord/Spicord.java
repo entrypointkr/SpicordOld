@@ -60,9 +60,9 @@ public class Spicord extends JavaPlugin {
     public void onDisable() {
         getLogger().info("Waiting discord thread...");
         awaitDiscordThread();
-        interruptDiscordThread();
+        stopDiscordThread();
         getLogger().info("Waiting webhooks...");
-        if (!webhookManager.interrupt()) {
+        if (!webhookManager.stop()) {
             getLogger().info("Timeout");
         }
         saveConfigs();
@@ -133,7 +133,7 @@ public class Spicord extends JavaPlugin {
         }
     }
 
-    private void interruptDiscordThread() {
+    private void stopDiscordThread() {
         discordThread.interrupt();
         try {
             discordThread.join();
