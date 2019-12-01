@@ -14,7 +14,7 @@ import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
-import kr.entree.spicord.discord.WebhookFactory;
+import kr.entree.spicord.discord.WebhookManager;
 import kr.entree.spicord.discord.task.CompleterBuilder;
 import lombok.Getter;
 import lombok.val;
@@ -44,7 +44,7 @@ public class Spicord extends JavaPlugin {
     @Getter
     private final Discord discord = new Discord(this);
     @Getter
-    private final WebhookFactory webhookFactory = new WebhookFactory();
+    private final WebhookManager webhookManager = new WebhookManager();
     private final Thread discordThread = new Thread(discord, "SpicordThread");
 
     @Override
@@ -62,7 +62,7 @@ public class Spicord extends JavaPlugin {
         awaitDiscordThread();
         interruptDiscordThread();
         getLogger().info("Waiting webhooks...");
-        if (!webhookFactory.await()) {
+        if (!webhookManager.await()) {
             getLogger().info("Timeout");
         }
         saveConfigs();
@@ -90,7 +90,7 @@ public class Spicord extends JavaPlugin {
 
     private void initFunctions() {
         registerEvents(
-                new ChatToDiscord(this, discord, spicordConfig, webhookFactory),
+                new ChatToDiscord(this, discord, spicordConfig, webhookManager),
                 new DiscordToBukkit(this, spicordConfig),
                 new DiscordToDiscord(spicordConfig, verifiedManager),
                 new BukkitToDiscord(spicordConfig, discord, verifiedManager),

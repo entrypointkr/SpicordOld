@@ -6,7 +6,7 @@ import kr.entree.spicord.bukkit.discord.WebMessage;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
-import kr.entree.spicord.discord.WebhookFactory;
+import kr.entree.spicord.discord.WebhookManager;
 import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -29,17 +29,17 @@ public class ChatToDiscord implements Listener {
     private final Plugin plugin;
     private final Discord discord;
     private final SpicordConfig config;
-    private final WebhookFactory factory;
+    private final WebhookManager manager;
     private final StringBuilder builder = new StringBuilder();
     private Player last = null;
     private BukkitTask task = null;
     private long lastFlushTime = 0;
 
-    public ChatToDiscord(Plugin plugin, Discord discord, SpicordConfig config, WebhookFactory factory) {
+    public ChatToDiscord(Plugin plugin, Discord discord, SpicordConfig config, WebhookManager manager) {
         this.plugin = plugin;
         this.discord = discord;
         this.config = config;
-        this.factory = factory;
+        this.manager = manager;
     }
 
     public static String createAvatarUrl(Object uuid) {
@@ -52,7 +52,7 @@ public class ChatToDiscord implements Listener {
                     .setUsername(player.getName())
                     .setAvatarUrl(createAvatarUrl(player.getUniqueId()))
                     .setContent(message);
-            val sendMessage = new WebMessage(factory, builder.build());
+            val sendMessage = new WebMessage(manager, builder.build());
             discord.addTask(config.getSendMessage("player-chat", sendMessage));
         } else {
             val parameter = new Parameter().put(player)

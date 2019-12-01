@@ -128,9 +128,16 @@ public class PlayerVerifier implements Listener {
                             .queue(discord);
                     return;
                 }
+                parameter.put(player);
+                val discordId = manager.getDiscord(player.getUniqueId());
+                if (discordId != null) {
+                    builder.message(config, "already-verified", parameter)
+                            .queue(discord);
+                    return;
+                }
                 val code = generateCode(6);
                 val id = player.getUniqueId();
-                parameter.put(player).put("%code%", code);
+                parameter.put("%code%", code);
                 putVerification(id, new Verification(player, author, code, createTask(id, discord, builder), discord));
                 builder.message(config, "verify-code", parameter)
                         .queue(discord);

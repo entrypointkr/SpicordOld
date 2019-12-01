@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
-public class WebhookFactory {
+public class WebhookManager {
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
     private Webhook cachedWebhook = null;
 
