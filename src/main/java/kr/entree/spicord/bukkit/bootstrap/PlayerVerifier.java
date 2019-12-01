@@ -6,6 +6,7 @@ import kr.entree.spicord.bukkit.event.GuildChatEvent;
 import kr.entree.spicord.bukkit.event.PrivateChatEvent;
 import kr.entree.spicord.bukkit.structure.Message;
 import kr.entree.spicord.bukkit.util.CooldownMap;
+import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.config.Lang;
 import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.Parameter;
@@ -155,7 +156,7 @@ public class PlayerVerifier implements Listener {
         val parameter = new Parameter().put(user)
                 .put(player);
         if (verification.match(e.getMessage().toLowerCase())) {
-            manager.put(user.getId(), verification.getUuid());
+            manager.put(user.getId(), new PlayerData(verification.getUuid()).name(player.getName()));
             Bukkit.getScheduler().runTask(plugin, () -> {
                 player.sendMessage(langConfig.format(Lang.VERIFY_SUCCESS, parameter));
                 getConfig().executeCommands(Bukkit.getConsoleSender(), parameter);

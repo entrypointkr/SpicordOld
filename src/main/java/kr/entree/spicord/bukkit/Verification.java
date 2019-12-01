@@ -3,11 +3,9 @@ package kr.entree.spicord.bukkit;
 import kr.entree.spicord.bukkit.structure.User;
 import kr.entree.spicord.discord.Discord;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -42,10 +40,6 @@ public class Verification {
 
     public boolean match(String code) {
         return this.code.equalsIgnoreCase(code);
-    }
-
-    public Optional<Player> getPlayer() {
-        return Optional.ofNullable(Bukkit.getPlayer(uuid));
     }
 
     public void cancelExpireTask() {

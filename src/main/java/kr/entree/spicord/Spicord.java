@@ -3,17 +3,18 @@ package kr.entree.spicord;
 import kr.entree.spicord.bukkit.SpicordCommand;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
 import kr.entree.spicord.bukkit.bootstrap.BukkitToDiscord;
-import kr.entree.spicord.bukkit.bootstrap.DiscordChatToBukkit;
+import kr.entree.spicord.bukkit.bootstrap.ChatToDiscord;
 import kr.entree.spicord.bukkit.bootstrap.DiscordToBukkit;
 import kr.entree.spicord.bukkit.bootstrap.DiscordToDiscord;
 import kr.entree.spicord.bukkit.bootstrap.PlayerRestricter;
 import kr.entree.spicord.bukkit.bootstrap.PlayerVerifier;
 import kr.entree.spicord.bukkit.util.Compatibles;
+import kr.entree.spicord.config.DataStorage;
 import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
-import kr.entree.spicord.discord.WebhookManager;
+import kr.entree.spicord.discord.WebhookFactory;
 import kr.entree.spicord.discord.task.CompleterBuilder;
 import lombok.Getter;
 import lombok.val;
@@ -37,11 +38,13 @@ public class Spicord extends JavaPlugin {
     @Getter
     private final LangConfig langConfig = new LangConfig(this);
     @Getter
+    private final DataStorage dataStorage = new DataStorage(this);
+    @Getter
     private final VerifiedMemberManager verifiedManager = new VerifiedMemberManager(this);
     @Getter
     private final Discord discord = new Discord(this);
     @Getter
-    private final WebhookManager webhookManager = new WebhookManager(this);
+    private final WebhookFactory webhookFactory = new WebhookFactory();
     private final Thread discordThread = new Thread(discord, "SpicordThread");
 
     @Override
@@ -59,7 +62,7 @@ public class Spicord extends JavaPlugin {
         awaitDiscordThread();
         interruptDiscordThread();
         getLogger().info("Waiting webhooks...");
-        if (!webhookManager.await()) {
+        if (!webhookFactory.await()) {
             getLogger().info("Timeout");
         }
         saveConfigs();
@@ -69,11 +72,13 @@ public class Spicord extends JavaPlugin {
         spicordConfig.load();
         spicordConfig.update(discord);
         langConfig.load();
+        dataStorage.load();
     }
 
     public void saveConfigs() {
         verifiedManager.save(this);
         langConfig.save();
+        dataStorage.save();
     }
 
     private void initConfigs() {
@@ -85,10 +90,10 @@ public class Spicord extends JavaPlugin {
 
     private void initFunctions() {
         registerEvents(
-                new DiscordChatToBukkit(this, discord, spicordConfig, webhookManager),
+                new ChatToDiscord(this, discord, spicordConfig, webhookFactory),
                 new DiscordToBukkit(this, spicordConfig),
-                new DiscordToDiscord(spicordConfig),
-                new BukkitToDiscord(spicordConfig, discord),
+                new DiscordToDiscord(spicordConfig, verifiedManager),
+                new BukkitToDiscord(spicordConfig, discord, verifiedManager),
                 new PlayerVerifier(this, spicordConfig, langConfig, verifiedManager),
                 new PlayerRestricter(verifiedManager, spicordConfig, langConfig)
         );

@@ -1,11 +1,15 @@
 package kr.entree.spicord.bukkit;
 
+import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.config.PluginConfiguration;
 import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +25,7 @@ import java.util.logging.Level;
  */
 public class VerifiedMemberManager {
     private final Plugin plugin;
-    private final Map<Long, UUID> mcByDiscord = new ConcurrentHashMap<>();
+    private final Map<Long, PlayerData> mcByDiscord = new ConcurrentHashMap<>();
     private final Map<UUID, Long> discordByMc = new ConcurrentHashMap<>();
 
     public VerifiedMemberManager(Plugin plugin) {
@@ -32,7 +36,15 @@ public class VerifiedMemberManager {
         return new File(plugin.getDataFolder(), "verified.yml");
     }
 
-    private void put(String discordId, String mcId) {
+    public void update(@NotNull Player player) {
+        PlayerData data = getMinecraft(player.getUniqueId());
+        if (data != null) {
+            data.name(player.getName());
+        }
+    }
+
+    private void put(String discordId, String idAndName) {
+        val pieces = idAndName.split("\\|", 2);
         long discordIdLong;
         UUID mcUuid;
         try {
@@ -42,12 +54,16 @@ public class VerifiedMemberManager {
             return;
         }
         try {
-            mcUuid = UUID.fromString(mcId);
+            mcUuid = UUID.fromString(pieces[0]);
         } catch (Exception ex) {
-            plugin.getLogger().log(Level.INFO, "Not uuid: " + mcId);
+            plugin.getLogger().log(Level.INFO, "Not uuid: " + pieces[0]);
             return;
         }
-        put(discordIdLong, mcUuid);
+        val data = new PlayerData(mcUuid);
+        if (pieces.length >= 2) {
+            data.name(pieces[1]);
+        }
+        put(discordIdLong, data);
     }
 
     public void load(Plugin plugin) {
@@ -58,8 +74,8 @@ public class VerifiedMemberManager {
             for (String discordId : config.getKeys(false)) {
                 Object val = config.get(discordId);
                 if (val != null) {
-                    String mcId = val.toString();
-                    put(discordId, mcId);
+                    String idAndName = val.toString();
+                    put(discordId, idAndName);
                 }
             }
         } catch (IOException | InvalidConfigurationException e) {
@@ -67,7 +83,7 @@ public class VerifiedMemberManager {
         }
     }
 
-    public static String saveToString(Collection<Map.Entry<Long, UUID>> entries) {
+    public static String saveToString(Collection<Map.Entry<Long, PlayerData>> entries) {
         val config = new YamlConfiguration();
         for (val entry : entries) {
             config.set(entry.getKey().toString(), entry.getValue().toString());
@@ -84,7 +100,7 @@ public class VerifiedMemberManager {
     }
 
     public void saveAsync() {
-        HashSet<Map.Entry<Long, UUID>> entries = new HashSet<>(mcByDiscord.entrySet());
+        HashSet<Map.Entry<Long, PlayerData>> entries = new HashSet<>(mcByDiscord.entrySet());
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> save(plugin, saveToString(entries)));
     }
 
@@ -92,15 +108,26 @@ public class VerifiedMemberManager {
         save(plugin, saveToString(mcByDiscord.entrySet()));
     }
 
-    public void put(Long discordUser, UUID mcUser) {
+    public void put(Long discordUser, PlayerData mcUser) {
         mcByDiscord.put(discordUser, mcUser);
-        discordByMc.put(mcUser, discordUser);
+        discordByMc.put(mcUser.getId(), discordUser);
     }
 
-    public UUID getMinecraft(Long discordUser) {
+    @Nullable
+    public PlayerData getMinecraft(Long discordUser) {
         return mcByDiscord.get(discordUser);
     }
 
+    @Nullable
+    public PlayerData getMinecraft(UUID uuid) {
+        Long discordId = getDiscord(uuid);
+        if (discordId != null) {
+            return getMinecraft(discordId);
+        }
+        return null;
+    }
+
+    @Nullable
     public Long getDiscord(UUID mcUser) {
         return discordByMc.get(mcUser);
     }

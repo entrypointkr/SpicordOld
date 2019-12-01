@@ -1,11 +1,12 @@
 package kr.entree.spicord.bukkit.bootstrap;
 
+import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import kr.entree.spicord.Spicord;
-import kr.entree.spicord.bukkit.discord.BukkitMessage;
+import kr.entree.spicord.bukkit.discord.WebMessage;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
-import kr.entree.spicord.discord.WebhookManager;
+import kr.entree.spicord.discord.WebhookFactory;
 import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,26 +25,34 @@ import static kr.entree.spicord.config.SpicordConfig.featureKey;
 /**
  * Created by JunHyung Lim on 2019-11-17
  */
-public class DiscordChatToBukkit implements Listener {
+public class ChatToDiscord implements Listener {
     private final Plugin plugin;
     private final Discord discord;
     private final SpicordConfig config;
-    private final WebhookManager webhookManager;
+    private final WebhookFactory factory;
     private final StringBuilder builder = new StringBuilder();
     private Player last = null;
     private BukkitTask task = null;
     private long lastFlushTime = 0;
 
-    public DiscordChatToBukkit(Plugin plugin, Discord discord, SpicordConfig config, WebhookManager webhookManager) {
+    public ChatToDiscord(Plugin plugin, Discord discord, SpicordConfig config, WebhookFactory factory) {
         this.plugin = plugin;
         this.discord = discord;
         this.config = config;
-        this.webhookManager = webhookManager;
+        this.factory = factory;
+    }
+
+    public static String createAvatarUrl(Object uuid) {
+        return String.format("https://crafatar.com/avatars/%s?overlay=true", uuid);
     }
 
     private void queueNow(Player player, String message) {
         if (config.isFakeProfilePlayerChat()) {
-            val sendMessage = new BukkitMessage(webhookManager, player, message);
+            val builder = new WebhookMessageBuilder()
+                    .setUsername(player.getName())
+                    .setAvatarUrl(createAvatarUrl(player.getUniqueId()))
+                    .setContent(message);
+            val sendMessage = new WebMessage(factory, builder.build());
             discord.addTask(config.getSendMessage("player-chat", sendMessage));
         } else {
             val parameter = new Parameter().put(player)
@@ -109,7 +118,6 @@ public class DiscordChatToBukkit implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent e) {
         if (isJoinQuitEnabled()) {
-            webhookManager.remove(e.getPlayer());
             chat(e.getPlayer(), e.getQuitMessage());
         }
     }

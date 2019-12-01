@@ -1,11 +1,18 @@
 package kr.entree.spicord.bukkit.bootstrap;
 
+import kr.entree.spicord.bukkit.VerifiedMemberManager;
+import kr.entree.spicord.bukkit.event.GuildChatEvent;
 import kr.entree.spicord.bukkit.event.GuildJoinEvent;
+import kr.entree.spicord.bukkit.event.GuildMemberEvent;
+import kr.entree.spicord.bukkit.event.GuildMemberNamingEvent;
+import kr.entree.spicord.bukkit.util.Compatibles;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
+import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.supplier.PrivateChannelOpener;
 import kr.entree.spicord.discord.task.ChannelHandler;
 import lombok.val;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -16,9 +23,11 @@ import static kr.entree.spicord.config.SpicordConfig.featureKey;
  */
 public class DiscordToDiscord implements Listener {
     private final SpicordConfig config;
+    private final VerifiedMemberManager verifyManager;
 
-    public DiscordToDiscord(SpicordConfig config) {
+    public DiscordToDiscord(SpicordConfig config, VerifiedMemberManager verifyManager) {
         this.config = config;
+        this.verifyManager = verifyManager;
     }
 
     @EventHandler
@@ -34,5 +43,46 @@ public class DiscordToDiscord implements Listener {
                 PrivateChannelOpener.of(e.getUser().getId()),
                 config.getMessage("welcome", parameter)
         ));
+    }
+
+    private void syncName(Discord discord, long guildId, long userId) {
+        if (!config.getVerification().isNameSync()) {
+            return;
+        }
+        val mcId = verifyManager.getMinecraft(userId);
+        if (mcId == null) {
+            return;
+        }
+        val nameOpt = Compatibles.getOfflinePlayer(mcId.getId())
+                .map(OfflinePlayer::getName);
+        if (!nameOpt.isPresent()) {
+            return;
+        }
+        val name = nameOpt.get();
+        discord.addTask(jda -> {
+            val guild = jda.getGuildById(guildId);
+            if (guild == null) {
+                return;
+            }
+            val member = guild.getMemberById(userId);
+            if (member == null) {
+                return;
+            }
+            member.modifyNickname(name).queue();
+        });
+    }
+
+    private void syncName(GuildMemberEvent e) {
+        syncName(e.getDiscord(), e.getGuild().getId(), e.getMember().getId());
+    }
+
+    @EventHandler
+    public void onNaming(GuildMemberNamingEvent e) {
+        syncName(e);
+    }
+
+    @EventHandler
+    public void onChat(GuildChatEvent e) {
+        syncName(e);
     }
 }

@@ -98,4 +98,8 @@ public class VerificationConfig {
     public long getCooldownSeconds() {
         return section.getLong("cooldown-seconds");
     }
+
+    public boolean isNameSync() {
+        return section.getBoolean("after.name-sync");
+    }
 }
