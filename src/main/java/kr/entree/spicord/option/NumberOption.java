@@ -2,10 +2,12 @@ package kr.entree.spicord.option;
 
 import lombok.experimental.Delegate;
 
+import java.util.function.LongSupplier;
+
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
-public class NumberOption implements Option<Number> {
+public class NumberOption implements Option<Number>, LongSupplier {
     @Delegate
     private final Option<Number> option;
 
@@ -15,6 +17,11 @@ public class NumberOption implements Option<Number> {
 
     public long getLong() {
         return get().longValue();
+    }
+
+    @Override
+    public long getAsLong() {
+        return getLong();
     }
 
     public int getInt() {

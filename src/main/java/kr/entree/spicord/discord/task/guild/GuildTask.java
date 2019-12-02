@@ -6,26 +6,32 @@ import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
+import java.util.function.LongSupplier;
 
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
 public class GuildTask implements JDAHandler {
-    private final long guildId;
-    private final Consumer<Guild> handler;
+    private final LongSupplier guildId;
+    private final BiConsumer<JDA, Guild> handler;
 
-    public GuildTask(long guildId, Consumer<Guild> handler) {
+    public GuildTask(LongSupplier guildId, BiConsumer<JDA, Guild> handler) {
         this.guildId = guildId;
         this.handler = handler;
     }
 
+    public GuildTask(long guildId, BiConsumer<JDA, Guild> handler) {
+        this(() -> guildId, handler);
+    }
+
     @Override
     public void handle(JDA jda) {
+        val guildId = this.guildId.getAsLong();
         val guild = jda.getGuildById(guildId);
         if (guild == null) {
             throw new NoGuildFoundException(guildId);
         }
-        handler.accept(guild);
+        handler.accept(jda, guild);
     }
 }

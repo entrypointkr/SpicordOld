@@ -2,7 +2,11 @@ package kr.entree.spicord.bukkit;
 
 import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.config.PluginConfiguration;
+import kr.entree.spicord.discord.Discord;
+import kr.entree.spicord.discord.task.guild.GuildTask;
 import lombok.val;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -13,12 +17,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.LongSupplier;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by JunHyung Lim on 2019-11-20
@@ -43,6 +51,14 @@ public class VerifiedMemberManager {
         }
     }
 
+    public void queuePurgeTask(Discord discord, LongSupplier guildId) {
+        discord.addTask(new GuildTask(guildId, new PurgeTask()));
+    }
+
+    private Logger logger() {
+        return plugin.getLogger();
+    }
+
     private void put(String discordId, String idAndName) {
         val pieces = idAndName.split("\\|", 2);
         long discordIdLong;
@@ -50,13 +66,13 @@ public class VerifiedMemberManager {
         try {
             discordIdLong = Long.parseLong(discordId);
         } catch (Exception ex) {
-            plugin.getLogger().log(Level.INFO, "Not number: " + discordId);
+            logger().log(Level.INFO, "Not number: " + discordId);
             return;
         }
         try {
             mcUuid = UUID.fromString(pieces[0]);
         } catch (Exception ex) {
-            plugin.getLogger().log(Level.INFO, "Not uuid: " + pieces[0]);
+            logger().log(Level.INFO, "Not uuid: " + pieces[0]);
             return;
         }
         val data = new PlayerData(mcUuid);
@@ -82,7 +98,7 @@ public class VerifiedMemberManager {
         } catch (IOException e) {
             // Ignore
         } catch (InvalidConfigurationException e) {
-            plugin.getLogger().log(Level.WARNING, e, () -> "Failed while loading: " + file);
+            logger().log(Level.WARNING, e, () -> "Failed while loading: " + file);
         }
     }
 
@@ -116,6 +132,15 @@ public class VerifiedMemberManager {
         discordByMc.put(mcUser.getId(), discordUser);
     }
 
+    @Nullable
+    public PlayerData remove(long discordUser) {
+        val data = mcByDiscord.remove(discordUser);
+        if (data != null) {
+            discordByMc.remove(data.getId());
+        }
+        return data;
+    }
+
     public void clear() {
         mcByDiscord.clear();
         discordByMc.clear();
@@ -138,5 +163,25 @@ public class VerifiedMemberManager {
     @Nullable
     public Long getDiscord(UUID mcUser) {
         return discordByMc.get(mcUser);
+    }
+
+    class PurgeTask implements BiConsumer<JDA, Guild> {
+        @Override
+        public void accept(JDA jda, Guild guild) {
+            val purges = new ArrayList<Long>(mcByDiscord.size());
+            for (Map.Entry<Long, PlayerData> entry : mcByDiscord.entrySet()) {
+                val user = jda.getUserById(entry.getKey());
+                if (user == null || !guild.isMember(user)) {
+                    purges.add(entry.getKey());
+                }
+            }
+            for (Long id : purges) {
+                val data = remove(id);
+                if (data != null) {
+                    logger().info(String.format("Removed member %s(%s)", id, data.getId()));
+                }
+            }
+            saveAsync();
+        }
     }
 }
