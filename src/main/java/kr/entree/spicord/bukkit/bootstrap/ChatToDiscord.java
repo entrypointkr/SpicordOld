@@ -65,6 +65,9 @@ public class ChatToDiscord implements Listener {
     }
 
     private void queueNow(Player player, String message) {
+        if (message.isEmpty()) {
+            return;
+        }
         if (config.getFakeProfilePlayerChat().isTrue()) {
             val builder = new WebhookMessageBuilder()
                     .setUsername(player.getName())
@@ -80,7 +83,6 @@ public class ChatToDiscord implements Listener {
         } else {
             sendPlainMessage(player, message);
         }
-
     }
 
     private void cancelTask() {
