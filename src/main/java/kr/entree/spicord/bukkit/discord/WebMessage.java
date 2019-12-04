@@ -2,6 +2,7 @@ package kr.entree.spicord.bukkit.discord;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessage;
+import kr.entree.spicord.Spicord;
 import kr.entree.spicord.discord.WebhookManager;
 import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
 import kr.entree.spicord.option.config.ConfigOption;
@@ -30,7 +31,7 @@ public class WebMessage implements MessageChannelHandler<TextChannel> {
         client.send(message).whenComplete((msg, throwable) -> {
             if (throwable != null) {
                 manager.clearCache();
-                sendMessage(client);
+                client.send(message).whenComplete((m, t) -> Spicord.log(t));
             }
         });
     }

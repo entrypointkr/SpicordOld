@@ -66,4 +66,4 @@ shadowJar {
     minimize()
 }
 
-tasks.build.dependsOn(shadowJar)
+tasks.build.dependsOn += shadowJar
