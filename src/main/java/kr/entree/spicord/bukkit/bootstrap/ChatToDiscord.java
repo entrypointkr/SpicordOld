@@ -130,13 +130,20 @@ public class ChatToDiscord implements Listener {
         });
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onChat(AsyncPlayerChatEvent e) {
+        if (e.isCancelled() && isIgnoreCancelled()) {
+            return;
+        }
         chat(e.getPlayer(), e.getMessage());
     }
 
     private boolean isJoinQuitEnabled() {
-        return config.getBoolean(featureKey("player-chat.join-quit"));
+        return config.getBoolean(featureKey("player-chat.join-quit"), true);
+    }
+
+    private boolean isIgnoreCancelled() {
+        return config.getBoolean(featureKey("player-chat.ignore-cancel"), true);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

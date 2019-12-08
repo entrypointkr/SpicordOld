@@ -72,6 +72,7 @@ features:
     slow-mode: true
     fake-profile: true
     join-quit: true
+    ignore-cancel: true
     message: player-chat
   discord-chat:
     enabled: true
