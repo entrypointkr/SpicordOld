@@ -165,22 +165,23 @@ public class PlayerVerifier implements Listener {
         val parameter = new Parameter().put(user)
                 .put(player);
         if (verification.match(e.getMessage().toLowerCase())) {
+            val verifyConfig = getConfig();
             manager.put(user.getId(), new PlayerData(verification.getUuid()).name(player.getName()));
             manager.saveAsync();
             Bukkit.getScheduler().runTask(plugin, () -> {
                 player.sendMessage(langConfig.format(Lang.VERIFY_SUCCESS, parameter));
-                getConfig().executeCommands(Bukkit.getConsoleSender(), parameter);
+                verifyConfig.executeCommands(Bukkit.getConsoleSender(), parameter);
             });
             verification.getDiscord().addTask(
                     new ChannelTask<>(
                             PrivateChannelOpener.of(user.getId()),
-                            config.getMessage("verify-success", parameter)
+                            this.config.getMessage("verify-success", parameter)
                     ),
                     GuildMemberHandler.createTask(
-                            config.getGuild().getLong(),
+                            this.config.getGuild().getLong(),
                             verification.getUser().getId(),
-                            new AddRole(getConfig()::getDiscordRoles),
-                            new Rename(player.getName())
+                            new AddRole(verifyConfig::getDiscordRoles),
+                            new Rename(verifyConfig.getDiscordName(player.getName()))
                     )
             );
             verification.getDiscord().addTask();

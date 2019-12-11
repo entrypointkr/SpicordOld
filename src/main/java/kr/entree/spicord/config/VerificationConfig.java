@@ -1,11 +1,13 @@
 package kr.entree.spicord.config;
 
 import kr.entree.spicord.bukkit.restrict.RestrictType;
+import lombok.val;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -101,5 +103,14 @@ public class VerificationConfig {
 
     public boolean isNameSync() {
         return section.getBoolean("after.name-sync");
+    }
+
+    public String getDiscordName(@NotNull String name) {
+        val format = getDiscordNameFormat();
+        return format.replace("%name%", name);
+    }
+
+    public String getDiscordNameFormat() {
+        return section.getString("after.discord-name-format", "%name%");
     }
 }

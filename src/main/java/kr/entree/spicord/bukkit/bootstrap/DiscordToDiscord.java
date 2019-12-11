@@ -49,7 +49,8 @@ public class DiscordToDiscord implements Listener {
     }
 
     private void syncName(Discord discord, long guildId, long userId, @Nullable String newName) {
-        if (!config.getVerification().isNameSync()) {
+        val verifyConfig = config.getVerification();
+        if (!verifyConfig.isNameSync()) {
             return;
         }
         val mcId = verifyManager.getMinecraft(userId);
@@ -61,7 +62,7 @@ public class DiscordToDiscord implements Listener {
         if (!nameOpt.isPresent()) {
             return;
         }
-        val name = nameOpt.get();
+        val name = verifyConfig.getDiscordName(nameOpt.get());
         if (name.equals(newName)) {
             return;
         }

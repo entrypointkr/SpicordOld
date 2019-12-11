@@ -93,6 +93,7 @@ verification:
       - move
   after:
     name-sync: false
+    discord-name-format: "%name%"
     discord-role:
       - verified
     command:
