@@ -1,6 +1,7 @@
 package kr.entree.spicord.discord.task.guild.handler;
 
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,9 @@ public class Rename implements BiConsumer<Guild, Member> {
 
     @Override
     public void accept(Guild guild, Member member) {
+        if (member.hasPermission(Permission.ADMINISTRATOR)) {
+            return;
+        }
         if (!newName.equals(member.getNickname())) {
             member.modifyNickname(newName).queue();
         }
