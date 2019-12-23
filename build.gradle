@@ -3,10 +3,11 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '5.1.0'
+    id 'kr.entree.spigradle' version '1.0.3'
 }
 
 group 'kr.entree'
-version '1.1.4'
+version '1.1.5'
 
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -38,14 +39,12 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 
-compileJava {
-    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-}
-
-processResources {
-    filteringCharset = 'UTF-8'
-    from(sourceSets.main.resources.srcDirs) {
-        filter ReplaceTokens, tokens: [version: version]
+spigot {
+    authors = ['EntryPoint']
+    commands {
+        spicord {
+            aliases = ['sc']
+        }
     }
 }
 
@@ -58,12 +57,23 @@ shadowJar {
             'org.bstats.bukkit'    : 'bstats',
             'com.google.gson'      : 'gson',
             'com.fasterxml.jackson': 'jackson'
-
     ].forEach { pattern, dest ->
         relocate(pattern, "$prefix.$dest")
     }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     archiveClassifier.set("")
     minimize()
+}
+
+compileJava {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+
+processResources {
+    filteringCharset = 'UTF-8'
+    from(sourceSets.main.resources.srcDirs) {
+        filter ReplaceTokens, tokens: [version: version]
+    }
 }
 
 tasks.build.dependsOn += shadowJar

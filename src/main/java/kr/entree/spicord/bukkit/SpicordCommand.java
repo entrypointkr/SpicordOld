@@ -2,6 +2,7 @@ package kr.entree.spicord.bukkit;
 
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.config.Lang;
+import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.task.CompleterBuilder;
@@ -82,8 +83,17 @@ public class SpicordCommand implements CommandExecutor, TabExecutor {
                 case "send":
                     if (args.length >= 3) {
                         val channel = args[1];
-                        val message = StringUtils.join(args, ' ', 2, args.length);
-                        MessageChannelHandler<TextChannel> messageHandler = config.getMessage(message);
+                        val message = args[2];
+                        MessageChannelHandler<TextChannel> messageHandler;
+                        if (config.contains("messages." + message)) {
+                            val parameter = new Parameter();
+                            if (args.length >= 4) {
+                                parameter.putSerialized(args[3]);
+                            }
+                            messageHandler = config.getMessage(message, parameter);
+                        } else {
+                            messageHandler = new PlainMessage<>(StringUtils.join(args, ' ', 2, args.length));
+                        }
                         if (messageHandler instanceof EmptyMessageChannelHandler) {
                             messageHandler = new PlainMessage<>(message);
                         }

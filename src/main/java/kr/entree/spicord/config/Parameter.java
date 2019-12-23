@@ -1,6 +1,7 @@
 package kr.entree.spicord.config;
 
 import kr.entree.spicord.bukkit.structure.User;
+import lombok.val;
 import net.dv8tion.jda.api.entities.Member;
 import org.ahocorasick.trie.Emit;
 import org.ahocorasick.trie.Trie;
@@ -35,6 +36,21 @@ public class Parameter {
 
     public Parameter put(User user) {
         put("%discord%", user.getNameAsTag());
+        return this;
+    }
+
+    public Parameter putSerialized(String serialized) {
+        val pieces = serialized.split(",");
+        val keyBuilder = new StringBuilder();
+        for (String piece : pieces) {
+            val pair = piece.split("=", 2);
+            if (pair.length < 1) {
+                continue;
+            }
+            keyBuilder.append('%').append(pair[0]).append('%');
+            put(keyBuilder.toString(), pair[1]);
+            keyBuilder.setLength(0);
+        }
         return this;
     }
 

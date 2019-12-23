@@ -72,6 +72,8 @@ features:
     slow-mode: true
     fake-profile: true
     join-quit: true
+    join-message: "%name% joined the game."
+    quit-message: "%name% left the game."
     ignore-cancel: true
     message: player-chat
   discord-chat:

@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Level;
 
@@ -146,17 +147,39 @@ public class ChatToDiscord implements Listener {
         return config.getBoolean(featureKey("player-chat.ignore-cancel"), true);
     }
 
+    @Nullable
+    private String getJoinMessage() {
+        return config.getString(featureKey("player-chat.join-message"));
+    }
+
+    @Nullable
+    private String getQuitMessage() {
+        return config.getString(featureKey("player-chat.quit-message"));
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent e) {
         if (isJoinQuitEnabled()) {
-            chat(e.getPlayer(), e.getQuitMessage());
+            val player = e.getPlayer();
+            val altMsg = getQuitMessage();
+            if (altMsg != null) {
+                chat(player, new Parameter().put(player).format(altMsg));
+            } else {
+                chat(player, e.getQuitMessage());
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent e) {
         if (isJoinQuitEnabled()) {
-            chat(e.getPlayer(), e.getJoinMessage());
+            val player = e.getPlayer();
+            val altMsg = getJoinMessage();
+            if (altMsg != null) {
+                chat(player, new Parameter().put(player).format(altMsg));
+            } else {
+                chat(player, e.getJoinMessage());
+            }
         }
     }
 }
