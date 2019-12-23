@@ -48,7 +48,7 @@ public class Parameter {
                 continue;
             }
             keyBuilder.append('%').append(pair[0]).append('%');
-            put(keyBuilder.toString(), pair[1]);
+            put(keyBuilder.toString(), pair[1].replace('_', ' '));
             keyBuilder.setLength(0);
         }
         return this;
