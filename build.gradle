@@ -3,7 +3,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '5.1.0'
-    id 'kr.entree.spigradle' version '1.0.3'
+    id 'kr.entree.spigradle' version '1.0.4'
 }
 
 group 'kr.entree'
