@@ -3,6 +3,8 @@ package kr.entree.spicord.bukkit.bootstrap;
 import kr.entree.spicord.bukkit.Verification;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
 import kr.entree.spicord.bukkit.event.GuildChatEvent;
+import kr.entree.spicord.bukkit.event.GuildJoinEvent;
+import kr.entree.spicord.bukkit.event.GuildLeaveEvent;
 import kr.entree.spicord.bukkit.event.PrivateChatEvent;
 import kr.entree.spicord.bukkit.structure.Message;
 import kr.entree.spicord.bukkit.util.CooldownMap;
@@ -17,10 +19,11 @@ import kr.entree.spicord.discord.task.channel.ChannelHandlerBuilder;
 import kr.entree.spicord.discord.task.channel.ChannelTask;
 import kr.entree.spicord.discord.task.channel.supplier.PrivateChannelOpener;
 import kr.entree.spicord.discord.task.guild.handler.AddRole;
+import kr.entree.spicord.discord.task.guild.handler.CombinedMemberHandler;
 import kr.entree.spicord.discord.task.guild.handler.GuildMemberHandler;
 import kr.entree.spicord.discord.task.guild.handler.Rename;
 import lombok.val;
-import net.dv8tion.jda.api.entities.PrivateChannel;
+import lombok.var;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,6 +31,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -71,7 +75,7 @@ public class PlayerVerifier implements Listener {
         return builder.toString();
     }
 
-    private BukkitTask createTask(UUID id, Discord discord, ChannelHandlerBuilder<?> builder) {
+    private BukkitTask createTask(UUID id, Discord discord, ChannelHandlerBuilder builder) {
         long seconds = getConfig().getExpireSeconds();
         return Bukkit.getScheduler().runTaskLater(plugin, () -> {
             verifies.remove(id);
@@ -110,7 +114,7 @@ public class PlayerVerifier implements Listener {
         }
         val author = message.getAuthor();
         val minecraft = manager.getMinecraft(author.getId());
-        val builder = new ChannelHandlerBuilder<PrivateChannel>()
+        val builder = new ChannelHandlerBuilder()
                 .channel(PrivateChannelOpener.of(author.getId()));
         val parameter = new Parameter().put(author);
         if (minecraft != null) {
@@ -172,8 +176,8 @@ public class PlayerVerifier implements Listener {
                 player.sendMessage(langConfig.format(Lang.VERIFY_SUCCESS, parameter));
                 verifyConfig.executeCommands(Bukkit.getConsoleSender(), parameter);
             });
-            verification.getDiscord().addTask(
-                    new ChannelTask<>(
+            Arrays.asList(
+                    new ChannelTask(
                             PrivateChannelOpener.of(user.getId()),
                             this.config.getMessage("verify-success", parameter)
                     ),
@@ -183,11 +187,10 @@ public class PlayerVerifier implements Listener {
                             new AddRole(verifyConfig::getDiscordRoles),
                             new Rename(verifyConfig.getDiscordName(player.getName()))
                     )
-            );
-            verification.getDiscord().addTask();
+            ).forEach(verification.getDiscord()::addTask);
             e.setCancelled(true);
         } else {
-            verification.getDiscord().addTask(new ChannelTask<>(
+            verification.getDiscord().addTask(new ChannelTask(
                     PrivateChannelOpener.of(user.getId()),
                     config.getMessage("verify-failed", parameter)
             ));
@@ -207,6 +210,34 @@ public class PlayerVerifier implements Listener {
             return;
         }
         processCommand(e.getMessage(), e.getDiscord());
+    }
+
+    @EventHandler
+    public void onGuildLeave(GuildLeaveEvent e) {
+        if (config.getVerification().isDeleteIfQuitFromGuild()) {
+            manager.remove(e.getUser().getId());
+        }
+    }
+
+    @EventHandler
+    public void onGuildJoin(GuildJoinEvent e) {
+        val user = e.getUser();
+        val mcUser = manager.getMinecraft(user.getId());
+        if (mcUser != null) {
+            var name = mcUser.getName();
+            val handlers = new CombinedMemberHandler()
+                    .add(new AddRole(getConfig()::getDiscordRoles));
+            if (name != null) {
+                handlers.add(new Rename(getConfig().getDiscordName(name)));
+            }
+            e.getDiscord().addTask(
+                    GuildMemberHandler.createTask(
+                            this.config.getGuild().getLong(),
+                            user.getId(),
+                            handlers
+                    )
+            );
+        }
     }
 
     @EventHandler

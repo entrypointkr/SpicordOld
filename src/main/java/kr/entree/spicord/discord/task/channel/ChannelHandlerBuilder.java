@@ -7,31 +7,30 @@ import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.EmptyHandler;
 import kr.entree.spicord.discord.JDAHandler;
 import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by JunHyung Lim on 2019-11-30
  */
-public class ChannelHandlerBuilder<T extends MessageChannel> {
-    private ChannelSupplier<T> supplier;
-    private MessageChannelHandler<T> handler;
+public class ChannelHandlerBuilder {
+    private ChannelSupplier supplier;
+    private MessageChannelHandler handler;
 
-    public ChannelHandlerBuilder<T> channel(ChannelSupplier<T> supplier) {
+    public ChannelHandlerBuilder channel(ChannelSupplier supplier) {
         this.supplier = supplier;
         return this;
     }
 
-    public ChannelHandlerBuilder<T> message(MessageChannelHandler<T> handler) {
+    public ChannelHandlerBuilder message(MessageChannelHandler handler) {
         this.handler = handler;
         return this;
     }
 
-    public ChannelHandlerBuilder<T> message(SpicordConfig config, String key, Parameter parameter) {
+    public ChannelHandlerBuilder message(SpicordConfig config, String key, Parameter parameter) {
         return message(config.getMessage(key, parameter));
     }
 
-    public ChannelHandlerBuilder<T> message(SpicordConfig config, String key) {
+    public ChannelHandlerBuilder message(SpicordConfig config, String key) {
         return message(config, key, new Parameter());
     }
 
@@ -40,7 +39,7 @@ public class ChannelHandlerBuilder<T extends MessageChannel> {
         if (supplier == null || handler == null) {
             return EmptyHandler.INSTANCE;
         }
-        return new ChannelTask<>(supplier, handler);
+        return new ChannelTask(supplier, handler);
     }
 
     public void queue(Discord discord) {

@@ -6,6 +6,7 @@ import kr.entree.spicord.Spicord;
 import kr.entree.spicord.discord.WebhookManager;
 import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
 import kr.entree.spicord.option.config.ConfigOption;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.function.Consumer;
@@ -13,7 +14,7 @@ import java.util.function.Consumer;
 /**
  * Created by JunHyung Lim on 2019-11-17
  */
-public class WebMessage implements MessageChannelHandler<TextChannel> {
+public class WebMessage implements MessageChannelHandler {
     private final WebhookManager manager;
     private final WebhookMessage message;
     private final ConfigOption<Number> webhookId;
@@ -42,7 +43,9 @@ public class WebMessage implements MessageChannelHandler<TextChannel> {
     }
 
     @Override
-    public void handle(TextChannel channel) {
-        sendMessage(channel);
+    public void handle(MessageChannel channel) {
+        if (channel instanceof TextChannel) {
+            sendMessage((TextChannel) channel);
+        }
     }
 }

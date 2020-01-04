@@ -1,6 +1,6 @@
 package kr.entree.spicord.discord.task.guild;
 
-import kr.entree.spicord.discord.JDAHandler;
+import kr.entree.spicord.discord.JDATask;
 import kr.entree.spicord.discord.exception.NoGuildFoundException;
 import lombok.val;
 import net.dv8tion.jda.api.JDA;
@@ -12,7 +12,7 @@ import java.util.function.LongSupplier;
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
-public class GuildTask implements JDAHandler {
+public class GuildTask extends JDATask {
     private final LongSupplier guildId;
     private final BiConsumer<JDA, Guild> handler;
 

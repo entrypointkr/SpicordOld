@@ -12,7 +12,6 @@ import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
 import kr.entree.spicord.discord.task.channel.handler.PlainMessage;
 import kr.entree.spicord.discord.task.channel.supplier.TextChannelSupplier;
 import lombok.val;
-import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -84,7 +83,7 @@ public class SpicordCommand implements CommandExecutor, TabExecutor {
                     if (args.length >= 3) {
                         val channel = args[1];
                         val message = args[2];
-                        MessageChannelHandler<TextChannel> messageHandler;
+                        MessageChannelHandler messageHandler;
                         if (config.contains("messages." + message)) {
                             val parameter = new Parameter();
                             if (args.length >= 4) {
@@ -92,12 +91,12 @@ public class SpicordCommand implements CommandExecutor, TabExecutor {
                             }
                             messageHandler = config.getMessage(message, parameter);
                         } else {
-                            messageHandler = new PlainMessage<>(StringUtils.join(args, ' ', 2, args.length));
+                            messageHandler = new PlainMessage(StringUtils.join(args, ' ', 2, args.length));
                         }
                         if (messageHandler instanceof EmptyMessageChannelHandler) {
-                            messageHandler = new PlainMessage<>(message);
+                            messageHandler = new PlainMessage(message);
                         }
-                        val handler = new ChannelTask<>(
+                        val handler = new ChannelTask(
                                 TextChannelSupplier.ofConfigurized(config, channel),
                                 messageHandler
                         );

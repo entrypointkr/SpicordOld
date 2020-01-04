@@ -2,12 +2,12 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '5.1.0'
-    id 'kr.entree.spigradle' version '1.0.4'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'kr.entree.spigradle' version '1.0.5'
 }
 
 group 'kr.entree'
-version '1.1.6'
+version '1.1.7-SNAPSHOT'
 
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -50,15 +50,14 @@ spigot {
 
 shadowJar {
     def prefix = 'kr.entree.spicord.libs'
-    [
-            'net.dv8tion.jda'      : 'jda',
-            'club.minnced.discord' : 'jda-webhook',
-            'org.ahocorasick'      : 'ahocorasick',
-            'org.bstats.bukkit'    : 'bstats',
-            'com.google.gson'      : 'gson',
-            'com.fasterxml.jackson': 'jackson'
-    ].forEach { pattern, dest ->
-        relocate(pattern, "$prefix.$dest")
+    ['net.', 'club.', 'com.', 'gnu.', 'natives.',
+     'okhttp3.', 'okio.', 'org.', 'tomp2p.'].each {
+        relocate(it, "$prefix.$it") {
+            exclude 'org.spigotmc.*'
+            exclude 'org.bukkit.*'
+            exclude 'org.jetbrains.*'
+            exclude 'org.apache.*'
+        }
     }
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     archiveClassifier.set("")
@@ -77,3 +76,4 @@ processResources {
 }
 
 tasks.build.dependsOn += shadowJar
+jar.enabled false

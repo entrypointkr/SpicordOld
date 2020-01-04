@@ -7,28 +7,28 @@ import lombok.Getter;
  */
 public class NoUserFoundException extends RuntimeException {
     @Getter
-    private final long userId;
+    private final Object userId;
 
-    public NoUserFoundException(long userId) {
+    public NoUserFoundException(Object userId) {
         this.userId = userId;
     }
 
-    public NoUserFoundException(String message, long userId) {
+    public NoUserFoundException(String message, Object userId) {
         super(message);
         this.userId = userId;
     }
 
-    public NoUserFoundException(String message, Throwable cause, long userId) {
+    public NoUserFoundException(String message, Throwable cause, Object userId) {
         super(message, cause);
         this.userId = userId;
     }
 
-    public NoUserFoundException(Throwable cause, long userId) {
+    public NoUserFoundException(Throwable cause, Object userId) {
         super(cause);
         this.userId = userId;
     }
 
-    public NoUserFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, long userId) {
+    public NoUserFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, Object userId) {
         super(message, cause, enableSuppression, writableStackTrace);
         this.userId = userId;
     }

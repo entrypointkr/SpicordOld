@@ -7,5 +7,6 @@ public enum RestrictType {
     CHAT,
     BUILD,
     PVP,
-    MOVE
+    MOVE,
+    ITEM
 }

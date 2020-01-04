@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import org.bukkit.plugin.Plugin;
 
 import javax.security.auth.login.LoginException;
-import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Level;
@@ -48,8 +47,8 @@ public class Discord implements Runnable {
         shutdownJDA();
     }
 
-    public void addTask(JDAHandler... consumers) {
-        this.consumers.addAll(Arrays.asList(consumers));
+    public void addTask(JDAHandler consumer) {
+        this.consumers.add(consumer);
     }
 
     private void shutdownJDA() {

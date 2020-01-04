@@ -42,7 +42,7 @@ public class DiscordToDiscord implements Listener {
             return;
         }
         val parameter = new Parameter().put(e.getUser());
-        e.getDiscord().addTask(new ChannelTask<>(
+        e.getDiscord().addTask(new ChannelTask(
                 PrivateChannelOpener.of(e.getUser().getId()),
                 config.getMessage("welcome", parameter)
         ));

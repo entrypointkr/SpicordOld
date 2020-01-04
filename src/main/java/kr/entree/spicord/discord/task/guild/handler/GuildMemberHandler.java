@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 /**
@@ -25,11 +26,7 @@ public class GuildMemberHandler implements BiConsumer<JDA, Guild> {
     public static GuildTask createTask(long guildId, long userId, BiConsumer<Guild, Member>... handlers) {
         return new GuildTask(guildId, new GuildMemberHandler(
                 userId,
-                (guild, member) -> {
-                    for (BiConsumer<Guild, Member> handler : handlers) {
-                        handler.accept(guild, member);
-                    }
-                }
+                new CombinedMemberHandler(Arrays.asList(handlers))
         ));
     }
 

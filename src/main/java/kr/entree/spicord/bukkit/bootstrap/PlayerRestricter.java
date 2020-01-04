@@ -17,7 +17,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Set;
@@ -101,12 +104,31 @@ public class PlayerRestricter implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onDamage(EntityDamageByEntityEvent e) {
+    public void onDamage(EntityDamageEvent e) {
+        if (e.getEntity() instanceof Player) {
+            tryRestrict((Player) e.getEntity(), e, RestrictType.PVP);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onDamageByEntity(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
             tryRestrict((Player) e.getDamager(), e, RestrictType.PVP);
         }
         if (e.getEntity() instanceof Player) {
             tryRestrict((Player) e.getEntity(), e, RestrictType.PVP);
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPickup(EntityPickupItemEvent e) {
+        if (e.getEntity() instanceof Player) {
+            tryRestrict((Player) e.getEntity(), e, RestrictType.ITEM);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onDrop(PlayerDropItemEvent e) {
+        tryRestrict(e.getPlayer(), e, RestrictType.ITEM);
     }
 }

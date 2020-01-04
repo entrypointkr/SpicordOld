@@ -1,6 +1,5 @@
 package kr.entree.spicord.discord.task.channel.handler;
 
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -8,7 +7,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 /**
  * Created by JunHyung Lim on 2019-11-16
  */
-public class EmbedMessage<T extends MessageChannel> extends RestActor<T, Message> {
+public class EmbedMessage extends RestActor {
     private final MessageEmbed message;
 
     public EmbedMessage(MessageEmbed message) {
@@ -16,7 +15,7 @@ public class EmbedMessage<T extends MessageChannel> extends RestActor<T, Message
     }
 
     @Override
-    protected RestAction<Message> action(T channel) {
+    protected RestAction<?> action(MessageChannel channel) {
         return channel.sendMessage(message);
     }
 }

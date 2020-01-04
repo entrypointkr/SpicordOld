@@ -113,4 +113,8 @@ public class VerificationConfig {
     public String getDiscordNameFormat() {
         return section.getString("after.discord-name-format", "%name%");
     }
+
+    public boolean isDeleteIfQuitFromGuild() {
+        return section.getBoolean("delete-if-quit");
+    }
 }

@@ -1,23 +1,23 @@
 package kr.entree.spicord.discord.task.channel.handler;
 
 import lombok.Getter;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by JunHyung Lim on 2019-11-16
  */
-public class PlainMessage<T extends MessageChannel> extends RestActor<T, Message> {
+public class PlainMessage extends RestActor {
     @Getter
-    private final String message;
+    private final Object message;
 
-    public PlainMessage(Object message) {
-        this.message = message.toString();
+    public PlainMessage(@NotNull Object message) {
+        this.message = message;
     }
 
     @Override
-    protected MessageAction action(T channel) {
-        return channel.sendMessage(message);
+    protected MessageAction action(MessageChannel channel) {
+        return channel.sendMessage(message.toString());
     }
 }

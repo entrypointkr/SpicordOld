@@ -5,7 +5,6 @@ import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
-import net.dv8tion.jda.api.entities.TextChannel;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -40,7 +39,7 @@ public class ConfigTest {
         Player player = BukkitFactory.createPlayer("EntryPoint");
         SpicordConfig config = createConfig(mockPlugin);
         LangConfig langConfig = new LangConfig(mockPlugin);
-        config.getSendMessage("player-kick", new Parameter());
+        config.getChannelTask("player-kick", new Parameter());
         Assert.assertEquals(
                 Lang.colorize(Lang.VERIFY_MESSAGE.getDef()
                         .replace("%prefix%", Lang.PREFIX.getDef())
@@ -77,7 +76,7 @@ public class ConfigTest {
                 "d"
         ));
         AtomicInteger counter = new AtomicInteger();
-        MessageChannelHandler<TextChannel> message = spicordConfig.getMessage("welcome", new Parameter());
+        MessageChannelHandler message = spicordConfig.getMessage("welcome", new Parameter());
         message.handle(JDAFactory.createTextChannel(msg -> counter.incrementAndGet()));
         Assert.assertEquals(6, counter.get());
     }

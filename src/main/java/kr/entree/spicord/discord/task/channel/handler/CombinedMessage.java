@@ -9,30 +9,29 @@ import java.util.Collection;
 /**
  * Created by JunHyung Lim on 2019-11-29
  */
-public class CombinedMessage<T extends MessageChannel> implements MessageChannelHandler<T> {
-    private final Collection<MessageChannelHandler<T>> handlers;
+public class CombinedMessage implements MessageChannelHandler {
+    private final Collection<MessageChannelHandler> handlers;
 
-    private CombinedMessage(Collection<MessageChannelHandler<T>> handlers) {
+    private CombinedMessage(Collection<MessageChannelHandler> handlers) {
         this.handlers = handlers;
     }
 
-    public static <T extends MessageChannel> CombinedMessage<T> of(Collection<MessageChannelHandler<T>> handlers) {
-        return new CombinedMessage<>(handlers);
+    public static <T extends MessageChannel> CombinedMessage of(Collection<MessageChannelHandler> handlers) {
+        return new CombinedMessage(handlers);
     }
 
-    public static <T extends MessageChannel> CombinedMessage<T> ofList() {
+    public static <T extends MessageChannel> CombinedMessage ofList() {
         return of(new ArrayList<>());
     }
 
-    @SafeVarargs
-    public final CombinedMessage<T> add(MessageChannelHandler<T>... handlers) {
+    public final CombinedMessage add(MessageChannelHandler... handlers) {
         this.handlers.addAll(Arrays.asList(handlers));
         return this;
     }
 
     @Override
-    public void handle(T channel) {
-        for (MessageChannelHandler<T> handler : handlers) {
+    public void handle(MessageChannel channel) {
+        for (MessageChannelHandler handler : handlers) {
             handler.handle(channel);
         }
     }

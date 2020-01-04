@@ -33,7 +33,6 @@ import java.util.logging.Logger;
  * Created by JunHyung Lim on 2019-11-16
  */
 public class Spicord extends JavaPlugin {
-    @Getter
     private final SpicordConfig spicordConfig = new SpicordConfig(this);
     @Getter
     private final LangConfig langConfig = new LangConfig(this);
@@ -41,10 +40,9 @@ public class Spicord extends JavaPlugin {
     private final DataStorage dataStorage = new DataStorage(this);
     @Getter
     private final VerifiedMemberManager verifiedManager = new VerifiedMemberManager(this);
-    @Getter
     private final Discord discord = new Discord(this);
     @Getter
-    private final WebhookManager webhookManager = new WebhookManager();
+    private final WebhookManager webhookManager = new WebhookManager(this);
     private final Thread discordThread = new Thread(discord, "SpicordThread");
 
     @Override
@@ -95,8 +93,12 @@ public class Spicord extends JavaPlugin {
                 new PlayerVerifier(this, spicordConfig, langConfig, verifiedManager),
                 new PlayerRestricter(verifiedManager, spicordConfig, langConfig)
         );
+        discordThread.setContextClassLoader(getClassLoader());
         discordThread.start();
         discord.addTask(spicordConfig.getServerOnMessage());
+        if (spicordConfig.getVerification().isDeleteIfQuitFromGuild()) {
+            verifiedManager.queuePurgeTask(discord, spicordConfig.getGuild());
+        }
     }
 
     private void initCommands() {
@@ -142,6 +144,14 @@ public class Spicord extends JavaPlugin {
 
     public static Spicord get() {
         return (Spicord) Bukkit.getPluginManager().getPlugin("Spicord");
+    }
+
+    public static Discord getDiscord() {
+        return get().discord;
+    }
+
+    public static SpicordConfig getSpicordConfig() {
+        return get().spicordConfig;
     }
 
     public static Logger logger() {

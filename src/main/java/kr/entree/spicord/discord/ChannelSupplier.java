@@ -8,6 +8,6 @@ import java.util.function.Consumer;
 /**
  * Created by JunHyung Lim on 2019-11-24
  */
-public interface ChannelSupplier<T extends MessageChannel> {
-    void get(JDA jda, Consumer<T> consumer);
+public interface ChannelSupplier {
+    void get(JDA jda, Consumer<MessageChannel> consumer);
 }

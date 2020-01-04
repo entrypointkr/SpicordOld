@@ -5,7 +5,7 @@ import lombok.val;
 import net.dv8tion.jda.api.entities.Member;
 import org.ahocorasick.trie.Emit;
 import org.ahocorasick.trie.Trie;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class Parameter {
     private final Map<String, Object> map = new HashMap<>();
 
-    public Parameter put(Player player) {
+    public Parameter put(OfflinePlayer player) {
         put("%name%", player.getName());
         put("%player%", player.getName());
         put("%uuid%", player.getUniqueId());

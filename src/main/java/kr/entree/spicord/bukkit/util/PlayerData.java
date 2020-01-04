@@ -1,6 +1,9 @@
 package kr.entree.spicord.bukkit.util;
 
 import lombok.Getter;
+import lombok.val;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -11,7 +14,6 @@ import java.util.UUID;
 public class PlayerData {
     @Getter
     private final UUID id;
-    @Getter
     @Nullable
     private String name;
 
@@ -31,5 +33,19 @@ public class PlayerData {
             builder.append('|').append(name);
         }
         return builder.toString();
+    }
+
+    @Nullable
+    public Player getPlayer() {
+        return Bukkit.getPlayer(id);
+    }
+
+    @Nullable
+    public String getName() {
+        val player = getPlayer();
+        if (player != null) {
+            return player.getName();
+        }
+        return name;
     }
 }

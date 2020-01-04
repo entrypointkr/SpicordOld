@@ -87,12 +87,9 @@ verification:
   command: "!인증"
   expire-seconds: 20
   cooldown-seconds: 40
+  delete-if-quit: false
   before:
-    player-restrict:
-      - chat
-      - build
-      - pvp
-      - move
+    player-restrict: [chat, build, pvp, move, item]
   after:
     name-sync: false
     discord-name-format: "%name%"

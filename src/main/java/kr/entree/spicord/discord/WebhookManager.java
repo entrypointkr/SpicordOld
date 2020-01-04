@@ -2,6 +2,7 @@ package kr.entree.spicord.discord;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
+import kr.entree.spicord.Spicord;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.requests.restaction.WebhookAction;
@@ -15,8 +16,15 @@ import java.util.function.Consumer;
  * Created by JunHyung Lim on 2019-12-01
  */
 public class WebhookManager {
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+    private final ScheduledExecutorService executor;
     private Webhook cachedWebhook = null;
+
+    public WebhookManager(Spicord spicord) {
+        this.executor = Executors.newScheduledThreadPool(
+                2,
+                new SpicordThreadFactory(Executors.defaultThreadFactory(), spicord)
+        );
+    }
 
     private WebhookClient createClient(Webhook webhook) {
         return new WebhookClientBuilder(webhook.getUrl())

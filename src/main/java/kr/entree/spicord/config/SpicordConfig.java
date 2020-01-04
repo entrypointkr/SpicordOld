@@ -11,6 +11,7 @@ import kr.entree.spicord.discord.task.channel.handler.EmbedMessage;
 import kr.entree.spicord.discord.task.channel.handler.EmptyMessageChannelHandler;
 import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
 import kr.entree.spicord.discord.task.channel.handler.PlainMessage;
+import kr.entree.spicord.discord.task.channel.handler.RestActor;
 import kr.entree.spicord.discord.task.channel.supplier.TextChannelSupplier;
 import kr.entree.spicord.option.BooleanOption;
 import kr.entree.spicord.option.NumberOption;
@@ -20,9 +21,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -38,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -138,15 +138,15 @@ public class SpicordConfig extends PluginConfiguration {
                 .replace("%message%", contents);
     }
 
-    public JDAHandler getSendMessage(String id, Parameter parameter) {
-        return getSendMessage(id, getMessage(id, parameter));
+    public JDAHandler getChannelTask(String id, Parameter parameter) {
+        return getChannelTask(id, getMessage(id, parameter));
     }
 
-    public JDAHandler getSendMessage(String id) {
-        return getSendMessage(id, new Parameter());
+    public JDAHandler getChannelTask(String id) {
+        return getChannelTask(id, new Parameter());
     }
 
-    public JDAHandler getSendMessage(String id, MessageChannelHandler<TextChannel> handler) {
+    public JDAHandler getChannelTask(String id, MessageChannelHandler handler) {
         id = featureKey(id);
         if (!isEnabled(id)) {
             return EmptyHandler.INSTANCE;
@@ -154,7 +154,7 @@ public class SpicordConfig extends PluginConfiguration {
         Set<String> channels = getChannelIds(id + ".channel", false);
         CombinedHandler combined = new CombinedHandler();
         for (String channel : channels) {
-            combined.add(new ChannelTask<>(
+            combined.add(new ChannelTask(
                     TextChannelSupplier.ofConfigurized(this, channel),
                     handler
             ));
@@ -163,55 +163,55 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     public JDAHandler getServerOnMessage() {
-        return getSendMessage("server-on");
+        return getChannelTask("server-on");
     }
 
     public JDAHandler getServerOffMessage(Parameter parameter) {
-        return getSendMessage("server-off", parameter);
+        return getChannelTask("server-off", parameter);
     }
 
     @NotNull
-    public static <T extends MessageChannel> MessageChannelHandler<T> parseMessage(Object val, Parameter parameter) {
+    public static MessageChannelHandler parseMessage(Object val, Parameter parameter) {
         if (val instanceof ConfigurationSection) {
             val = ((ConfigurationSection) val).getValues(false);
         }
         if (val instanceof Map) {
-            return new EmbedMessage<>(parseEmbed(((Map<?, ?>) val), parameter));
+            return new EmbedMessage(parseEmbed(((Map<?, ?>) val), parameter));
         } else if (val instanceof Collection) {
             return parseMessage(((Collection<?>) val), parameter);
         } else if (val != null) {
-            return new PlainMessage<>(parameter.format(val.toString()));
+            return new PlainMessage(parameter.format(val.toString()));
         }
-        return new EmptyMessageChannelHandler<>();
+        return EmptyMessageChannelHandler.INSTANCE;
     }
 
-    public static <T extends MessageChannel> MessageChannelHandler<T> parseMessage(Collection<?> val, Parameter parameter) {
+    public static MessageChannelHandler parseMessage(Collection<?> val, Parameter parameter) {
         val collection = (Collection<?>) val;
-        val ret = CombinedMessage.<T>ofList();
+        val ret = CombinedMessage.ofList();
         val builder = new StringBuilder();
         for (Object element : collection) {
-            val parsed = SpicordConfig.<T>parseMessage(element, parameter);
+            val parsed = SpicordConfig.parseMessage(element, parameter);
             if (parsed instanceof PlainMessage) {
                 if (builder.length() > 0) {
                     builder.append('\n');
                 }
-                builder.append(((PlainMessage<T>) parsed).getMessage());
+                builder.append(((PlainMessage) parsed).getMessage());
             } else {
                 if (builder.length() > 0) {
-                    ret.add(new PlainMessage<>(builder));
+                    ret.add(new PlainMessage(builder));
                     builder.setLength(0);
                 }
                 ret.add(parsed);
             }
         }
         if (builder.length() > 0) {
-            ret.add(new PlainMessage<>(builder));
+            ret.add(new PlainMessage(builder));
         }
         return ret;
     }
 
     @NotNull
-    public <T extends MessageChannel> MessageChannelHandler<T> getMessage(String key, Parameter parameter) {
+    public MessageChannelHandler getMessage(String key, Parameter parameter) {
         Object messageObj = get("messages." + key);
         if (messageObj instanceof ConfigurationSection) {
             messageObj = ((ConfigurationSection) messageObj).getValues(false);
@@ -220,7 +220,23 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     @NotNull
-    public <T extends MessageChannel> MessageChannelHandler<T> getMessage(String key) {
+    public MessageChannelHandler getMessage(String key, Parameter parameter, @Nullable Consumer<Object> success, @Nullable Consumer<Throwable> fail) {
+        val handler = getMessage(key, parameter);
+        if (handler instanceof RestActor) {
+            val restActor = ((RestActor) handler);
+            restActor.setSuccess(success);
+            restActor.setFail(fail);
+        }
+        return handler;
+    }
+
+    @NotNull
+    public MessageChannelHandler getMessage(String key, Parameter parameter, @Nullable Consumer<Object> success) {
+        return getMessage(key, parameter, success, null);
+    }
+
+    @NotNull
+    public MessageChannelHandler getMessage(String key) {
         return getMessage(key, new Parameter());
     }
 
