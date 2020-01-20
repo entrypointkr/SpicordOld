@@ -27,7 +27,7 @@ public class BukkitToDiscord implements Listener {
     @EventHandler
     public void onKick(PlayerKickEvent e) {
         Player player = e.getPlayer();
-        discord.addTask(config.getChannelTask(
+        discord.addTask(config.getFeature(
                 "player-kick",
                 new Parameter().put(player)
                         .put("%reason%", e.getReason())

@@ -55,7 +55,7 @@ public class ChatToDiscord implements Listener {
     private void sendPlainMessage(Player player, String message) {
         val parameter = new Parameter().put(player)
                 .put("%message%", message);
-        discord.addTask(config.getChannelTask("player-chat", parameter));
+        discord.addTask(config.getFeature("player-chat", parameter));
     }
 
     private void failedWebhook(Throwable throwable, Player player, String message) {
@@ -80,7 +80,7 @@ public class ChatToDiscord implements Listener {
                     storage.getPlayerChatWebhookId(),
                     throwable -> failedWebhook(throwable, player, message)
             );
-            discord.addTask(config.getChannelTask("player-chat", sendMessage));
+            discord.addTask(config.getFeature("player-chat", sendMessage));
         } else {
             sendPlainMessage(player, message);
         }

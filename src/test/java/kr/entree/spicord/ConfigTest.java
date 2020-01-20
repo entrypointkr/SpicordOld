@@ -39,7 +39,7 @@ public class ConfigTest {
         Player player = BukkitFactory.createPlayer("EntryPoint");
         SpicordConfig config = createConfig(mockPlugin);
         LangConfig langConfig = new LangConfig(mockPlugin);
-        config.getChannelTask("player-kick", new Parameter());
+        config.getFeature("player-kick", new Parameter());
         Assert.assertEquals(
                 Lang.colorize(Lang.VERIFY_MESSAGE.getDef()
                         .replace("%prefix%", Lang.PREFIX.getDef())

@@ -138,15 +138,19 @@ public class SpicordConfig extends PluginConfiguration {
                 .replace("%message%", contents);
     }
 
-    public JDAHandler getChannelTask(String id, Parameter parameter) {
-        return getChannelTask(id, getMessage(id, parameter));
+    public String getFeatureMessageKey(String featureId) {
+        return getString(featureKey(featureId) + ".message", featureId);
     }
 
-    public JDAHandler getChannelTask(String id) {
-        return getChannelTask(id, new Parameter());
+    public JDAHandler getFeature(String id, Parameter parameter) {
+        return getFeature(id, getMessage(getFeatureMessageKey(id), parameter));
     }
 
-    public JDAHandler getChannelTask(String id, MessageChannelHandler handler) {
+    public JDAHandler getFeature(String id) {
+        return getFeature(id, new Parameter());
+    }
+
+    public JDAHandler getFeature(String id, MessageChannelHandler handler) {
         id = featureKey(id);
         if (!isEnabled(id)) {
             return EmptyHandler.INSTANCE;
@@ -163,11 +167,11 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     public JDAHandler getServerOnMessage() {
-        return getChannelTask("server-on");
+        return getFeature("server-on");
     }
 
     public JDAHandler getServerOffMessage(Parameter parameter) {
-        return getChannelTask("server-off", parameter);
+        return getFeature("server-off", parameter);
     }
 
     @NotNull
@@ -211,9 +215,11 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     @NotNull
-    public MessageChannelHandler getMessage(String key, Parameter parameter) {
-        Object messageObj = get("messages." + key);
-        if (messageObj instanceof ConfigurationSection) {
+    public MessageChannelHandler getMessage(String id, Parameter parameter) {
+        Object messageObj = get("messages." + id);
+        if (messageObj == null) {
+            messageObj = id;
+        } else if (messageObj instanceof ConfigurationSection) {
             messageObj = ((ConfigurationSection) messageObj).getValues(false);
         }
         return parseMessage(messageObj, parameter);
