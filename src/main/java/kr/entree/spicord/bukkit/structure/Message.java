@@ -7,23 +7,31 @@ import lombok.Getter;
  */
 public class Message {
     @Getter
+    private final Long id;
+    @Getter
     private final User author;
     @Getter
     private final String contents;
+    @Getter
+    private final String channelId;
 
-    private Message(User author, String contents) {
+    private Message(Long id, User author, String contents, String channelId) {
+        this.id = id;
         this.author = author;
         this.contents = contents;
+        this.channelId = channelId;
     }
 
-    public static Message of(User author, String contents) {
-        return new Message(author, contents);
+    public static Message of(Long id, User author, String contents, String channelId) {
+        return new Message(id, author, contents, channelId);
     }
 
     public static Message of(net.dv8tion.jda.api.entities.Message message) {
         return of(
+                message.getIdLong(),
                 User.of(message.getAuthor()),
-                message.getContentDisplay()
+                message.getContentDisplay(),
+                message.getChannel().getId()
         );
     }
 }
