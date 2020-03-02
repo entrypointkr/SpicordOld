@@ -3,9 +3,9 @@ package kr.entree.spicord.discord;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import kr.entree.spicord.Spicord;
+import lombok.val;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
-import net.dv8tion.jda.api.requests.restaction.WebhookAction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.Executors;
@@ -20,8 +20,7 @@ public class WebhookManager {
     private Webhook cachedWebhook = null;
 
     public WebhookManager(Spicord spicord) {
-        this.executor = Executors.newScheduledThreadPool(
-                2,
+        this.executor = Executors.newSingleThreadScheduledExecutor(
                 new SpicordThreadFactory(Executors.defaultThreadFactory(), spicord)
         );
     }
@@ -37,12 +36,24 @@ public class WebhookManager {
     }
 
     private void createWebhook(TextChannel channel, Consumer<Webhook> receiver, @Nullable Consumer<Throwable> failure) {
-        WebhookAction action = channel.createWebhook("Spicord");
-        if (failure != null) {
-            action.queue(receiver, failure);
-        } else {
-            action.queue(receiver);
-        }
+        executor.execute(() -> {
+            System.out.println("Executed");
+            if (cachedWebhook != null) {
+                receiver.accept(cachedWebhook);
+                return;
+            }
+            val action = channel.createWebhook("Spicord");
+            try {
+                val complete = action.complete();
+                cachedWebhook = complete;
+                System.out.println("AWEFIAWEFJAWOIFJFIOJEFWIOAEFJAWOIJWEF");
+                receiver.accept(complete);
+            } catch (Exception ex) {
+                if (failure != null) {
+                    failure.accept(ex);
+                }
+            }
+        });
     }
 
     public void clearCache() {
@@ -54,7 +65,7 @@ public class WebhookManager {
             receiver.accept(cachedWebhook);
         } else {
             if (webhookId >= 0) {
-                channel.retrieveWebhooks().queue(webhooks -> {
+                executor.execute(() -> channel.retrieveWebhooks().queue(webhooks -> {
                     for (Webhook webhook : webhooks) {
                         if (webhook.getIdLong() == webhookId) {
                             cachedWebhook = webhook;
@@ -63,7 +74,7 @@ public class WebhookManager {
                         }
                     }
                     createWebhook(channel, receiver, failure);
-                });
+                }));
             } else {
                 createWebhook(channel, receiver, failure);
             }
