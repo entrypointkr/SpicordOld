@@ -2,12 +2,7 @@ package kr.entree.spicord;
 
 import kr.entree.spicord.bukkit.SpicordCommand;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
-import kr.entree.spicord.bukkit.bootstrap.BukkitToDiscord;
-import kr.entree.spicord.bukkit.bootstrap.ChatToDiscord;
-import kr.entree.spicord.bukkit.bootstrap.DiscordToBukkit;
-import kr.entree.spicord.bukkit.bootstrap.DiscordToDiscord;
-import kr.entree.spicord.bukkit.bootstrap.PlayerRestricter;
-import kr.entree.spicord.bukkit.bootstrap.PlayerVerifier;
+import kr.entree.spicord.bukkit.bootstrap.*;
 import kr.entree.spicord.bukkit.util.Compatibles;
 import kr.entree.spicord.config.DataStorage;
 import kr.entree.spicord.config.LangConfig;
@@ -33,6 +28,7 @@ import java.util.logging.Logger;
  * Created by JunHyung Lim on 2019-11-16
  */
 public class Spicord extends JavaPlugin {
+    private static final int BSTATS_ID = 5977;
     private final SpicordConfig spicordConfig = new SpicordConfig(this);
     @Getter
     private final LangConfig langConfig = new LangConfig(this);
@@ -109,7 +105,7 @@ public class Spicord extends JavaPlugin {
     }
 
     private void initMetrics() {
-        new Metrics(this);
+        new Metrics(this, BSTATS_ID);
     }
 
     private void registerEvents(Listener... listeners) {
