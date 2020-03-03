@@ -1,5 +1,6 @@
 package kr.entree.spicord;
 
+import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.config.Lang;
 import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.Parameter;
@@ -11,6 +12,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -33,6 +35,11 @@ public class ConfigTest {
         return new SpicordConfig(yamlConfig, plugin);
     }
 
+    @Before
+    public void setup() {
+        BukkitFactory.injectServer(BukkitFactory.createServer());
+    }
+
     @Test
     public void parse() throws IOException, InvalidConfigurationException {
         Plugin mockPlugin = mock(Plugin.class);
@@ -47,7 +54,7 @@ public class ConfigTest {
                         .replace("%code%", "1234")),
                 langConfig.format(
                         Lang.VERIFY_MESSAGE,
-                        new Parameter().put(player)
+                        new Parameter().put(new PlayerData(player))
                                 .put("%discord%", "DiscordName")
                                 .put("%code%", 1234)
                 )

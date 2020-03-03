@@ -49,6 +49,8 @@ tasks {
         options.apply {
             encoding = "UTF-8"
             compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
+            targetCompatibility = "1.8"
+            sourceCompatibility = targetCompatibility
         }
     }
     shadowJar {

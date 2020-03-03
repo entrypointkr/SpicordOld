@@ -37,7 +37,6 @@ public class WebhookManager {
 
     private void createWebhook(TextChannel channel, Consumer<Webhook> receiver, @Nullable Consumer<Throwable> failure) {
         executor.execute(() -> {
-            System.out.println("Executed");
             if (cachedWebhook != null) {
                 receiver.accept(cachedWebhook);
                 return;
@@ -46,7 +45,6 @@ public class WebhookManager {
             try {
                 val complete = action.complete();
                 cachedWebhook = complete;
-                System.out.println("AWEFIAWEFJAWOIFJFIOJEFWIOAEFJAWOIJWEF");
                 receiver.accept(complete);
             } catch (Exception ex) {
                 if (failure != null) {

@@ -9,11 +9,7 @@ import kr.entree.spicord.bukkit.event.PrivateChatEvent;
 import kr.entree.spicord.bukkit.structure.Message;
 import kr.entree.spicord.bukkit.util.CooldownMap;
 import kr.entree.spicord.bukkit.util.PlayerData;
-import kr.entree.spicord.config.Lang;
-import kr.entree.spicord.config.LangConfig;
-import kr.entree.spicord.config.Parameter;
-import kr.entree.spicord.config.SpicordConfig;
-import kr.entree.spicord.config.VerificationConfig;
+import kr.entree.spicord.config.*;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.task.channel.ChannelHandlerBuilder;
 import kr.entree.spicord.discord.task.channel.ChannelTask;
@@ -23,7 +19,6 @@ import kr.entree.spicord.discord.task.guild.handler.CombinedMemberHandler;
 import kr.entree.spicord.discord.task.guild.handler.GuildMemberHandler;
 import kr.entree.spicord.discord.task.guild.handler.Rename;
 import lombok.val;
-import lombok.var;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -224,7 +219,7 @@ public class PlayerVerifier implements Listener {
         val user = e.getUser();
         val mcUser = manager.getMinecraft(user.getId());
         if (mcUser != null) {
-            var name = mcUser.getName();
+            val name = mcUser.getName();
             val handlers = new CombinedMemberHandler()
                     .add(new AddRole(getConfig()::getDiscordRoles));
             if (name != null) {

@@ -1,16 +1,12 @@
 package kr.entree.spicord.bukkit.bootstrap;
 
-import club.minnced.discord.webhook.send.WebhookMessageBuilder;
-import kr.entree.spicord.Spicord;
-import kr.entree.spicord.bukkit.discord.WebMessage;
-import kr.entree.spicord.config.DataStorage;
+import kr.entree.spicord.bukkit.messenger.Messenger;
+import kr.entree.spicord.bukkit.util.Chat;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
-import kr.entree.spicord.discord.Discord;
-import kr.entree.spicord.discord.WebhookManager;
 import lombok.val;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,10 +15,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.logging.Level;
 
 import static kr.entree.spicord.config.SpicordConfig.featureKey;
 
@@ -31,104 +24,34 @@ import static kr.entree.spicord.config.SpicordConfig.featureKey;
  */
 public class ChatToDiscord implements Listener {
     private final Plugin plugin;
-    private final Discord discord;
     private final SpicordConfig config;
-    private final DataStorage storage;
-    private final WebhookManager manager;
-    private final StringBuilder builder = new StringBuilder();
-    private Player last = null;
-    private BukkitTask task = null;
-    private long lastFlushTime = 0;
+    private final Messenger textMessenger;
+    private final Messenger webhookMessenger;
 
-    public ChatToDiscord(Plugin plugin, Discord discord, SpicordConfig config, DataStorage storage, WebhookManager manager) {
+    public ChatToDiscord(Plugin plugin, SpicordConfig config, Messenger textMessenger, Messenger webhookMessenger) {
         this.plugin = plugin;
-        this.discord = discord;
         this.config = config;
-        this.storage = storage;
-        this.manager = manager;
+        this.textMessenger = textMessenger;
+        this.webhookMessenger = webhookMessenger;
     }
 
-    public static String createAvatarUrl(Object uuid) {
-        return String.format("https://crafatar.com/avatars/%s?overlay=true", uuid);
+    private void chats(@Nullable Player player, String message) {
+        chats(Chat.create(player, message));
     }
 
-    private void sendPlainMessage(Player player, String message) {
-        val parameter = new Parameter().put(player)
-                .put("%message%", message);
-        discord.addTask(config.getFeature("player-chat", parameter));
-    }
-
-    private void failedWebhook(Throwable throwable, Player player, String message) {
-        plugin.getLogger().log(Level.SEVERE, throwable, () ->
-                "Failed creating a webhook. This feature will be disabled.");
-        config.getFakeProfilePlayerChat().set(false);
-        sendPlainMessage(player, message);
-    }
-
-    private void queueNow(Player player, String message) {
-        if (message.isEmpty()) {
-            return;
-        }
-        if (config.getFakeProfilePlayerChat().isTrue()) {
-            val builder = new WebhookMessageBuilder()
-                    .setUsername(player.getName())
-                    .setAvatarUrl(createAvatarUrl(player.getUniqueId()))
-                    .setContent(message);
-            val sendMessage = new WebMessage(
-                    manager,
-                    builder.build(),
-                    storage.getPlayerChatWebhookId(),
-                    throwable -> failedWebhook(throwable, player, message)
-            );
-            discord.addTask(config.getFeature("player-chat", sendMessage));
-        } else {
-            sendPlainMessage(player, message);
-        }
-    }
-
-    private void cancelTask() {
-        if (task != null) {
-            task.cancel();
-            task = null;
-        }
-    }
-
-    private void flushQueue() {
-        queueNow(last, builder.toString());
-        last = null;
-        builder.setLength(0);
-        cancelTask();
-        lastFlushTime = System.currentTimeMillis();
-    }
-
-    private void queueSlowly(Player player, String message) {
-        if (player.equals(last)) {
-            builder.append('\n');
-        } else {
-            if (last != null) {
-                flushQueue();
-            }
-            last = player;
-        }
-        val timeDiff = System.currentTimeMillis() - lastFlushTime;
-        builder.append(message);
-        if (timeDiff >= 3000) {
-            flushQueue();
-        } else {
-            cancelTask();
-            task = Bukkit.getScheduler().runTaskLater(Spicord.get(), this::flushQueue, 3L * 20L);
-        }
-    }
-
-    private void chat(Player player, String message) {
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            String uncolored = ChatColor.stripColor(message);
-            if (config.isSlowModePlayerChat()) {
-                queueSlowly(player, uncolored);
+    private void chats(Chat chat) {
+        if (Bukkit.isPrimaryThread()) {
+            if (config.getFakeProfilePlayerChat().isTrue()) {
+                webhookMessenger.chat(chat);
             } else {
-                queueNow(player, uncolored);
+                textMessenger.chat(chat);
             }
-        });
+        } else {
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                Validate.isTrue(Bukkit.isPrimaryThread());
+                chats(chat);
+            });
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -136,7 +59,7 @@ public class ChatToDiscord implements Listener {
         if (e.isCancelled() && isIgnoreCancelled()) {
             return;
         }
-        chat(e.getPlayer(), e.getMessage());
+        chats(e.getPlayer(), e.getMessage());
     }
 
     private boolean isJoinQuitEnabled() {
@@ -159,27 +82,25 @@ public class ChatToDiscord implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent e) {
-        if (isJoinQuitEnabled()) {
-            val player = e.getPlayer();
-            val altMsg = getQuitMessage();
-            if (altMsg != null) {
-                chat(player, new Parameter().put(player).format(altMsg));
-            } else {
-                chat(player, e.getQuitMessage());
-            }
-        }
+        if (!isJoinQuitEnabled()) return;
+        val player = e.getPlayer();
+        val altMsg = getQuitMessage();
+        val message = altMsg != null
+                ? new Parameter().put(player).format(altMsg)
+                : e.getQuitMessage();
+        chats(Chat.create(player, message).prefix(false));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent e) {
-        if (isJoinQuitEnabled()) {
-            val player = e.getPlayer();
-            val altMsg = getJoinMessage();
-            if (altMsg != null) {
-                chat(player, new Parameter().put(player).format(altMsg));
-            } else {
-                chat(player, e.getJoinMessage());
-            }
-        }
+        if (!isJoinQuitEnabled()) return;
+        val player = e.getPlayer();
+        val altMsg = getJoinMessage();
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            val message = altMsg != null
+                    ? new Parameter().put(player).format(altMsg)
+                    : e.getJoinMessage();
+            chats(Chat.create(player, message).prefix(false));
+        }, 2);
     }
 }

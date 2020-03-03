@@ -6,12 +6,7 @@ import kr.entree.spicord.discord.EmptyHandler;
 import kr.entree.spicord.discord.JDAHandler;
 import kr.entree.spicord.discord.task.channel.ChannelTask;
 import kr.entree.spicord.discord.task.channel.CombinedHandler;
-import kr.entree.spicord.discord.task.channel.handler.CombinedMessage;
-import kr.entree.spicord.discord.task.channel.handler.EmbedMessage;
-import kr.entree.spicord.discord.task.channel.handler.EmptyMessageChannelHandler;
-import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
-import kr.entree.spicord.discord.task.channel.handler.PlainMessage;
-import kr.entree.spicord.discord.task.channel.handler.RestActor;
+import kr.entree.spicord.discord.task.channel.handler.*;
 import kr.entree.spicord.discord.task.channel.supplier.TextChannelSupplier;
 import kr.entree.spicord.option.BooleanOption;
 import kr.entree.spicord.option.NumberOption;
@@ -31,12 +26,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -164,6 +155,16 @@ public class SpicordConfig extends PluginConfiguration {
             ));
         }
         return combined;
+    }
+
+    @Nullable
+    public PlainMessage getPlainMessage(String id, Parameter parameter) {
+        val handler = getMessage(id, parameter);
+        if (handler instanceof PlainMessage) {
+            return (PlainMessage) handler;
+        }
+        Spicord.logger().log(Level.WARNING, "{0} in config.yml must be string only.", id);
+        return null;
     }
 
     public JDAHandler getServerOnMessage() {

@@ -37,7 +37,7 @@ messages:
     author:
       title: "서버에서 추방되었습니다."
       icon: "https://crafatar.com/avatars/%uuid%?overlay=true"
-  player-chat: "**%player%**: %message%"
+  player-chat: "**%display-name%**: %message%"
   verify-usage: "명령어 사용법: `%command% 게임닉네임`"
   verify-code:
     - "인증코드: `%code%`"
@@ -69,11 +69,10 @@ features:
   player-chat:
     enabled: true
     channel: chat
-    slow-mode: true
     fake-profile: true
     join-quit: true
-    join-message: "%name% joined the game."
-    quit-message: "%name% left the game."
+    join-message: "%display-name% joined the game."
+    quit-message: "%display-name% left the game."
     ignore-cancel: true
     message: player-chat
   discord-chat:

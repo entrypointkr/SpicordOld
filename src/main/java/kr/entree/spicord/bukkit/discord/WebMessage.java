@@ -31,8 +31,8 @@ public class WebMessage implements MessageChannelHandler {
         webhookId.set(client.getId());
         client.send(message).whenComplete((msg, throwable) -> {
             if (throwable != null) {
-                manager.clearCache();
-                client.send(message).whenComplete((m, t) -> Spicord.log(t));
+                Spicord.log(throwable);
+                failure.accept(throwable);
             }
         });
     }

@@ -3,6 +3,8 @@ package kr.entree.spicord;
 import kr.entree.spicord.bukkit.SpicordCommand;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
 import kr.entree.spicord.bukkit.bootstrap.*;
+import kr.entree.spicord.bukkit.messenger.TextMessenger;
+import kr.entree.spicord.bukkit.messenger.WebhookMessenger;
 import kr.entree.spicord.bukkit.util.Compatibles;
 import kr.entree.spicord.config.DataStorage;
 import kr.entree.spicord.config.LangConfig;
@@ -18,6 +20,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -81,14 +84,27 @@ public class Spicord extends JavaPlugin {
     }
 
     private void initFunctions() {
+        val flushPeriod = Duration.ofSeconds(2);
+        val flushPeriodTicks = flushPeriod.toMillis() / 50;
+        val textMessenger = new TextMessenger(flushPeriod, discord, spicordConfig);
+        val webhookMessenger = new WebhookMessenger(
+                flushPeriod,
+                webhookManager,
+                dataStorage,
+                textMessenger,
+                discord,
+                spicordConfig
+        );
         registerEvents(
-                new ChatToDiscord(this, discord, spicordConfig, dataStorage, webhookManager),
+                new ChatToDiscord(this, spicordConfig, textMessenger, webhookMessenger),
                 new DiscordToBukkit(this, spicordConfig),
                 new DiscordToDiscord(spicordConfig, verifiedManager),
                 new BukkitToDiscord(spicordConfig, discord, verifiedManager),
                 new PlayerVerifier(this, spicordConfig, langConfig, verifiedManager),
                 new PlayerRestricter(verifiedManager, spicordConfig, langConfig)
         );
+        runTaskTimer(flushPeriodTicks, textMessenger);
+        runTaskTimer(flushPeriodTicks, webhookMessenger);
         discordThread.setContextClassLoader(getClassLoader());
         discordThread.start();
         discord.addTask(spicordConfig.getServerOnMessage());
@@ -136,6 +152,10 @@ public class Spicord extends JavaPlugin {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    private void runTaskTimer(long periodTicks, Runnable runnable) {
+        Bukkit.getScheduler().runTaskTimer(this, runnable, periodTicks, periodTicks);
     }
 
     public static Spicord get() {

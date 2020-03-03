@@ -1,11 +1,14 @@
 package kr.entree.spicord.config;
 
 import kr.entree.spicord.bukkit.structure.User;
+import kr.entree.spicord.bukkit.util.Chat;
+import kr.entree.spicord.bukkit.util.PlayerData;
 import lombok.val;
 import net.dv8tion.jda.api.entities.Member;
 import org.ahocorasick.trie.Emit;
 import org.ahocorasick.trie.Trie;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,11 +20,26 @@ import java.util.Map;
 public class Parameter {
     private final Map<String, Object> map = new HashMap<>();
 
-    public Parameter put(OfflinePlayer player) {
-        put("%name%", player.getName());
-        put("%player%", player.getName());
-        put("%uuid%", player.getUniqueId());
+    public Parameter put(Chat chat) {
+        put(chat.getPlayerData());
+        put("%message%", chat.getMessage());
         return this;
+    }
+
+    public Parameter put(PlayerData player) {
+        put("%name%", player.getName());
+        put("%display-name%", player.getDisplayNameOrDefault());
+        put("%player%", player.getName());
+        put("%uuid%", player.getId());
+        return this;
+    }
+
+    public Parameter put(OfflinePlayer player) {
+        return put(new PlayerData(player));
+    }
+
+    public Parameter put(Player player) {
+        return put(new PlayerData(player));
     }
 
     public Parameter put(Member member) {
