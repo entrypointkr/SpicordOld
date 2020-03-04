@@ -6,9 +6,7 @@ import kr.entree.spicord.Spicord;
 import kr.entree.spicord.discord.Discord;
 import org.bukkit.plugin.Plugin;
 
-import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Provider;
 import java.time.Duration;
 
 /**
@@ -18,7 +16,6 @@ import java.time.Duration;
 public class SpicordModule {
     private final Spicord spicord;
     private final Duration flushPeriod;
-    @Inject Provider<Discord> discordProvider;
 
     public SpicordModule(Spicord spicord, Duration flushPeriod) {
         this.spicord = spicord;
