@@ -21,6 +21,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -39,7 +40,7 @@ public class Spicord extends JavaPlugin {
     @Inject @Getter VerifiedMemberManager verifyManager;
     @Inject @Getter Discord discord;
     @Inject @Getter WebhookManager webhookManager;
-    Thread discordThread;
+    @Inject @Named("spicordThread") Thread spicordThread;
     @Getter private SpicordComponent component;
 
     @Override
@@ -48,7 +49,6 @@ public class Spicord extends JavaPlugin {
                 .spicordModule(new SpicordModule(this, Duration.ofSeconds(2)))
                 .build();
         component.inject(this);
-        discordThread = new Thread(discord, "SpicordThread");
     }
 
     @Override
@@ -104,8 +104,8 @@ public class Spicord extends JavaPlugin {
         );
         runTaskTimer(flushPeriodTicks, textMessenger);
         runTaskTimer(flushPeriodTicks, webhookMessenger);
-        discordThread.setContextClassLoader(getClassLoader());
-        discordThread.start();
+        spicordThread.setContextClassLoader(getClassLoader());
+        spicordThread.start();
         discord.addTask(spicordConfig.getServerOnMessage());
         if (spicordConfig.getVerification().isDeleteIfQuitFromGuild()) {
             verifyManager.queuePurgeTask(discord, spicordConfig.getGuild());
@@ -145,9 +145,9 @@ public class Spicord extends JavaPlugin {
     }
 
     private void stopDiscordThread() {
-        discordThread.interrupt();
+        spicordThread.interrupt();
         try {
-            discordThread.join();
+            spicordThread.join();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
