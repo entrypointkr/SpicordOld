@@ -1,26 +1,31 @@
 package kr.entree.spicord.bukkit.messenger;
 
+import dagger.Reusable;
 import kr.entree.spicord.bukkit.util.Chat;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.task.channel.handler.PlainMessage;
 import lombok.val;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.time.Duration;
 import java.time.LocalTime;
 
 /**
  * Created by JunHyung Lim on 2020-03-02
  */
+@Reusable
 public class TextMessenger implements Messenger, Runnable {
-    private final Duration threshold;
+    private final Duration flushPeriod;
     private final Discord discord;
     private final SpicordConfig config;
     private LocalTime lastFlushedTime = LocalTime.MIN;
     private final StringBuilder builder = new StringBuilder();
 
-    public TextMessenger(Duration threshold, Discord discord, SpicordConfig config) {
-        this.threshold = threshold;
+    @Inject
+    public TextMessenger(@Named("flushPeriod") Duration flushPeriod, Discord discord, SpicordConfig config) {
+        this.flushPeriod = flushPeriod;
         this.discord = discord;
         this.config = config;
     }
@@ -52,7 +57,7 @@ public class TextMessenger implements Messenger, Runnable {
     }
 
     private boolean checkFlushTime() {
-        return Duration.between(lastFlushedTime, LocalTime.now()).compareTo(threshold) > 0;
+        return Duration.between(lastFlushedTime, LocalTime.now()).compareTo(flushPeriod) > 0;
     }
 
     private void appendChat(String message) {

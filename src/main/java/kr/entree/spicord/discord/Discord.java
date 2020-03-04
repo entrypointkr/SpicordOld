@@ -1,5 +1,6 @@
 package kr.entree.spicord.discord;
 
+import dagger.Reusable;
 import kr.entree.spicord.bukkit.DiscordEventToBukkit;
 import kr.entree.spicord.discord.exception.NoChannelFoundException;
 import kr.entree.spicord.discord.exception.NoGuildFoundException;
@@ -11,6 +12,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import org.bukkit.plugin.Plugin;
 
+import javax.inject.Inject;
 import javax.security.auth.login.LoginException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -19,6 +21,7 @@ import java.util.logging.Level;
 /**
  * Created by JunHyung Lim on 2019-11-16
  */
+@Reusable
 public class Discord implements Runnable {
     private final Plugin plugin;
     private final Queue<JDAHandler> consumers = new ConcurrentLinkedDeque<>();
@@ -28,6 +31,7 @@ public class Discord implements Runnable {
     @Setter
     private String token = null;
 
+    @Inject
     public Discord(Plugin plugin) {
         this.plugin = plugin;
     }

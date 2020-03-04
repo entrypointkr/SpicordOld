@@ -17,6 +17,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import static kr.entree.spicord.config.SpicordConfig.featureKey;
 
 /**
@@ -28,7 +31,13 @@ public class ChatToDiscord implements Listener {
     private final Messenger textMessenger;
     private final Messenger webhookMessenger;
 
-    public ChatToDiscord(Plugin plugin, SpicordConfig config, Messenger textMessenger, Messenger webhookMessenger) {
+    @Inject
+    public ChatToDiscord(
+            Plugin plugin,
+            SpicordConfig config,
+            @Named("textMessenger") Messenger textMessenger,
+            @Named("webhookMessenger") Messenger webhookMessenger
+    ) {
         this.plugin = plugin;
         this.config = config;
         this.textMessenger = textMessenger;

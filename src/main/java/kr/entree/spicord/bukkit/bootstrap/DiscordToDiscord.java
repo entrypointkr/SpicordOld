@@ -19,6 +19,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+
 import static kr.entree.spicord.config.SpicordConfig.featureKey;
 
 /**
@@ -28,6 +30,7 @@ public class DiscordToDiscord implements Listener {
     private final SpicordConfig config;
     private final VerifiedMemberManager verifyManager;
 
+    @Inject
     public DiscordToDiscord(SpicordConfig config, VerifiedMemberManager verifyManager) {
         this.config = config;
         this.verifyManager = verifyManager;

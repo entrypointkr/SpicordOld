@@ -3,11 +3,7 @@ package kr.entree.spicord.bukkit.bootstrap;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
 import kr.entree.spicord.bukkit.restrict.RestrictType;
 import kr.entree.spicord.bukkit.util.CooldownMap;
-import kr.entree.spicord.config.Lang;
-import kr.entree.spicord.config.LangConfig;
-import kr.entree.spicord.config.Parameter;
-import kr.entree.spicord.config.SpicordConfig;
-import kr.entree.spicord.config.VerificationConfig;
+import kr.entree.spicord.config.*;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -23,6 +19,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import javax.inject.Inject;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,6 +32,7 @@ public class PlayerRestricter implements Listener {
     private final LangConfig langConfig;
     private final CooldownMap<UUID> cools = new CooldownMap<>();
 
+    @Inject
     public PlayerRestricter(VerifiedMemberManager manager, SpicordConfig config, LangConfig langConfig) {
         this.manager = manager;
         this.config = config;

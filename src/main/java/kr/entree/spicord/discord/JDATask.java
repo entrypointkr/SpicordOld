@@ -11,6 +11,6 @@ public abstract class JDATask implements JDAHandler {
     }
 
     public void queue() {
-        queue(Spicord.get().getDiscord());
+        queue(Spicord.get().discord());
     }
 }

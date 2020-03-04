@@ -21,15 +21,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -71,7 +63,7 @@ public class SpicordCommand implements CommandExecutor, TabExecutor {
             noPermission(sender);
             return true;
         }
-        SpicordConfig config = plugin.getSpicordConfig();
+        SpicordConfig config = plugin.spicordConfig();
         if (args.length >= 1) {
             String head = args[0].toLowerCase();
             switch (head) {
@@ -110,11 +102,11 @@ public class SpicordCommand implements CommandExecutor, TabExecutor {
                     }
                     return true;
                 case "saveverify":
-                    plugin.getVerifiedManager().save(plugin);
+                    plugin.getVerifyManager().save(plugin);
                     done(sender);
                     return true;
                 case "reloadverify":
-                    plugin.getVerifiedManager().load(plugin);
+                    plugin.getVerifyManager().load(plugin);
                     done(sender);
                     return true;
             }
@@ -143,10 +135,10 @@ public class SpicordCommand implements CommandExecutor, TabExecutor {
             ConfigurationSection section = null;
             String argument = null;
             if (args.length == 2) {
-                section = plugin.getSpicordConfig().getChannelSection();
+                section = plugin.spicordConfig().getChannelSection();
                 argument = args[1];
             } else if (args.length == 3) {
-                section = plugin.getSpicordConfig().getMessageSection();
+                section = plugin.spicordConfig().getMessageSection();
                 argument = args[2];
             }
             if (section != null) {

@@ -26,6 +26,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
@@ -44,6 +45,7 @@ public class PlayerVerifier implements Listener {
     private final Random random = new Random();
     private final CooldownMap<Long> cooldowns = new CooldownMap<>();
 
+    @Inject
     public PlayerVerifier(Plugin plugin, SpicordConfig config, LangConfig langConfig, VerifiedMemberManager manager) {
         this.plugin = plugin;
         this.config = config;

@@ -18,6 +18,7 @@ repositories {
 }
 
 dependencies {
+    val daggerVersion = "2.26"
     compileOnly(spigot("1.14.4")) {
         exclude(module = "bungeecord-chat")
         testImplementation(this)
@@ -29,7 +30,9 @@ dependencies {
     implementation(bStats())
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.fasterxml.jackson.core:jackson-core:2.10.1")
+    implementation("com.google.dagger:dagger:${daggerVersion}")
     annotationProcessor("org.projectlombok:lombok:1.18.10")
+    annotationProcessor("com.google.dagger:dagger-compiler:${daggerVersion}")
     testImplementation("org.mockito:mockito-core:3.1.0")
     testImplementation("junit:junit:4.12")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.10")

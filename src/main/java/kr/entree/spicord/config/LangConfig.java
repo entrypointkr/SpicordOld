@@ -1,16 +1,21 @@
 package kr.entree.spicord.config;
 
+import dagger.Reusable;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+
+import javax.inject.Inject;
 
 /**
  * Created by JunHyung Lim on 2019-11-20
  */
+@Reusable
 public class LangConfig extends PluginConfiguration {
     public LangConfig(YamlConfiguration config, Plugin plugin) {
         super(config, plugin);
     }
 
+    @Inject
     public LangConfig(Plugin plugin) {
         super(plugin);
     }

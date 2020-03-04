@@ -1,5 +1,6 @@
 package kr.entree.spicord.config;
 
+import dagger.Reusable;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.EmptyHandler;
@@ -24,6 +25,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -36,6 +38,7 @@ import java.util.stream.Stream;
 /**
  * Created by JunHyung Lim on 2019-11-16
  */
+@Reusable
 public class SpicordConfig extends PluginConfiguration {
     public static final String FEATURES = "features";
     private VerificationConfig verifyConfig = null;
@@ -44,6 +47,7 @@ public class SpicordConfig extends PluginConfiguration {
         super(config, plugin);
     }
 
+    @Inject
     public SpicordConfig(Plugin plugin) {
         super(plugin);
     }

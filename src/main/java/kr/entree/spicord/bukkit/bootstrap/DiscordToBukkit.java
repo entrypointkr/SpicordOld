@@ -8,6 +8,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
+import javax.inject.Inject;
+
 import static kr.entree.spicord.config.SpicordConfig.featureKey;
 
 /**
@@ -17,6 +19,7 @@ public class DiscordToBukkit implements Listener {
     private final Plugin plugin;
     private final SpicordConfig config;
 
+    @Inject
     public DiscordToBukkit(Plugin plugin, SpicordConfig config) {
         this.plugin = plugin;
         this.config = config;

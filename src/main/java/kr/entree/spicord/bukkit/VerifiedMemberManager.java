@@ -1,5 +1,6 @@
 package kr.entree.spicord.bukkit;
 
+import dagger.Reusable;
 import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.config.PluginConfiguration;
 import kr.entree.spicord.discord.Discord;
@@ -15,13 +16,10 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.LongSupplier;
@@ -31,11 +29,13 @@ import java.util.logging.Logger;
 /**
  * Created by JunHyung Lim on 2019-11-20
  */
+@Reusable
 public class VerifiedMemberManager {
     private final Plugin plugin;
     private final Map<Long, PlayerData> mcByDiscord = new ConcurrentHashMap<>();
     private final Map<UUID, Long> discordByMc = new ConcurrentHashMap<>();
 
+    @Inject
     public VerifiedMemberManager(Plugin plugin) {
         this.plugin = plugin;
     }

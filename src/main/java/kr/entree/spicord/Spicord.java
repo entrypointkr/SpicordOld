@@ -2,14 +2,14 @@ package kr.entree.spicord;
 
 import kr.entree.spicord.bukkit.SpicordCommand;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
-import kr.entree.spicord.bukkit.bootstrap.*;
-import kr.entree.spicord.bukkit.messenger.TextMessenger;
-import kr.entree.spicord.bukkit.messenger.WebhookMessenger;
 import kr.entree.spicord.bukkit.util.Compatibles;
 import kr.entree.spicord.config.DataStorage;
 import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
+import kr.entree.spicord.di.component.DaggerSpicordComponent;
+import kr.entree.spicord.di.component.SpicordComponent;
+import kr.entree.spicord.di.module.SpicordModule;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.WebhookManager;
 import kr.entree.spicord.discord.task.CompleterBuilder;
@@ -20,6 +20,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -32,17 +33,23 @@ import java.util.logging.Logger;
  */
 public class Spicord extends JavaPlugin {
     private static final int BSTATS_ID = 5977;
-    private final SpicordConfig spicordConfig = new SpicordConfig(this);
-    @Getter
-    private final LangConfig langConfig = new LangConfig(this);
-    @Getter
-    private final DataStorage dataStorage = new DataStorage(this);
-    @Getter
-    private final VerifiedMemberManager verifiedManager = new VerifiedMemberManager(this);
-    private final Discord discord = new Discord(this);
-    @Getter
-    private final WebhookManager webhookManager = new WebhookManager(this);
-    private final Thread discordThread = new Thread(discord, "SpicordThread");
+    @Inject @Getter SpicordConfig spicordConfig;
+    @Inject @Getter LangConfig langConfig;
+    @Inject @Getter DataStorage dataStorage;
+    @Inject @Getter VerifiedMemberManager verifyManager;
+    @Inject @Getter Discord discord;
+    @Inject @Getter WebhookManager webhookManager;
+    Thread discordThread;
+    @Getter private SpicordComponent component;
+
+    @Override
+    public void onLoad() {
+        component = DaggerSpicordComponent.builder()
+                .spicordModule(new SpicordModule(this, Duration.ofSeconds(2)))
+                .build();
+        component.inject(this);
+        discordThread = new Thread(discord, "SpicordThread");
+    }
 
     @Override
     public void onEnable() {
@@ -73,35 +80,27 @@ public class Spicord extends JavaPlugin {
     }
 
     public void saveConfigs() {
-        verifiedManager.save(this);
+        verifyManager.save(this);
         langConfig.save();
         dataStorage.save();
     }
 
     private void initConfigs() {
         loadConfigs();
-        verifiedManager.load(this);
+        verifyManager.load(this);
     }
 
     private void initFunctions() {
-        val flushPeriod = Duration.ofSeconds(2);
-        val flushPeriodTicks = flushPeriod.toMillis() / 50;
-        val textMessenger = new TextMessenger(flushPeriod, discord, spicordConfig);
-        val webhookMessenger = new WebhookMessenger(
-                flushPeriod,
-                webhookManager,
-                dataStorage,
-                textMessenger,
-                discord,
-                spicordConfig
-        );
+        val flushPeriodTicks = component.flushPeriod().toMillis() / 50;
+        val textMessenger = component.textMessenger();
+        val webhookMessenger = component.webhookMessenger();
         registerEvents(
-                new ChatToDiscord(this, spicordConfig, textMessenger, webhookMessenger),
-                new DiscordToBukkit(this, spicordConfig),
-                new DiscordToDiscord(spicordConfig, verifiedManager),
-                new BukkitToDiscord(spicordConfig, discord, verifiedManager),
-                new PlayerVerifier(this, spicordConfig, langConfig, verifiedManager),
-                new PlayerRestricter(verifiedManager, spicordConfig, langConfig)
+                component.chatToDiscord(),
+                component.discordToBukkit(),
+                component.discordToDiscord(),
+                component.bukkitToDiscord(),
+                component.playerVerifier(),
+                component.playerRestricter()
         );
         runTaskTimer(flushPeriodTicks, textMessenger);
         runTaskTimer(flushPeriodTicks, webhookMessenger);
@@ -109,7 +108,7 @@ public class Spicord extends JavaPlugin {
         discordThread.start();
         discord.addTask(spicordConfig.getServerOnMessage());
         if (spicordConfig.getVerification().isDeleteIfQuitFromGuild()) {
-            verifiedManager.queuePurgeTask(discord, spicordConfig.getGuild());
+            verifyManager.queuePurgeTask(discord, spicordConfig.getGuild());
         }
     }
 
@@ -162,11 +161,11 @@ public class Spicord extends JavaPlugin {
         return (Spicord) Bukkit.getPluginManager().getPlugin("Spicord");
     }
 
-    public static Discord getDiscord() {
+    public static Discord discord() {
         return get().discord;
     }
 
-    public static SpicordConfig getSpicordConfig() {
+    public static SpicordConfig spicordConfig() {
         return get().spicordConfig;
     }
 

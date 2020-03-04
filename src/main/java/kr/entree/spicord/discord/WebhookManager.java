@@ -2,12 +2,14 @@ package kr.entree.spicord.discord;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
+import dagger.Reusable;
 import kr.entree.spicord.Spicord;
 import lombok.val;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
@@ -15,10 +17,12 @@ import java.util.function.Consumer;
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
+@Reusable
 public class WebhookManager {
     private final ScheduledExecutorService executor;
     private Webhook cachedWebhook = null;
 
+    @Inject
     public WebhookManager(Spicord spicord) {
         this.executor = Executors.newSingleThreadScheduledExecutor(
                 new SpicordThreadFactory(Executors.defaultThreadFactory(), spicord)

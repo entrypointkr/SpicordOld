@@ -1,6 +1,7 @@
 package kr.entree.spicord.bukkit.messenger;
 
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import dagger.Reusable;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.discord.WebMessage;
 import kr.entree.spicord.bukkit.util.Chat;
@@ -11,6 +12,8 @@ import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.WebhookManager;
 import lombok.val;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.logging.Level;
@@ -18,8 +21,9 @@ import java.util.logging.Level;
 /**
  * Created by JunHyung Lim on 2020-03-03
  */
+@Reusable
 public class WebhookMessenger implements Messenger, Runnable {
-    private final Duration threshold;
+    private final Duration flushPeriod;
     private final WebhookManager webhookManager;
     private final DataStorage dataStorage;
     private final TextMessenger textMessenger;
@@ -30,8 +34,9 @@ public class WebhookMessenger implements Messenger, Runnable {
     private final StringBuilder messageBuilder = new StringBuilder();
     private PlayerData author = null;
 
-    public WebhookMessenger(Duration threshold, WebhookManager webhookManager, DataStorage dataStorage, TextMessenger textMessenger, Discord discord, SpicordConfig config) {
-        this.threshold = threshold;
+    @Inject
+    public WebhookMessenger(@Named("flushPeriod") Duration flushPeriod, WebhookManager webhookManager, DataStorage dataStorage, TextMessenger textMessenger, Discord discord, SpicordConfig config) {
+        this.flushPeriod = flushPeriod;
         this.webhookManager = webhookManager;
         this.dataStorage = dataStorage;
         this.textMessenger = textMessenger;
@@ -112,7 +117,7 @@ public class WebhookMessenger implements Messenger, Runnable {
     }
 
     private boolean checkFlushTime() {
-        return Duration.between(lastFlushedTime, LocalTime.now()).compareTo(threshold) > 0;
+        return Duration.between(lastFlushedTime, LocalTime.now()).compareTo(flushPeriod) > 0;
     }
 
     public static String createAvatarUrl(Object uuid) {

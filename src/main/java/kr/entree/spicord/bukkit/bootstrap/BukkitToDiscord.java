@@ -10,6 +10,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 
+import javax.inject.Inject;
+
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
@@ -18,6 +20,7 @@ public class BukkitToDiscord implements Listener {
     private final Discord discord;
     private final VerifiedMemberManager verifiedManager;
 
+    @Inject
     public BukkitToDiscord(SpicordConfig config, Discord discord, VerifiedMemberManager verifiedManager) {
         this.config = config;
         this.discord = discord;
