@@ -1,6 +1,6 @@
 package kr.entree.spicord.config;
 
-import kr.entree.spicord.bukkit.util.Compatibles;
+import kr.entree.spicord.bukkit.util.Platform;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -37,7 +37,7 @@ public class MinecraftChat {
         String formatted = colorize(format.replace("%name%", author)
                 .replace("%message%", contents));
         if (worlds.isEmpty()) {
-            for (Player player : Compatibles.getOnlinePlayers()) {
+            for (Player player : Platform.getOnlinePlayers()) {
                 player.sendMessage(formatted);
             }
         } else {

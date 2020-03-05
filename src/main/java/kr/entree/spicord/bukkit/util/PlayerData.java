@@ -3,8 +3,6 @@ package kr.entree.spicord.bukkit.util;
 import lombok.Data;
 import lombok.Getter;
 import lombok.val;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,13 +29,9 @@ public class PlayerData {
         displayName(data.displayName);
     }
 
-    public PlayerData(OfflinePlayer player) {
+    public PlayerData(Player player) {
         this(player.getUniqueId());
         name(player.getName());
-    }
-
-    public PlayerData(Player player) {
-        this((OfflinePlayer) player);
         displayName(player.getDisplayName());
     }
 
@@ -67,7 +61,7 @@ public class PlayerData {
 
     @Nullable
     public Player getPlayer() {
-        return Bukkit.getPlayer(id);
+        return Platform.getPlayer(id);
     }
 
     @Nullable

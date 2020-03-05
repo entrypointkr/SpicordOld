@@ -2,7 +2,7 @@ package kr.entree.spicord;
 
 import kr.entree.spicord.bukkit.SpicordCommand;
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
-import kr.entree.spicord.bukkit.util.Compatibles;
+import kr.entree.spicord.bukkit.util.Platform;
 import kr.entree.spicord.config.DataStorage;
 import kr.entree.spicord.config.LangConfig;
 import kr.entree.spicord.config.Parameter;
@@ -135,7 +135,7 @@ public class Spicord extends JavaPlugin {
         }
         val latch = new CountDownLatch(1);
         discord.addTask(new CompleterBuilder(spicordConfig.getServerOffMessage(
-                new Parameter().put("%players%", Compatibles.getOnlinePlayers().size())
+                new Parameter().put("%players%", Platform.getOnlinePlayers().size())
         )).latch(latch).build());
         try {
             latch.await(15, TimeUnit.SECONDS);

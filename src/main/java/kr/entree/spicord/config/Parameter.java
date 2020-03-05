@@ -7,7 +7,6 @@ import lombok.val;
 import net.dv8tion.jda.api.entities.Member;
 import org.ahocorasick.trie.Emit;
 import org.ahocorasick.trie.Trie;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -32,10 +31,6 @@ public class Parameter {
         put("%player%", player.getName());
         put("%uuid%", player.getId());
         return this;
-    }
-
-    public Parameter put(OfflinePlayer player) {
-        return put(new PlayerData(player));
     }
 
     public Parameter put(Player player) {

@@ -5,7 +5,7 @@ import kr.entree.spicord.bukkit.event.GuildChatEvent;
 import kr.entree.spicord.bukkit.event.GuildJoinEvent;
 import kr.entree.spicord.bukkit.event.GuildMemberEvent;
 import kr.entree.spicord.bukkit.event.GuildMemberNamingEvent;
-import kr.entree.spicord.bukkit.util.Compatibles;
+import kr.entree.spicord.bukkit.util.Platform;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
@@ -14,7 +14,6 @@ import kr.entree.spicord.discord.task.channel.supplier.PrivateChannelOpener;
 import kr.entree.spicord.discord.task.guild.handler.GuildMemberHandler;
 import kr.entree.spicord.discord.task.guild.handler.Rename;
 import lombok.val;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
@@ -60,15 +59,8 @@ public class DiscordToDiscord implements Listener {
         if (mcId == null) {
             return;
         }
-        val nameOpt = Compatibles.getOfflinePlayer(mcId.getId())
-                .map(OfflinePlayer::getName);
-        if (!nameOpt.isPresent()) {
-            return;
-        }
-        val name = verifyConfig.getDiscordName(nameOpt.get());
-        if (name.equals(newName)) {
-            return;
-        }
+        val name = Platform.getOfflinePlayer(mcId.getId()).getName();
+        if (name == null || name.equals(newName)) return;
         discord.addTask(GuildMemberHandler.createTask(guildId, userId, new Rename(name)));
     }
 
