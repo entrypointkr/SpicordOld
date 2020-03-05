@@ -14,10 +14,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -26,6 +26,7 @@ import java.util.UUID;
 /**
  * Created by JunHyung Lim on 2019-11-27
  */
+@SuppressWarnings("deprecation")
 public class PlayerRestricter implements Listener {
     private final VerifiedMemberManager manager;
     private final SpicordConfig config;
@@ -119,10 +120,8 @@ public class PlayerRestricter implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onPickup(EntityPickupItemEvent e) {
-        if (e.getEntity() instanceof Player) {
-            tryRestrict((Player) e.getEntity(), e, RestrictType.ITEM);
-        }
+    public void onPickup(PlayerPickupItemEvent e) {
+        tryRestrict(e.getPlayer(), e, RestrictType.ITEM);
     }
 
     @EventHandler(ignoreCancelled = true)

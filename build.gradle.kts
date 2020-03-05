@@ -8,6 +8,13 @@ plugins {
     id("kr.entree.spigradle") version "1.1.5"
 }
 
+dependencies {
+    compileOnly(spigot("1.14.4")) {
+        exclude(module = "bungeecord-chat")
+        testImplementation(this)
+    }
+}
+
 allprojects {
     apply(plugin = "java")
     apply(plugin = "kr.entree.spigradle")
@@ -24,10 +31,6 @@ allprojects {
 
     dependencies {
         val daggerVersion = "2.26"
-        compileOnly(spigot("1.14.4")) {
-            exclude(module = "bungeecord-chat")
-            testImplementation(this)
-        }
         compileOnly("org.projectlombok:lombok:1.18.10")
         implementation("net.dv8tion:JDA:4.0.0_61")
         implementation("club.minnced:discord-webhooks:0.1.8")
@@ -47,7 +50,6 @@ allprojects {
         withType<JavaCompile> {
             options.apply {
                 encoding = "UTF-8"
-                compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
                 targetCompatibility = "1.8"
                 sourceCompatibility = targetCompatibility
             }
