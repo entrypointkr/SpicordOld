@@ -3,6 +3,9 @@ package kr.entree.spicord.di.module;
 import dagger.Module;
 import dagger.Provides;
 import kr.entree.spicord.Spicord;
+import kr.entree.spicord.bukkit.util.Cooldown;
+import kr.entree.spicord.bukkit.util.FixedCooldown;
+import kr.entree.spicord.di.qualifier.MessengerCooldown;
 import kr.entree.spicord.discord.Discord;
 import org.bukkit.plugin.Plugin;
 
@@ -36,6 +39,12 @@ public class SpicordModule {
     @Named("flushPeriod")
     public Duration provideFlushPeriod() {
         return flushPeriod;
+    }
+
+    @Provides
+    @MessengerCooldown
+    public FixedCooldown provideFlushCooldown() {
+        return new FixedCooldown(provideFlushPeriod(), new Cooldown());
     }
 
     @Provides

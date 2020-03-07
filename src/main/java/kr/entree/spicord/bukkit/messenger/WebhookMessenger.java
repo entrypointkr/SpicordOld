@@ -5,17 +5,16 @@ import dagger.Reusable;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.discord.WebMessage;
 import kr.entree.spicord.bukkit.util.Chat;
+import kr.entree.spicord.bukkit.util.FixedCooldown;
 import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.config.DataStorage;
 import kr.entree.spicord.config.SpicordConfig;
+import kr.entree.spicord.di.qualifier.MessengerCooldown;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.WebhookManager;
 import lombok.val;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.logging.Level;
 
 /**
@@ -23,20 +22,19 @@ import java.util.logging.Level;
  */
 @Reusable
 public class WebhookMessenger implements Messenger, Runnable {
-    private final Duration flushPeriod;
+    private final FixedCooldown cooldown;
     private final WebhookManager webhookManager;
     private final DataStorage dataStorage;
     private final TextMessenger textMessenger;
     private final Discord discord;
     private final SpicordConfig config;
-    private LocalTime lastFlushedTime = LocalTime.MIN;
 
     private final StringBuilder messageBuilder = new StringBuilder();
     private PlayerData author = null;
 
     @Inject
-    public WebhookMessenger(@Named("flushPeriod") Duration flushPeriod, WebhookManager webhookManager, DataStorage dataStorage, TextMessenger textMessenger, Discord discord, SpicordConfig config) {
-        this.flushPeriod = flushPeriod;
+    public WebhookMessenger(@MessengerCooldown FixedCooldown cooldown, WebhookManager webhookManager, DataStorage dataStorage, TextMessenger textMessenger, Discord discord, SpicordConfig config) {
+        this.cooldown = cooldown;
         this.webhookManager = webhookManager;
         this.dataStorage = dataStorage;
         this.textMessenger = textMessenger;
@@ -56,7 +54,7 @@ public class WebhookMessenger implements Messenger, Runnable {
     }
 
     private void flushChatIfTime() {
-        if (checkFlushTime()) {
+        if (cooldown.actions()) {
             flushChat();
         }
     }
@@ -64,7 +62,6 @@ public class WebhookMessenger implements Messenger, Runnable {
     private void flushChat() {
         sendWebhookMessage();
         reset();
-        lastFlushedTime = LocalTime.now();
     }
 
     private void sendWebhookMessage() {
@@ -114,10 +111,6 @@ public class WebhookMessenger implements Messenger, Runnable {
             messageBuilder.append('\n');
         }
         messageBuilder.append(message);
-    }
-
-    private boolean checkFlushTime() {
-        return Duration.between(lastFlushedTime, LocalTime.now()).compareTo(flushPeriod) > 0;
     }
 
     public static String createAvatarUrl(Object uuid) {
