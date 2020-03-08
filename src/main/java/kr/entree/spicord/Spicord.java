@@ -147,7 +147,7 @@ public class Spicord extends JavaPlugin {
     private void stopDiscordThread() {
         spicordThread.interrupt();
         try {
-            spicordThread.join();
+            spicordThread.join(15L * 1000L);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
