@@ -2,6 +2,7 @@ package kr.entree.spicord.config;
 
 import kr.entree.spicord.bukkit.structure.User;
 import kr.entree.spicord.bukkit.util.Chat;
+import kr.entree.spicord.bukkit.util.Platform;
 import kr.entree.spicord.bukkit.util.PlayerData;
 import lombok.val;
 import net.dv8tion.jda.api.entities.Member;
@@ -18,6 +19,10 @@ import java.util.Map;
  */
 public class Parameter {
     private final Map<String, Object> map = new HashMap<>();
+
+    public Parameter putServer() {
+        return put("%players%", Platform.getOnlinePlayers().size());
+    }
 
     public Parameter put(Chat chat) {
         put(chat.getPlayerData());

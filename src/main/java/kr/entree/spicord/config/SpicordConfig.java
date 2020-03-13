@@ -12,6 +12,7 @@ import kr.entree.spicord.discord.task.channel.supplier.TextChannelSupplier;
 import kr.entree.spicord.option.BooleanOption;
 import kr.entree.spicord.option.NumberOption;
 import kr.entree.spicord.option.config.ConfigOption;
+import kr.entree.spicord.util.Result;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -277,6 +278,20 @@ public class SpicordConfig extends PluginConfiguration {
             verifyConfig = new VerificationConfig(getConfigurationSection("verification"), getLogger());
         }
         return verifyConfig;
+    }
+
+    public Result<SpicordRichPresence> parseRichPresence(Parameter parameter) {
+        val status = getConfigurationSection("rich-presence");
+        if (status == null) {
+            return Result.empty();
+        }
+        return Result.run(() -> SpicordRichPresence.parse(status, parameter));
+    }
+
+    public void updateRichPresence() {
+        parseRichPresence(new Parameter().putServer())
+                .onSuccess(SpicordRichPresence::update)
+                .onFailure(Spicord::log);
     }
 
     public static MessageEmbed parseEmbed(Map<?, ?> map, Parameter parameter) {

@@ -97,3 +97,9 @@ verification:
     command:
       - "give %player% apple 1"
       - "tell %player% 디스코드 &e%discord% &r로 인증되셨습니다."
+rich-presence:
+  status: online # online, idle, dnd, invisible, offline
+  activity: default # default, streaming, listening, watching
+  name: name
+  url: url
+  idle: false

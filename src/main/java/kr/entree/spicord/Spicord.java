@@ -77,6 +77,7 @@ public class Spicord extends JavaPlugin {
         spicordConfig.update(discord);
         langConfig.load();
         dataStorage.load();
+        spicordConfig.updateRichPresence();
     }
 
     public void saveConfigs() {
@@ -100,7 +101,8 @@ public class Spicord extends JavaPlugin {
                 component.discordToDiscord(),
                 component.bukkitToDiscord(),
                 component.playerVerifier(),
-                component.playerRestricter()
+                component.playerRestricter(),
+                component.richPresenceUpdater()
         );
         runTaskTimer(flushPeriodTicks, textMessenger);
         runTaskTimer(flushPeriodTicks, webhookMessenger);

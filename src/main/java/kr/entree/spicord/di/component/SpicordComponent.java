@@ -33,6 +33,8 @@ public interface SpicordComponent {
 
     PlayerRestricter playerRestricter();
 
+    RichPresenceUpdater richPresenceUpdater();
+
     @Named("flushPeriod")
     Duration flushPeriod();
 }
