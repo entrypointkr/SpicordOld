@@ -100,6 +100,6 @@ verification:
 rich-presence:
   status: online # online, idle, dnd, invisible, offline
   activity: default # default, streaming, listening, watching
-  name: name
+  name: "동접수: %players%"
   url: url
   idle: false
