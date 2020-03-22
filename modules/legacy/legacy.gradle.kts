@@ -21,4 +21,7 @@ tasks {
     compileJava {
         dependsOn(downloadTask)
     }
+    shadowJar {
+        from(rootProject.sourceSets.main.get().resources.files)
+    }
 }
