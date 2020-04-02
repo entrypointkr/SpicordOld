@@ -49,6 +49,9 @@ messages:
   verify-success: "인증되었습니다! 연동 계정: **%discord%**"
   verify-failed: "인증에 실패했습니다. 다시 시도해주세요"
   verify-cooldown: "%seconds% 초 후 다시 시도해주세요."
+  player-list:
+    - "동접수: %players%"
+    - "플레이어 목록: %player-list%"
   # ... 원하는 메세지 계속 추가 가능
 features:
   welcome:
@@ -80,6 +83,11 @@ features:
     channel: chat
     message: "&7[Discord] [%name%]: &f%message%"
     worlds: []
+commands:
+  players:
+    command: "!동접"
+    channel: chat
+    message: player-list
 verification:
   enabled: true
   channel: verify

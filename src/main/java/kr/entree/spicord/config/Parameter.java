@@ -13,6 +13,8 @@ import org.bukkit.entity.Player;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Created by JunHyung Lim on 2019-11-24
@@ -72,6 +74,23 @@ public class Parameter {
         return this;
     }
 
+    public Parameter putPlayerList() {
+        return put("%player-list%", (Supplier<String>) () -> {
+            val names = Platform.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .collect(Collectors.toList());
+            return String.join(", ", names);
+        });
+    }
+
+    public String getOrFormat(String key) {
+        val replacement = map.get(key);
+        val object = replacement instanceof Supplier<?>
+                ? ((Supplier<?>) replacement).get()
+                : replacement;
+        return object != null ? object.toString() : "null";
+    }
+
     public String format(String contents) {
         StringBuilder builder = new StringBuilder(contents.length() * 2);
         Trie trie = Trie.builder()
@@ -84,7 +103,7 @@ public class Parameter {
         for (Emit emit : emits) {
             int index = emit.getStart();
             builder.append(contents, prevIndex, index)
-                    .append(map.get(emit.getKeyword()));
+                    .append(getOrFormat(emit.getKeyword()));
             prevIndex = emit.getEnd() + 1;
         }
         builder.append(contents.substring(prevIndex));

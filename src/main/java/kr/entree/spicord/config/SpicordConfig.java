@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +36,8 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * Created by JunHyung Lim on 2019-11-16
@@ -278,6 +281,14 @@ public class SpicordConfig extends PluginConfiguration {
             verifyConfig = new VerificationConfig(getConfigurationSection("verification"), getLogger());
         }
         return verifyConfig;
+    }
+
+    public CommandConfig getCommands() {
+        return new CommandConfig(
+                ofNullable(getConfigurationSection("commands"))
+                        .orElseGet(MemoryConfiguration::new),
+                this
+        );
     }
 
     public Result<SpicordRichPresence> parseRichPresence(Parameter parameter) {

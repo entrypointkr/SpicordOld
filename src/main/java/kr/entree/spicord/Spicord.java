@@ -102,7 +102,8 @@ public class Spicord extends JavaPlugin {
                 component.bukkitToDiscord(),
                 component.playerVerifier(),
                 component.playerRestricter(),
-                component.richPresenceUpdater()
+                component.richPresenceUpdater(),
+                component.discordCommandProcessor()
         );
         runTaskTimer(flushPeriodTicks, textMessenger);
         runTaskTimer(flushPeriodTicks, webhookMessenger);

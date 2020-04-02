@@ -1,11 +1,11 @@
-import kr.entree.spigradle.kotlin.dependency.bStats
-import kr.entree.spigradle.kotlin.dependency.spigot
-import kr.entree.spigradle.kotlin.repository.codemc
+import kr.entree.spigradle.kotlin.bStats
+import kr.entree.spigradle.kotlin.codemc
+import kr.entree.spigradle.kotlin.spigot
 
 plugins {
     java
     id("com.github.johnrengelman.shadow") version "5.2.0"
-    id("kr.entree.spigradle") version "1.1.5"
+    id("kr.entree.spigradle") version "1.2.3"
 }
 
 dependencies {
@@ -21,7 +21,7 @@ allprojects {
     apply(plugin = "com.github.johnrengelman.shadow")
 
     group = "kr.entree"
-    version = "1.2.0"
+    version = "1.2.1-SNAPSHOT"
 
     repositories {
         mavenCentral()

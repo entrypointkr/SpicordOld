@@ -35,6 +35,8 @@ public interface SpicordComponent {
 
     RichPresenceUpdater richPresenceUpdater();
 
+    DiscordCommandProcessor discordCommandProcessor();
+
     @Named("flushPeriod")
     Duration flushPeriod();
 }
