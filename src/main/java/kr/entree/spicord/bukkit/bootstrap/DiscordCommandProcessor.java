@@ -3,6 +3,7 @@ package kr.entree.spicord.bukkit.bootstrap;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.event.GuildChatEvent;
 import kr.entree.spicord.bukkit.structure.Message;
+import kr.entree.spicord.bukkit.util.Defaults;
 import kr.entree.spicord.bukkit.util.Proxies;
 import kr.entree.spicord.bukkit.util.Strings;
 import kr.entree.spicord.config.DiscordCommand;
@@ -59,7 +60,7 @@ public class DiscordCommandProcessor implements Listener {
             if ("sendMessage".equals(method.getName())) {
                 builder.append(ChatColor.stripColor(args[0].toString()));
             }
-            return null;
+            return Defaults.defaultValue(method.getReturnType());
         });
         Bukkit.dispatchCommand(sender, parameter.format(Strings.substringAfter(message.getContents(), " ")));
         Spicord.discord().addTask(ChannelTask.ofText(message.getChannelId(), new PlainMessage(builder)));
