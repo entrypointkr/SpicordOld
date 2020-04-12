@@ -2,6 +2,7 @@ package kr.entree.spicord.config;
 
 import dagger.Reusable;
 import kr.entree.spicord.Spicord;
+import kr.entree.spicord.bukkit.util.Cache;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.EmptyHandler;
 import kr.entree.spicord.discord.JDAHandler;
@@ -13,6 +14,7 @@ import kr.entree.spicord.option.BooleanOption;
 import kr.entree.spicord.option.NumberOption;
 import kr.entree.spicord.option.config.ConfigOption;
 import kr.entree.spicord.util.Result;
+import lombok.Getter;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -21,7 +23,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -37,8 +38,6 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Optional.ofNullable;
-
 /**
  * Created by JunHyung Lim on 2019-11-16
  */
@@ -46,6 +45,9 @@ import static java.util.Optional.ofNullable;
 public class SpicordConfig extends PluginConfiguration {
     public static final String FEATURES = "features";
     private VerificationConfig verifyConfig = null;
+    private CommandData commandData = null;
+    @Getter
+    private final Cache<CommandData> commandConfig = new Cache<>(this, section -> CommandData.parse(getSectionOrEmpty("commands"), this));
 
     public SpicordConfig(YamlConfiguration config, Plugin plugin) {
         super(config, plugin);
@@ -69,6 +71,7 @@ public class SpicordConfig extends PluginConfiguration {
     public void load() {
         super.load();
         verifyConfig = null;
+        commandConfig.reload();
     }
 
     public void update(Discord discord) {
@@ -113,6 +116,10 @@ public class SpicordConfig extends PluginConfiguration {
             }
         }
         return channel;
+    }
+
+    public List<String> remapChannel(Collection<String> channels) {
+        return channels.stream().map(this::remapChannel).collect(Collectors.toList());
     }
 
     @Nullable
@@ -281,14 +288,6 @@ public class SpicordConfig extends PluginConfiguration {
             verifyConfig = new VerificationConfig(getConfigurationSection("verification"), getLogger());
         }
         return verifyConfig;
-    }
-
-    public CommandConfig getCommands() {
-        return new CommandConfig(
-                ofNullable(getConfigurationSection("commands"))
-                        .orElseGet(MemoryConfiguration::new),
-                this
-        );
     }
 
     public Result<SpicordRichPresence> parseRichPresence(Parameter parameter) {

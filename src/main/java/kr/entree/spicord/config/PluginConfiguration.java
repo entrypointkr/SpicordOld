@@ -1,5 +1,6 @@
 package kr.entree.spicord.config;
 
+import kr.entree.spicord.bukkit.util.ConfigurationSections;
 import lombok.experimental.Delegate;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -44,6 +45,10 @@ public abstract class PluginConfiguration implements ConfigurationSection {
 
     public Logger getLogger() {
         return plugin.getLogger();
+    }
+
+    public ConfigurationSection getSectionOrEmpty(String key) {
+        return ConfigurationSections.getSection(this, key);
     }
 
     public static String readText(File file) throws IOException {

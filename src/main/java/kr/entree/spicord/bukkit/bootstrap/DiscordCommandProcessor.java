@@ -26,9 +26,9 @@ public class DiscordCommandProcessor implements Listener {
 
     @EventHandler
     public void onChat(GuildChatEvent e) {
-        val commands = config.getCommands();
-        if (commands.getPlayerList().check(e.getMessage())) {
-            executePlayerList(e.getMessage(), commands.getPlayerList());
+        val commands = config.getCommandConfig().get();
+        if (commands.getPlayerListCommand().check(e.getMessage())) {
+            executePlayerList(e.getMessage(), commands.getPlayerListCommand());
         }
     }
 
