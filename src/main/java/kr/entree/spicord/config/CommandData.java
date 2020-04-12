@@ -10,10 +10,12 @@ import org.bukkit.configuration.ConfigurationSection;
 @Data
 public class CommandData {
     private final DiscordCommand playerListCommand;
+    private final DiscordCommand executeCommand;
 
     public static CommandData parse(ConfigurationSection section, SpicordConfig config) {
         return new CommandData(
-                DiscordCommand.parse(ConfigurationSections.getSection(section, "players"), config)
+                DiscordCommand.parse(ConfigurationSections.getSection(section, "players"), config),
+                DiscordCommand.parse(ConfigurationSections.getSection(section, "execute"), config)
         );
     }
 }
