@@ -89,7 +89,7 @@ commands:
     channel: chat
     message: player-list
 verification:
-  enabled: true
+  enabled: false
   channel: verify
   command: "!인증"
   expire-seconds: 20
