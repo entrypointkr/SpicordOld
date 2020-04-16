@@ -1,7 +1,6 @@
 package kr.entree.spicord.config;
 
 import dagger.Reusable;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import javax.inject.Inject;
@@ -11,22 +10,17 @@ import javax.inject.Inject;
  */
 @Reusable
 public class LangConfig extends PluginConfiguration {
-    public LangConfig(YamlConfiguration config, Plugin plugin) {
-        super(config, plugin);
+    public LangConfig(Plugin plugin, String fileName) {
+        super(plugin, fileName);
     }
 
     @Inject
     public LangConfig(Plugin plugin) {
-        super(plugin);
+        this(plugin, "lang.yml");
     }
 
     @Override
-    protected String getFileName() {
-        return "lang.yml";
-    }
-
-    @Override
-    public void load() {
+    public void onLoad() {
         for (Lang lang : Lang.values()) {
             String key = lang.getKey();
             String def = lang.getDef();
@@ -35,7 +29,6 @@ public class LangConfig extends PluginConfiguration {
             }
             addDefault(key, def);
         }
-        super.load();
         save();
     }
 

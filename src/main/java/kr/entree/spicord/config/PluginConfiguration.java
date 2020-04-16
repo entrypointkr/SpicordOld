@@ -1,6 +1,8 @@
 package kr.entree.spicord.config;
 
 import kr.entree.spicord.bukkit.util.ConfigurationSections;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,28 +21,16 @@ import java.util.logging.Logger;
 /**
  * Created by JunHyung Lim on 2019-11-26
  */
+@RequiredArgsConstructor
 public abstract class PluginConfiguration implements ConfigurationSection {
     @Delegate(types = ConfigurationSection.class)
-    private final YamlConfiguration config;
+    @Getter
+    private final YamlConfiguration config = new YamlConfiguration();
     private final Plugin plugin;
-
-    public PluginConfiguration(YamlConfiguration config, Plugin plugin) {
-        this.config = config;
-        this.plugin = plugin;
-    }
-
-    public PluginConfiguration(Plugin plugin) {
-        this(new YamlConfiguration(), plugin);
-    }
-
-    protected abstract String getFileName();
+    private final String fileName;
 
     public File createFile(Plugin plugin) {
-        return new File(plugin.getDataFolder(), getFileName());
-    }
-
-    public YamlConfiguration getConfig() {
-        return config;
+        return new File(plugin.getDataFolder(), fileName);
     }
 
     public Logger getLogger() {
@@ -72,7 +62,7 @@ public abstract class PluginConfiguration implements ConfigurationSection {
         }
     }
 
-    public void load() {
+    public final void load() {
         File file = createFile(plugin);
         try {
             config.loadFromString(readText(file));
@@ -81,6 +71,10 @@ public abstract class PluginConfiguration implements ConfigurationSection {
         } catch (InvalidConfigurationException e) {
             getLogger().log(Level.WARNING, e, () -> "Failed while loading: " + file);
         }
+    }
+
+    public void onLoad() {
+
     }
 
     public void save() {

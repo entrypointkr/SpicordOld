@@ -4,7 +4,6 @@ import kr.entree.spicord.bukkit.structure.Message;
 import kr.entree.spicord.bukkit.util.ConfigurationSections;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -19,9 +18,8 @@ import java.util.stream.Collectors;
  */
 @Data
 @RequiredArgsConstructor
-@ExtensionMethod(ConfigurationSections.class)
 public class DiscordCommand {
-    private final Collection<String> commands;
+    private final Collection<String> literals;
     private final Set<String> channelIds;
     private final String messageId;
 
@@ -46,10 +44,12 @@ public class DiscordCommand {
         return channelIds.isEmpty() || channelIds.contains(channelId);
     }
 
-    public boolean check(Message message) {
-        val contents = message.getContents();
-        return !commands.isEmpty()
-                && isValidChannel(message.getChannelId())
-                && commands.stream().anyMatch(contents::startsWith);
+    public boolean match(String literal) {
+        return !literals.isEmpty() && literals.stream().anyMatch(literal::startsWith);
+    }
+
+    public boolean match(Message message) {
+        return isValidChannel(message.getChannelId())
+                && match(message.getContents());
     }
 }

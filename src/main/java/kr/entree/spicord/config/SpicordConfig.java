@@ -23,7 +23,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,17 +44,16 @@ import java.util.stream.Stream;
 public class SpicordConfig extends PluginConfiguration {
     public static final String FEATURES = "features";
     private VerificationConfig verifyConfig = null;
-    private CommandData commandData = null;
     @Getter
     private final Cache<CommandData> commandConfig = new Cache<>(this, section -> CommandData.parse(getSectionOrEmpty("commands"), this));
 
-    public SpicordConfig(YamlConfiguration config, Plugin plugin) {
-        super(config, plugin);
+    public SpicordConfig(Plugin plugin, String fileName) {
+        super(plugin, fileName);
     }
 
     @Inject
     public SpicordConfig(Plugin plugin) {
-        super(plugin);
+        this(plugin, "config.yml");
     }
 
     public static String featureKey(String key) {
@@ -63,13 +61,7 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     @Override
-    protected String getFileName() {
-        return "config.yml";
-    }
-
-    @Override
-    public void load() {
-        super.load();
+    public void onLoad() {
         verifyConfig = null;
         commandConfig.reload();
     }
