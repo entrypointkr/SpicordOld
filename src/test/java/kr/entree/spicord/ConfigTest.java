@@ -30,9 +30,9 @@ import static org.mockito.Mockito.mock;
 public class ConfigTest {
     public static SpicordConfig createConfig(Plugin plugin) throws IOException, InvalidConfigurationException {
         InputStream in = ConfigTest.class.getResourceAsStream("/config.yml");
-        YamlConfiguration yamlConfig = new YamlConfiguration();
-        yamlConfig.load(new InputStreamReader(in, StandardCharsets.UTF_8));
-        return new SpicordConfig(yamlConfig, plugin);
+        SpicordConfig config = new SpicordConfig(plugin, "config.yml");
+        config.getConfig().load(new InputStreamReader(in, StandardCharsets.UTF_8));
+        return config;
     }
 
     @Before
@@ -70,9 +70,8 @@ public class ConfigTest {
     @Test
     public void message() {
         Plugin plugin = mock(Plugin.class);
-        YamlConfiguration config = new YamlConfiguration();
-        SpicordConfig spicordConfig = new SpicordConfig(config, plugin);
-        config.set("messages.welcome", Arrays.asList(
+        SpicordConfig spicordConfig = new SpicordConfig(plugin);
+        spicordConfig.set("messages.welcome", Arrays.asList(
                 createEmbedSection(),
                 "test",
                 createEmbedSection(),

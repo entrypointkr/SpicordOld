@@ -3,7 +3,6 @@ package kr.entree.spicord.config;
 import dagger.Reusable;
 import kr.entree.spicord.option.config.ConfigOption;
 import kr.entree.spicord.option.config.getter.NumberGetter;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import javax.inject.Inject;
@@ -13,13 +12,9 @@ import javax.inject.Inject;
  */
 @Reusable
 public class DataStorage extends PluginConfiguration {
-    public DataStorage(YamlConfiguration config, Plugin plugin) {
-        super(config, plugin);
-    }
-
     @Inject
     public DataStorage(Plugin plugin) {
-        super(plugin);
+        super(plugin, "data.yml");
     }
 
     public ConfigOption<Number> getPlayerChatWebhookId() {
@@ -34,10 +29,5 @@ public class DataStorage extends PluginConfiguration {
                     }
                 }
         );
-    }
-
-    @Override
-    protected String getFileName() {
-        return "data.yml";
     }
 }
