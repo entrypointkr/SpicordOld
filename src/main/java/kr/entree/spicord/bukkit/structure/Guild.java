@@ -1,11 +1,12 @@
 package kr.entree.spicord.bukkit.structure;
 
 import lombok.Getter;
+import lombok.val;
 import net.dv8tion.jda.api.utils.cache.MemberCacheView;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +24,7 @@ public class Guild {
     @Getter
     private final int maxMembers;
     private final MemberCacheView members;
+    @Getter
     private final long owner;
 
     public Guild(long id, String name, String description, int boostCount, int maxMembers, MemberCacheView members, long owner) {
@@ -51,9 +53,10 @@ public class Guild {
                 .collect(Collectors.toList());
     }
 
-    public Optional<Member> getOwner() {
-        return Optional.ofNullable(members.getElementById(owner))
-                .map(Member::of);
+    @Nullable
+    public Member getOwnerMember() {
+        val member = members.getElementById(owner);
+        return member != null ? Member.of(member) : null;
     }
 
     public List<Member> getBoosters() {

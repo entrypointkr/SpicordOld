@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("unchecked")
 @UtilityClass
 public class Enums {
-    public static <T extends Enum<T>> T valueOf(Class<T> enumClass, String name) {
+    public <T extends Enum<T>> T valueOf(Class<T> enumClass, String name) {
         try {
             return Enum.valueOf(enumClass, name.toUpperCase());
         } catch (IllegalArgumentException ex) {
@@ -24,7 +24,7 @@ public class Enums {
         }
     }
 
-    public static <T extends Enum<T>> T[] values(Class<T> enumClass) {
+    public <T extends Enum<T>> T[] values(Class<T> enumClass) {
         try {
             val valuesMethod = enumClass.getMethod("values");
             return (T[]) valuesMethod.invoke(null);

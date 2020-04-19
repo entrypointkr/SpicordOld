@@ -1,22 +1,16 @@
 package kr.entree.spicord.bukkit.structure;
 
-import lombok.Getter;
+import lombok.Data;
 
 import java.util.Objects;
 
 /**
  * Created by JunHyung Lim on 2019-11-29
  */
+@Data
 public class Role {
-    @Getter
     private final long id;
-    @Getter
     private final String name;
-
-    public Role(long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 
     public static Role of(net.dv8tion.jda.api.entities.Role role) {
         return of(role.getIdLong(), role.getName());

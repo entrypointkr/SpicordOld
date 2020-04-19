@@ -2,9 +2,8 @@ package kr.entree.spicord.bukkit.bootstrap;
 
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.event.GuildChatEvent;
+import kr.entree.spicord.bukkit.proxy.CommandSenderProxyHandler;
 import kr.entree.spicord.bukkit.structure.Message;
-import kr.entree.spicord.bukkit.util.Defaults;
-import kr.entree.spicord.bukkit.util.Proxies;
 import kr.entree.spicord.command.DiscordCommandContext;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
@@ -12,8 +11,6 @@ import kr.entree.spicord.discord.task.channel.ChannelTask;
 import kr.entree.spicord.discord.task.channel.handler.PlainMessage;
 import lombok.val;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -39,11 +36,13 @@ public class DiscordCommandProcessor implements Listener {
     }
 
     private void execute(DiscordCommandContext context) {
-        val id = context.getId();
-        if ("players".equals(id)) {
-            executePlayerList(context);
-        } else if ("execute".equals(id)) {
-            executeBukkitCommand(context);
+        switch (context.getId()) {
+            case "players":
+                executePlayerList(context);
+            case "execute":
+                executeBukkitCommand(context);
+            case "sudo":
+                executeSudoCommand(context);
         }
     }
 
@@ -57,15 +56,22 @@ public class DiscordCommandProcessor implements Listener {
     private void executeBukkitCommand(DiscordCommandContext context) {
         val message = context.getMessage();
         val parameter = createParameter(message);
-        val builder = new StringBuilder();
-        val sender = Proxies.create(CommandSender.class, (proxy, method, args) -> {
-            if ("sendMessage".equals(method.getName())) {
-                builder.append(ChatColor.stripColor(args[0].toString()));
-            }
-            return Defaults.defaultValue(method.getReturnType());
+        val output = new StringBuilder();
+        val sender = CommandSenderProxyHandler.createProxy(output::append, () -> {
+            val member = context.getMessage().getMember();
+            return member != null && member.isOwner();
         });
         Bukkit.dispatchCommand(sender, parameter.format(String.join(" ", context.getArgs())));
-        Spicord.discord().addTask(ChannelTask.ofText(message.getChannelId(), new PlainMessage(builder)));
+        Spicord.discord().addTask(ChannelTask.ofText(message.getChannelId(), new PlainMessage(output)));
+    }
+
+    private void executeSudoCommand(DiscordCommandContext context) {
+        val message = context.getMessage();
+        val parameter = createParameter(message);
+        val output = new StringBuilder();
+        val sender = CommandSenderProxyHandler.createProxy(output::append, () -> true);
+        Bukkit.dispatchCommand(sender, parameter.format(String.join(" ", context.getArgs())));
+        Spicord.discord().addTask(ChannelTask.ofText(message.getChannelId(), new PlainMessage(output)));
     }
 
     private static Parameter createParameter(Message message) {

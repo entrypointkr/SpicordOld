@@ -1,43 +1,58 @@
 package kr.entree.spicord.config;
 
+import kr.entree.spicord.bukkit.structure.Member;
 import kr.entree.spicord.bukkit.structure.Message;
 import kr.entree.spicord.bukkit.util.ConfigurationSections;
+import kr.entree.spicord.util.Result;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
+import net.dv8tion.jda.api.Permission;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by JunHyung Lim on 2020-04-02
  */
 @Data
-@RequiredArgsConstructor
 public class DiscordCommand {
     private final Collection<String> literals;
     private final Set<String> channelIds;
     private final String messageId;
+    private final Set<Permission> permissions;
+    private final Set<String> roles;
 
     public static DiscordCommand parse(ConfigurationSection section, SpicordConfig topConfig) {
         val command = section.get("command");
         val channel = ConfigurationSections.getStringCollection(section, "channel");
         val message = section.getString("message", "");
-        val commands = new ArrayList<String>();
+        val permissions = getPermissions(section, "permissions");
+        val roles = ConfigurationSections.getStringCollection(section, "roles");
+        val literals = new ArrayList<String>();
         if (command instanceof Collection) {
             val collection = ((Collection<?>) command);
             val strings = collection.stream()
                     .map(Object::toString)
                     .collect(Collectors.toList());
-            commands.addAll(strings);
+            literals.addAll(strings);
         } else if (command != null) {
-            commands.add(command.toString());
+            literals.add(command.toString());
         }
-        return new DiscordCommand(commands, new HashSet<>(topConfig.remapChannel(channel)), message);
+        return DiscordCommand.of(literals, topConfig.remapChannel(channel), message, permissions, roles);
+    }
+
+    public static DiscordCommand of(Collection<String> literals, Collection<String> channelIds,
+                                    String messageId, Collection<Permission> permissions, Collection<String> roles) {
+        return new DiscordCommand(literals, new HashSet<>(channelIds), messageId, new HashSet<>(permissions), new HashSet<>(roles));
+    }
+
+    public static Set<Permission> getPermissions(ConfigurationSection section, String key) {
+        return ConfigurationSections.getStringCollection(section, "permissions").stream()
+                .map(name -> Result.run(() -> Permission.valueOf(name.toUpperCase())).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     public boolean isValidChannel(String channelId) {
@@ -48,8 +63,26 @@ public class DiscordCommand {
         return !literals.isEmpty() && literals.stream().anyMatch(literal::startsWith);
     }
 
+    public boolean checkPermission(Member member) {
+        if (permissions.isEmpty() || member.isAdmin()) return true;
+        val memberPerms = member.getPermissions();
+        return permissions.stream().allMatch(permission -> memberPerms.contains(permission.getOffset()));
+    }
+
+    public boolean checkRole(Member member) {
+        if (roles.isEmpty()) return true;
+        val memberRoles = member.getRoles();
+        return roles.stream().allMatch(role -> memberRoles.get(role) != null);
+    }
+
+    public boolean accessible(@Nullable Member member) {
+        if (member == null) return false;
+        return checkPermission(member) && checkRole(member);
+    }
+
     public boolean match(Message message) {
         return isValidChannel(message.getChannelId())
-                && match(message.getContents());
+                && match(message.getContents())
+                && accessible(message.getMember());
     }
 }
