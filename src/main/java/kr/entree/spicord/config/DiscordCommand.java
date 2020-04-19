@@ -28,7 +28,7 @@ public class DiscordCommand {
         val command = section.get("command");
         val channel = ConfigurationSections.getStringCollection(section, "channel");
         val message = section.getString("message", "");
-        val permissions = getPermissions(section, "permissions");
+        val permissions = getPermissions(section, "permission");
         val roles = ConfigurationSections.getStringCollection(section, "roles");
         val literals = new ArrayList<String>();
         if (command instanceof Collection) {
@@ -49,7 +49,7 @@ public class DiscordCommand {
     }
 
     public static Set<Permission> getPermissions(ConfigurationSection section, String key) {
-        return ConfigurationSections.getStringCollection(section, "permissions").stream()
+        return ConfigurationSections.getStringCollection(section, key).stream()
                 .map(name -> Result.run(() -> Permission.valueOf(name.toUpperCase())).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());

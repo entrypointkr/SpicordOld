@@ -42,6 +42,6 @@ public class CommandData {
     }
 
     public Optional<IdentifiedCommand> findCommand(Message message) {
-        return findCommand(message.getContents()).filter(cmd -> cmd.getCommand().match(message));
+        return findCommand(message.getContents());
     }
 }

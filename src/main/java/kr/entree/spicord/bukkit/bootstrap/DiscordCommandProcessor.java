@@ -8,7 +8,7 @@ import kr.entree.spicord.command.DiscordCommandContext;
 import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.task.channel.ChannelTask;
-import kr.entree.spicord.discord.task.channel.supplier.TextChannelSupplier;
+import kr.entree.spicord.util.Emojis;
 import kr.entree.spicord.util.Result;
 import lombok.val;
 import org.bukkit.Bukkit;
@@ -33,8 +33,13 @@ public class DiscordCommandProcessor implements Listener {
     public void onChat(GuildChatEvent e) {
         val message = e.getMessage();
         val commands = config.getCommandConfig().get();
-        val matchedCommand = commands.findCommand(message);
-        matchedCommand.ifPresent(cmd -> execute(DiscordCommandContext.parse(message, cmd)));
+        val matchedCommand = commands.findCommand(message).orElse(null);
+        if (matchedCommand == null) return;
+        if (matchedCommand.getCommand().match(message)) {
+            execute(DiscordCommandContext.parse(message, matchedCommand));
+        } else {
+            ChannelTask.ofReaction(message, Emojis.NO_ENTRY_SIGN).queue();
+        }
     }
 
     private void execute(DiscordCommandContext context) {
@@ -69,13 +74,11 @@ public class DiscordCommandProcessor implements Listener {
         execute(sender, parameter.format(String.join(" ", context.getArgs())))
                 .onSuccess(bool -> {
                     val handler = config.getMessage(context.getDiscordCommand().getMessageId(), parameter.put("%output%", output.toString()));
-                    Spicord.discord().addTask(ChannelTask.ofText(message.getChannelId(), handler));
+                    ChannelTask.ofText(message.getChannelId(), handler).queue();
                 })
                 .onFailure(ex -> {
                     Spicord.log(ex);
-                    Spicord.discord().addTask(new ChannelTask(TextChannelSupplier.of(message.getChannelId()), channel -> {
-                        channel.addReactionById(message.getId(), "U+274C").complete();
-                    }));
+                    ChannelTask.ofReaction(message.getChannelId(), message.getId(), Emojis.X).queue();
                 });
     }
 
@@ -90,9 +93,7 @@ public class DiscordCommandProcessor implements Listener {
                     val handler = config.getMessage(context.getDiscordCommand().getMessageId(), parameter.put("%output%", output.toString()));
                     Spicord.discord().addTask(ChannelTask.ofText(message.getChannelId(), handler));
                 })
-                .onFailure(ex -> {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmdline);
-                });
+                .onFailure(ex -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmdline));
     }
 
     private static Result<Boolean> execute(CommandSender sender, String commandLine) {
