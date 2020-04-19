@@ -71,10 +71,11 @@ public abstract class PluginConfiguration implements ConfigurationSection {
         } catch (InvalidConfigurationException e) {
             getLogger().log(Level.WARNING, e, () -> "Failed while loading: " + file);
         }
+        onLoad();
     }
 
     public void onLoad() {
-
+        // Hook
     }
 
     public void save() {

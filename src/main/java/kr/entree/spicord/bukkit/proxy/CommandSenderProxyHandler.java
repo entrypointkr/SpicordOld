@@ -21,9 +21,12 @@ public class CommandSenderProxyHandler implements InvocationHandler {
         switch (method.getName()) {
             case "sendMessage":
                 messenger.accept(ChatColor.stripColor(args[0].toString()));
+                return null;
             case "isOp":
             case "hasPermission":
                 return accessible.get();
+            case "getName":
+                return "SpicordSender";
         }
         return Defaults.defaultValue(method.getReturnType());
     }
