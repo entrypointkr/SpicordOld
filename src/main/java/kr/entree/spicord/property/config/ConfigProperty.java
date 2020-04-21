@@ -1,6 +1,6 @@
 package kr.entree.spicord.property.config;
 
-import kr.entree.spicord.property.Option;
+import kr.entree.spicord.property.Property;
 import kr.entree.spicord.property.config.getter.BooleanGetter;
 import kr.entree.spicord.property.config.getter.NumberGetter;
 import kr.entree.spicord.property.config.setter.NormalSetter;
@@ -9,7 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
-public class ConfigProperty<T> implements Option<T> {
+public class ConfigProperty<T> implements Property<T> {
     private final ConfigurationSection section;
     private final ConfigGetter<T> getter;
     private final ConfigSetter<T> setter;
@@ -20,19 +20,19 @@ public class ConfigProperty<T> implements Option<T> {
         this.setter = setter;
     }
 
-    public static <T> ConfigOption<T> of(ConfigurationSection section, ConfigGetter<T> getter, ConfigSetter<T> setter) {
-        return new ConfigOption<>(section, getter, setter);
+    public static <T> ConfigProperty<T> of(ConfigurationSection section, ConfigGetter<T> getter, ConfigSetter<T> setter) {
+        return new ConfigProperty<>(section, getter, setter);
     }
 
-    public static <T> ConfigOption<T> of(ConfigurationSection section, ConfigGetter<T> getter, String key) {
+    public static <T> ConfigProperty<T> of(ConfigurationSection section, ConfigGetter<T> getter, String key) {
         return of(section, getter, new NormalSetter<>(key));
     }
 
-    public static ConfigOption<Number> ofNumber(ConfigurationSection section, String key) {
+    public static ConfigProperty<Number> ofNumber(ConfigurationSection section, String key) {
         return of(section, new NumberGetter(key), key);
     }
 
-    public static ConfigOption<Boolean> ofBoolean(ConfigurationSection section, String key) {
+    public static ConfigProperty<Boolean> ofBoolean(ConfigurationSection section, String key) {
         return of(section, new BooleanGetter(key), key);
     }
 

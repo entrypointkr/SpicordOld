@@ -5,11 +5,11 @@ import lombok.experimental.Delegate;
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
-public class BooleanProperty implements Option<Boolean> {
+public class BooleanProperty implements Property<Boolean> {
     @Delegate
-    private final Option<Boolean> option;
+    private final Property<Boolean> option;
 
-    public BooleanProperty(Option<Boolean> option) {
+    public BooleanProperty(Property<Boolean> option) {
         this.option = option;
     }
 

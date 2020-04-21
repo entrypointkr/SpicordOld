@@ -87,6 +87,6 @@ public class DiscordCommand {
     public boolean match(Message message) {
         return isValidChannel(message.getChannelId())
                 && match(message.getContents())
-                && accessible(message.getMember().orElse(null));
+                && accessible(message.getMember().or(null));
     }
 }

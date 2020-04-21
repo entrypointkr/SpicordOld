@@ -7,11 +7,11 @@ import java.util.function.LongSupplier;
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
-public class NumberProperty implements Option<Number>, LongSupplier {
+public class NumberProperty implements Property<Number>, LongSupplier {
     @Delegate
-    private final Option<Number> option;
+    private final Property<Number> option;
 
-    public NumberProperty(Option<Number> option) {
+    public NumberProperty(Property<Number> option) {
         this.option = option;
     }
 

@@ -5,7 +5,7 @@ import club.minnced.discord.webhook.send.WebhookMessage;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.discord.WebhookManager;
 import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
-import kr.entree.spicord.property.config.ConfigOption;
+import kr.entree.spicord.property.config.ConfigProperty;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -17,10 +17,10 @@ import java.util.function.Consumer;
 public class WebMessage implements MessageChannelHandler {
     private final WebhookManager manager;
     private final WebhookMessage message;
-    private final ConfigOption<Number> webhookId;
+    private final ConfigProperty<Number> webhookId;
     private final Consumer<Throwable> failure;
 
-    public WebMessage(WebhookManager manager, WebhookMessage message, ConfigOption<Number> webhookId, Consumer<Throwable> failure) {
+    public WebMessage(WebhookManager manager, WebhookMessage message, ConfigProperty<Number> webhookId, Consumer<Throwable> failure) {
         this.manager = manager;
         this.message = message;
         this.webhookId = webhookId;

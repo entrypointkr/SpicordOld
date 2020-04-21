@@ -1,7 +1,7 @@
 package kr.entree.spicord.config;
 
 import dagger.Reusable;
-import kr.entree.spicord.property.config.ConfigOption;
+import kr.entree.spicord.property.config.ConfigProperty;
 import kr.entree.spicord.property.config.getter.NumberGetter;
 import org.bukkit.plugin.Plugin;
 
@@ -17,9 +17,9 @@ public class DataStorage extends PluginConfiguration {
         super(plugin, "data.yml");
     }
 
-    public ConfigOption<Number> getPlayerChatWebhookId() {
+    public ConfigProperty<Number> getPlayerChatWebhookId() {
         String key = "webhook-id";
-        return ConfigOption.of(
+        return ConfigProperty.of(
                 this,
                 new NumberGetter(key),
                 (config, value) -> {

@@ -10,9 +10,9 @@ import kr.entree.spicord.discord.task.channel.ChannelTask;
 import kr.entree.spicord.discord.task.channel.CombinedHandler;
 import kr.entree.spicord.discord.task.channel.handler.*;
 import kr.entree.spicord.discord.task.channel.supplier.TextChannelSupplier;
-import kr.entree.spicord.property.BooleanOption;
-import kr.entree.spicord.property.NumberOption;
-import kr.entree.spicord.property.config.ConfigOption;
+import kr.entree.spicord.property.BooleanProperty;
+import kr.entree.spicord.property.NumberProperty;
+import kr.entree.spicord.property.config.ConfigProperty;
 import kr.entree.spicord.util.Result;
 import lombok.Getter;
 import lombok.val;
@@ -74,8 +74,8 @@ public class SpicordConfig extends PluginConfiguration {
         return getBoolean(key + ".enabled", true);
     }
 
-    public NumberOption getGuild() {
-        return new NumberOption(ConfigOption.ofNumber(this, "guild"));
+    public NumberProperty getGuild() {
+        return new NumberProperty(ConfigProperty.ofNumber(this, "guild"));
     }
 
     public Guild getGuild(JDA jda) {
@@ -258,8 +258,8 @@ public class SpicordConfig extends PluginConfiguration {
         return getBoolean(featureKey("player-chat.slow-mode"));
     }
 
-    public BooleanOption getFakeProfilePlayerChat() {
-        return new BooleanOption(ConfigOption.ofBoolean(this, featureKey("player-chat.fake-profile")));
+    public BooleanProperty getFakeProfilePlayerChat() {
+        return new BooleanProperty(ConfigProperty.ofBoolean(this, featureKey("player-chat.fake-profile")));
     }
 
     public MinecraftChat getDiscordChat() {
