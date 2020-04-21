@@ -1,5 +1,6 @@
 package kr.entree.spicord.bukkit.structure;
 
+import kr.entree.spicord.util.Option;
 import lombok.Data;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
@@ -30,8 +31,7 @@ public class Message {
         );
     }
 
-    @Nullable
-    public Member getMember() {
-        return member;
+    public Option<Member> getMember() {
+        return Option.of(member);
     }
 }

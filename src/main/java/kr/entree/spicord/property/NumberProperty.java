@@ -1,4 +1,4 @@
-package kr.entree.spicord.option;
+package kr.entree.spicord.property;
 
 import lombok.experimental.Delegate;
 
@@ -7,11 +7,11 @@ import java.util.function.LongSupplier;
 /**
  * Created by JunHyung Lim on 2019-12-01
  */
-public class NumberOption implements Option<Number>, LongSupplier {
+public class NumberProperty implements Option<Number>, LongSupplier {
     @Delegate
     private final Option<Number> option;
 
-    public NumberOption(Option<Number> option) {
+    public NumberProperty(Option<Number> option) {
         this.option = option;
     }
 

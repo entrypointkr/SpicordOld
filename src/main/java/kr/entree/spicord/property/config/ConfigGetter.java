@@ -1,4 +1,4 @@
-package kr.entree.spicord.option.config;
+package kr.entree.spicord.property.config;
 
 import org.bukkit.configuration.ConfigurationSection;
 

@@ -85,15 +85,15 @@ features:
     worlds: []
 commands:
   players:
-    command: "!동접"
+    label: "!동접"
     channel: chat
     message: player-list
   execute:
-    command: ["!명령", "!execute"]
+    label: ["!명령", "!execute"]
     channel: chat
     message: "출력: %output%"
   sudo:
-    command: ["!관리자명령", "!sudo"]
+    label: ["!관리자명령", "!sudo"]
     channel: chat
     message: "출력: %output%"
     permission: [administrator]

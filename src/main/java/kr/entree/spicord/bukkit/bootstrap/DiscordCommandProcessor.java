@@ -3,6 +3,7 @@ package kr.entree.spicord.bukkit.bootstrap;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.event.GuildChatEvent;
 import kr.entree.spicord.bukkit.proxy.CommandSenderProxyHandler;
+import kr.entree.spicord.bukkit.structure.Member;
 import kr.entree.spicord.bukkit.structure.Message;
 import kr.entree.spicord.command.DiscordCommandContext;
 import kr.entree.spicord.config.Parameter;
@@ -67,10 +68,10 @@ public class DiscordCommandProcessor implements Listener {
         val message = context.getMessage();
         val parameter = createParameter(message);
         val output = new StringBuilder();
-        val sender = CommandSenderProxyHandler.createProxy(output::append, () -> {
-            val member = context.getMessage().getMember();
-            return member != null && member.isOwner();
-        });
+        val sender = CommandSenderProxyHandler.createProxy(
+                output::append,
+                () -> isOwner(context.getMessage())
+        );
         execute(sender, parameter.format(String.join(" ", context.getArgs())))
                 .onSuccess(bool -> {
                     val handler = config.getMessage(context.getDiscordCommand().getMessageId(), parameter.put("%output%", output.toString()));
@@ -84,6 +85,10 @@ public class DiscordCommandProcessor implements Listener {
 
     private void executeSudoCommand(DiscordCommandContext context) {
         val message = context.getMessage();
+        if (!isOwner(message) && context.getDiscordCommand().getPermissions().isEmpty()) {
+            ChannelTask.ofReaction(context.getMessage(), Emojis.NO_ENTRY_SIGN).queue();
+            return;
+        }
         val parameter = createParameter(message);
         val output = new StringBuilder();
         val sender = CommandSenderProxyHandler.createProxy(output::append, () -> true);
@@ -104,5 +109,9 @@ public class DiscordCommandProcessor implements Listener {
         return new Parameter().put("%name%", message.getAuthor().getName())
                 .putPlayerList()
                 .putServer();
+    }
+
+    private static boolean isOwner(Message message) {
+        return message.getMember().is(Member::isOwner);
     }
 }

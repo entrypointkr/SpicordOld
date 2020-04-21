@@ -1,8 +1,8 @@
 package kr.entree.spicord.config;
 
 import dagger.Reusable;
-import kr.entree.spicord.option.config.ConfigOption;
-import kr.entree.spicord.option.config.getter.NumberGetter;
+import kr.entree.spicord.property.config.ConfigOption;
+import kr.entree.spicord.property.config.getter.NumberGetter;
 import org.bukkit.plugin.Plugin;
 
 import javax.inject.Inject;

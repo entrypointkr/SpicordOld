@@ -13,6 +13,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+
 /**
  * Created by JunHyung Lim on 2020-04-02
  */
@@ -25,11 +28,11 @@ public class DiscordCommand {
     private final Set<String> roles;
 
     public static DiscordCommand parse(ConfigurationSection section, SpicordConfig topConfig) {
-        val command = section.get("command");
-        val channel = ConfigurationSections.getStringCollection(section, "channel");
+        val command = section.get("label");
+        val channel = ConfigurationSections.getStringCollection(section, "channel").orElse(emptyList());
         val message = section.getString("message", "");
-        val permissions = getPermissions(section, "permission");
-        val roles = ConfigurationSections.getStringCollection(section, "roles");
+        val permissions = getPermissions(section, "permission").orElse(emptySet());
+        val roles = ConfigurationSections.getStringCollection(section, "roles").orElse(emptyList());
         val literals = new ArrayList<String>();
         if (command instanceof Collection) {
             val collection = ((Collection<?>) command);
@@ -48,11 +51,12 @@ public class DiscordCommand {
         return new DiscordCommand(literals, new HashSet<>(channelIds), messageId, new HashSet<>(permissions), new HashSet<>(roles));
     }
 
-    public static Set<Permission> getPermissions(ConfigurationSection section, String key) {
-        return ConfigurationSections.getStringCollection(section, key).stream()
-                .map(name -> Result.run(() -> Permission.valueOf(name.toUpperCase())).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+    public static Optional<Set<Permission>> getPermissions(ConfigurationSection section, String key) {
+        return ConfigurationSections.getStringCollection(section, key)
+                .map(c -> c.stream()
+                        .map(name -> Result.run(() -> Permission.valueOf(name.toUpperCase())).orElse(null))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet()));
     }
 
     public boolean isValidChannel(String channelId) {
@@ -64,7 +68,7 @@ public class DiscordCommand {
     }
 
     public boolean checkPermission(Member member) {
-        if (permissions.isEmpty() || member.isAdmin()) return true;
+        if (permissions.isEmpty() || member.isOwner()) return true;
         val memberPerms = member.getPermissions();
         return permissions.stream().allMatch(permission -> memberPerms.contains(permission.getOffset()));
     }
@@ -83,6 +87,6 @@ public class DiscordCommand {
     public boolean match(Message message) {
         return isValidChannel(message.getChannelId())
                 && match(message.getContents())
-                && accessible(message.getMember());
+                && accessible(message.getMember().orElse(null));
     }
 }

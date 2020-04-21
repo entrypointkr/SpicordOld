@@ -5,7 +5,7 @@ import club.minnced.discord.webhook.send.WebhookMessage;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.discord.WebhookManager;
 import kr.entree.spicord.discord.task.channel.handler.MessageChannelHandler;
-import kr.entree.spicord.option.config.ConfigOption;
+import kr.entree.spicord.property.config.ConfigOption;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 
