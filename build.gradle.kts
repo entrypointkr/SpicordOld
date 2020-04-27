@@ -21,7 +21,7 @@ allprojects {
     apply(plugin = "com.github.johnrengelman.shadow")
 
     group = "kr.entree"
-    version = "1.2.1-SNAPSHOT"
+    version = "1.2.1"
 
     repositories {
         mavenCentral()
