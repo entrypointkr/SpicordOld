@@ -39,7 +39,7 @@ allprojects {
         implementation("com.google.code.gson:gson:2.8.6")
         implementation("com.fasterxml.jackson.core:jackson-core:2.10.1")
         implementation("com.google.dagger:dagger:${daggerVersion}")
-        implementation("io.vavr:vavr:0.9.3")
+        implementation("io.vavr:vavr:0.10.2")
         annotationProcessor("org.projectlombok:lombok:1.18.10")
         annotationProcessor("com.google.dagger:dagger-compiler:${daggerVersion}")
         testImplementation("org.mockito:mockito-core:3.1.0")
