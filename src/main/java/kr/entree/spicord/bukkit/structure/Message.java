@@ -1,6 +1,6 @@
 package kr.entree.spicord.bukkit.structure;
 
-import kr.entree.spicord.util.Option;
+import io.vavr.control.Option;
 import lombok.Data;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;

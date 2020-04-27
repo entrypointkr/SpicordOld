@@ -179,4 +179,8 @@ public class Spicord extends JavaPlugin {
     public static void log(Throwable ex) {
         logger().log(Level.WARNING, "Exception!", ex);
     }
+
+    public static void log(String message) {
+        logger().log(Level.INFO, message);
+    }
 }

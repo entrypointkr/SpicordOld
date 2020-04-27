@@ -1,5 +1,7 @@
 package kr.entree.spicord.config;
 
+import io.vavr.control.Either;
+import io.vavr.control.Try;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.util.Enums;
 import lombok.val;
@@ -24,23 +26,24 @@ public class SpicordRichPresence {
         this.idle = idle;
     }
 
-    public static SpicordRichPresence parse(ConfigurationSection section, Parameter parameter) {
+    public static Either<String, SpicordRichPresence> parse(ConfigurationSection section, Parameter parameter) {
         val status = OnlineStatus.fromKey(section.getString("status", ""));
         if (status == OnlineStatus.UNKNOWN) {
             val availableStatus = Stream.of(OnlineStatus.values()).map(OnlineStatus::getKey).toArray();
-            throw new IllegalArgumentException("Available online status: " + StringUtils.join(availableStatus, ", "));
+            return Either.left("Available online status: " + StringUtils.join(availableStatus, ", "));
         }
         val idle = section.getBoolean("idle", false);
-        val activity = parseActivity(section, parameter);
-        return new SpicordRichPresence(status, activity, idle);
+        return parseActivity(section, parameter).toEither()
+                .mapLeft(Throwable::getMessage)
+                .map(activity -> new SpicordRichPresence(status, activity, idle));
     }
 
     @SuppressWarnings("ConstantConditions")
-    public static Activity parseActivity(ConfigurationSection section, Parameter parameter) {
+    public static Try<Activity> parseActivity(ConfigurationSection section, Parameter parameter) {
         val activity = Enums.valueOf(Activity.ActivityType.class, section.getString("activity", "").toUpperCase());
         val name = parameter.format(section.getString("name", ""));
         val url = parameter.format(section.getString("url", ""));
-        return Activity.of(activity, name, url);
+        return Try.of(() -> Activity.of(activity, name, url));
     }
 
     public void update() {

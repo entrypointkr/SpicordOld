@@ -1,5 +1,6 @@
 package kr.entree.spicord.bukkit.bootstrap;
 
+import io.vavr.control.Try;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.event.GuildChatEvent;
 import kr.entree.spicord.bukkit.proxy.CommandSenderProxyHandler;
@@ -10,7 +11,6 @@ import kr.entree.spicord.config.Parameter;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.task.channel.ChannelTask;
 import kr.entree.spicord.util.Emojis;
-import kr.entree.spicord.util.Result;
 import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -101,8 +101,8 @@ public class DiscordCommandProcessor implements Listener {
                 .onFailure(ex -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmdline));
     }
 
-    private static Result<Boolean> execute(CommandSender sender, String commandLine) {
-        return Result.run(() -> Bukkit.dispatchCommand(sender, commandLine));
+    private static Try<Boolean> execute(CommandSender sender, String commandLine) {
+        return Try.of(() -> Bukkit.dispatchCommand(sender, commandLine));
     }
 
     private static Parameter createParameter(Message message) {
@@ -112,6 +112,6 @@ public class DiscordCommandProcessor implements Listener {
     }
 
     private static boolean isOwner(Message message) {
-        return message.getMember().is(Member::isOwner);
+        return message.getMember().exists(Member::isOwner);
     }
 }

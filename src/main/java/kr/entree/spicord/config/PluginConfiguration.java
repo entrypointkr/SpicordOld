@@ -7,6 +7,7 @@ import lombok.experimental.Delegate;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
@@ -38,7 +39,7 @@ public abstract class PluginConfiguration implements ConfigurationSection {
     }
 
     public ConfigurationSection getSectionOrEmpty(String key) {
-        return ConfigurationSections.getSection(this, key);
+        return ConfigurationSections.getSection(this, key).getOrElse(MemoryConfiguration::new);
     }
 
     public static String readText(File file) throws IOException {

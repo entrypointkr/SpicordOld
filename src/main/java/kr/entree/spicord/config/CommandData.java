@@ -25,12 +25,15 @@ public class CommandData {
         val commandsByPrefix = new HashMap<String, List<IdentifiedCommand>>();
         for (String id : section.getKeys(false)) {
             val lowerCasedId = id.toLowerCase();
-            val command = new IdentifiedCommand(lowerCasedId, DiscordCommand.parse(ConfigurationSections.getSection(section, id), config));
-            commandById.put(lowerCasedId, command);
-            for (String literal : command.getCommand().getLiterals()) {
-                val commands = commandsByPrefix.computeIfAbsent(literal.substring(0, 1), k -> new ArrayList<>());
-                commands.add(command);
-            }
+            ConfigurationSections.getSection(section, id)
+                    .map(childSection -> new IdentifiedCommand(lowerCasedId, DiscordCommand.parse(childSection, config)))
+                    .peek(command -> {
+                        commandById.put(lowerCasedId, command);
+                        for (String literal : command.getCommand().getLiterals()) {
+                            val commands = commandsByPrefix.computeIfAbsent(literal.substring(0, 1), k -> new ArrayList<>());
+                            commands.add(command);
+                        }
+                    });
         }
         return new CommandData(commandById, commandsByPrefix);
     }

@@ -1,39 +1,42 @@
 package kr.entree.spicord.bukkit.util;
 
+import io.vavr.control.Option;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @UtilityClass
 public class ConfigurationSections {
-    public Optional<Collection<?>> getCollection(ConfigurationSection section, String key) {
-        val object = section.get(key);
-        if (object instanceof Collection) {
-            return Optional.of(((Collection<?>) object));
-        }
-        return Optional.ofNullable(object).map(Collections::singletonList);
+    public Option<Object> get(ConfigurationSection section, String key) {
+        return Option.of(section.get(key));
     }
 
-    public Optional<Collection<String>> getStringCollection(ConfigurationSection section, String key) {
+    @SuppressWarnings("unchecked")
+    public Option<Collection<Object>> getCollection(ConfigurationSection section, String key) {
+        return get(section, key).map(value ->
+                value instanceof Collection
+                        ? new ArrayList<>(((Collection<Object>) value))
+                        : Collections.singletonList(value)
+        );
+    }
+
+    public Option<Collection<String>> getStringCollection(ConfigurationSection section, String key) {
         val collection = getCollection(section, key);
         return collection.map(c -> c.stream().map(Object::toString).collect(Collectors.toList()));
     }
 
-    public ConfigurationSection getSection(ConfigurationSection section, String key) {
-        val ret = section.getConfigurationSection(key);
-        return ret != null ? ret : new MemoryConfiguration();
+    public Option<ConfigurationSection> getSection(ConfigurationSection section, String key) {
+        return Option.of(section.getConfigurationSection(key));
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T get(ConfigurationSection section, String key, T defaultValue) {
-        val type = defaultValue.getClass();
-        val value = section.get(key);
-        return type.isInstance(value) ? (T) value : defaultValue;
+    public <T> Option<T> get(ConfigurationSection section, String key, Class<T> type) {
+        return get(section, key)
+                .filter(type::isInstance)
+                .map(type::cast);
     }
 }

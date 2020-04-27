@@ -1,6 +1,7 @@
 package kr.entree.spicord.config;
 
 import dagger.Reusable;
+import io.vavr.control.Either;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.util.Cache;
 import kr.entree.spicord.discord.Discord;
@@ -13,7 +14,6 @@ import kr.entree.spicord.discord.task.channel.supplier.TextChannelSupplier;
 import kr.entree.spicord.property.BooleanProperty;
 import kr.entree.spicord.property.NumberProperty;
 import kr.entree.spicord.property.config.ConfigProperty;
-import kr.entree.spicord.util.Result;
 import lombok.Getter;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -282,18 +282,18 @@ public class SpicordConfig extends PluginConfiguration {
         return verifyConfig;
     }
 
-    public Result<SpicordRichPresence> parseRichPresence(Parameter parameter) {
+    public Either<String, SpicordRichPresence> parseRichPresence(Parameter parameter) {
         val status = getConfigurationSection("rich-presence");
         if (status == null) {
-            return Result.empty();
+            return Either.left("Empty rich-presence in config");
         }
-        return Result.run(() -> SpicordRichPresence.parse(status, parameter));
+        return SpicordRichPresence.parse(status, parameter);
     }
 
     public void updateRichPresence() {
         parseRichPresence(new Parameter().putServer())
-                .onSuccess(SpicordRichPresence::update)
-                .onFailure(Spicord::log);
+                .peek(SpicordRichPresence::update)
+                .peekLeft(Spicord::log);
     }
 
     public static MessageEmbed parseEmbed(Map<?, ?> map, Parameter parameter) {

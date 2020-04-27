@@ -1,9 +1,10 @@
 package kr.entree.spicord.config;
 
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 import kr.entree.spicord.bukkit.structure.Member;
 import kr.entree.spicord.bukkit.structure.Message;
 import kr.entree.spicord.bukkit.util.ConfigurationSections;
-import kr.entree.spicord.util.Result;
 import lombok.Data;
 import lombok.val;
 import net.dv8tion.jda.api.Permission;
@@ -29,10 +30,10 @@ public class DiscordCommand {
 
     public static DiscordCommand parse(ConfigurationSection section, SpicordConfig topConfig) {
         val command = section.get("label");
-        val channel = ConfigurationSections.getStringCollection(section, "channel").orElse(emptyList());
+        val channel = ConfigurationSections.getStringCollection(section, "channel").getOrElse(emptyList());
         val message = section.getString("message", "");
-        val permissions = getPermissions(section, "permission").orElse(emptySet());
-        val roles = ConfigurationSections.getStringCollection(section, "roles").orElse(emptyList());
+        val permissions = getPermissions(section, "permission").getOrElse(emptySet());
+        val roles = ConfigurationSections.getStringCollection(section, "roles").getOrElse(emptyList());
         val literals = new ArrayList<String>();
         if (command instanceof Collection) {
             val collection = ((Collection<?>) command);
@@ -51,10 +52,10 @@ public class DiscordCommand {
         return new DiscordCommand(literals, new HashSet<>(channelIds), messageId, new HashSet<>(permissions), new HashSet<>(roles));
     }
 
-    public static Optional<Set<Permission>> getPermissions(ConfigurationSection section, String key) {
+    public static Option<Set<Permission>> getPermissions(ConfigurationSection section, String key) {
         return ConfigurationSections.getStringCollection(section, key)
                 .map(c -> c.stream()
-                        .map(name -> Result.run(() -> Permission.valueOf(name.toUpperCase())).orElse(null))
+                        .map(name -> Try.of(() -> Permission.valueOf(name.toUpperCase())).toOption().getOrNull())
                         .filter(Objects::nonNull)
                         .collect(Collectors.toSet()));
     }
@@ -87,6 +88,6 @@ public class DiscordCommand {
     public boolean match(Message message) {
         return isValidChannel(message.getChannelId())
                 && match(message.getContents())
-                && accessible(message.getMember().or(null));
+                && message.getMember().exists(this::accessible);
     }
 }
