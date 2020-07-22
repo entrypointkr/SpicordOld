@@ -5,7 +5,7 @@ import kr.entree.spigradle.kotlin.spigot
 plugins {
     java
     id("com.github.johnrengelman.shadow") version "5.2.0"
-    id("kr.entree.spigradle") version "1.2.3"
+    id("kr.entree.spigradle") version "2.0.1"
 }
 
 dependencies {
@@ -104,9 +104,9 @@ subprojects {
             dependsOn(copyClasses)
         }
         shadowJar {
-            from(rootProject.tasks.spigotPluginYaml.get().temporaryDir)
+            from(rootProject.tasks.generateSpigotDescription.get().temporaryDir)
         }
-        spigotPluginYaml {
+        generateSpigotDescription {
             enabled = false
         }
     }
