@@ -67,7 +67,14 @@ public class ChatToDiscord implements Listener {
         if (e.isCancelled() && isIgnoreCancelled()) {
             return;
         }
-        chats(e.getPlayer(), e.getMessage());
+        // Defer for invoke the getOnlinePlayers() which is not thread-safe
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            // Skip if the recipients is changed
+            if (e.getRecipients().size() != Bukkit.getOnlinePlayers().size()) {
+                return;
+            }
+            chats(e.getPlayer(), e.getMessage());
+        });
     }
 
     private boolean isJoinQuitEnabled() {
