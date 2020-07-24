@@ -1,5 +1,5 @@
 rootProject.name = "spicord"
-include("legacy")
+include("core", "bukkit", "bukkit-legacy")
 
 rootProject.children.forEach { project ->
     project.apply {
