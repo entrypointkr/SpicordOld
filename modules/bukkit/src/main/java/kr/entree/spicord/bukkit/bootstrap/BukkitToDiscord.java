@@ -1,7 +1,7 @@
 package kr.entree.spicord.bukkit.bootstrap;
 
 import kr.entree.spicord.bukkit.VerifiedMemberManager;
-import kr.entree.spicord.config.ParameterUtils;
+import kr.entree.spicord.config.Parameters;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.util.Parameter;
@@ -33,7 +33,7 @@ public class BukkitToDiscord implements Listener {
         Player player = e.getPlayer();
         discord.addTask(config.getFeature(
                 "player-kick",
-                ParameterUtils.putPlayer(new Parameter(), player)
+                Parameters.putPlayer(new Parameter(), player)
                         .put("%reason%", e.getReason())
         ));
     }

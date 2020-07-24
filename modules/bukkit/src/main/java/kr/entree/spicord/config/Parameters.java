@@ -13,19 +13,19 @@ import java.util.stream.Collectors;
 /**
  * Created by JunHyung Im on 2020-07-23
  */
-public class ParameterUtils {
+public class Parameters {
 
     public static Parameter putServer(Parameter parameter) {
         return parameter.put("%players%", Platform.getOnlinePlayers().size());
     }
 
     public static Parameter put(Parameter parameter, Chat chat) {
-        ParameterUtils.put(parameter, chat.getPlayerData());
+        Parameters.putPlayerData(parameter, chat.getPlayerData());
         parameter.put("%message%", chat.getMessage());
         return parameter;
     }
 
-    public static Parameter put(Parameter parameter, PlayerData player) {
+    public static Parameter putPlayerData(Parameter parameter, PlayerData player) {
         parameter.put("%name%", player.getName());
         parameter.put("%display-name%", player.getDisplayNameOrDefault());
         parameter.put("%player%", player.getName());
@@ -34,7 +34,7 @@ public class ParameterUtils {
     }
 
     public static Parameter putPlayer(Parameter parameter, Player player) {
-        return put(parameter, new PlayerData(player));
+        return putPlayerData(parameter, new PlayerData(player));
     }
 
     public static Parameter putPlayerList(Parameter parameter) {
@@ -46,6 +46,6 @@ public class ParameterUtils {
         });
     }
 
-    private ParameterUtils() {
+    private Parameters() {
     }
 }

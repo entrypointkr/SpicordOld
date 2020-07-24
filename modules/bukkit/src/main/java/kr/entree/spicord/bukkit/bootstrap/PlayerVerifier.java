@@ -37,7 +37,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static kr.entree.spicord.config.ParameterUtils.putPlayer;
+import static kr.entree.spicord.config.Parameters.putPlayer;
 
 /**
  * Created by JunHyung Lim on 2019-11-29
@@ -172,7 +172,8 @@ public class PlayerVerifier implements Listener {
         val parameter = putPlayer(new Parameter().put(user), player);
         if (verification.match(e.getMessage().toLowerCase())) {
             val verifyConfig = getConfig();
-            manager.put(user.getId(), new PlayerData(verification.getUuid()).name(player.getName()));
+            val playerData = new PlayerData(player);
+            manager.put(user.getId(), playerData);
             manager.saveAsync();
             Bukkit.getScheduler().runTask(plugin, () -> {
                 player.sendMessage(langConfig.format(Lang.VERIFY_SUCCESS, parameter));
@@ -187,7 +188,7 @@ public class PlayerVerifier implements Listener {
                             this.config.getGuild().getLong(),
                             verification.getUser().getId(),
                             new AddRole(verifyConfig::getDiscordRoles),
-                            new Rename(verifyConfig.getDiscordName(player.getName()))
+                            new Rename(verifyConfig.getDiscordName(playerData))
                     )
             ).forEach(verification.getDiscord()::addTask);
             e.setCancelled(true);
@@ -230,7 +231,7 @@ public class PlayerVerifier implements Listener {
             val handlers = new CombinedMemberHandler()
                     .add(new AddRole(getConfig()::getDiscordRoles));
             if (name != null) {
-                handlers.add(new Rename(getConfig().getDiscordName(name)));
+                handlers.add(new Rename(getConfig().getDiscordName(mcUser)));
             }
             e.getDiscord().addTask(
                     GuildMemberHandler.createTask(

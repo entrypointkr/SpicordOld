@@ -19,8 +19,8 @@ import org.bukkit.event.Listener;
 
 import javax.inject.Inject;
 
-import static kr.entree.spicord.config.ParameterUtils.putPlayerList;
-import static kr.entree.spicord.config.ParameterUtils.putServer;
+import static kr.entree.spicord.config.Parameters.putPlayerList;
+import static kr.entree.spicord.config.Parameters.putServer;
 
 /**
  * Created by JunHyung Lim on 2020-04-02

@@ -2,7 +2,7 @@ package kr.entree.spicord.bukkit.bootstrap;
 
 import kr.entree.spicord.bukkit.messenger.Messenger;
 import kr.entree.spicord.bukkit.util.Chat;
-import kr.entree.spicord.config.ParameterUtils;
+import kr.entree.spicord.config.Parameters;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.util.Parameter;
 import lombok.val;
@@ -86,7 +86,7 @@ public class ChatToDiscord implements Listener {
     }
 
     @Nullable
-    private String getJoinMessage() {
+    private String getJoinMessage() { // TODO: Separate to messages for the customize
         return config.getString(SpicordConfig.featureKey("player-chat.join-message"));
     }
 
@@ -101,7 +101,7 @@ public class ChatToDiscord implements Listener {
         val player = e.getPlayer();
         val altMsg = getQuitMessage();
         val message = altMsg != null
-                ? ParameterUtils.putPlayer(new Parameter(), player).format(altMsg)
+                ? Parameters.putPlayer(new Parameter(), player).format(altMsg)
                 : e.getQuitMessage();
         chats(Chat.create(player, message).prefix(false));
     }
@@ -113,7 +113,7 @@ public class ChatToDiscord implements Listener {
         val altMsg = getJoinMessage();
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             val message = altMsg != null
-                    ? ParameterUtils.putPlayer(new Parameter(), player).format(altMsg)
+                    ? Parameters.putPlayer(new Parameter(), player).format(altMsg)
                     : e.getJoinMessage();
             chats(Chat.create(player, message).prefix(false));
         }, 2);

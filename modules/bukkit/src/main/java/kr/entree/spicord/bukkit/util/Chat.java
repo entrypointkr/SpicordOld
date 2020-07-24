@@ -1,6 +1,6 @@
 package kr.entree.spicord.bukkit.util;
 
-import kr.entree.spicord.config.ParameterUtils;
+import kr.entree.spicord.config.Parameters;
 import kr.entree.spicord.config.SpicordConfig;
 import kr.entree.spicord.discord.task.channel.handler.PlainMessage;
 import kr.entree.spicord.util.Parameter;
@@ -40,7 +40,7 @@ public class Chat {
         if (!prefix) {
             return message;
         }
-        val parameter = ParameterUtils.put(new Parameter(), playerData).put("%message%", message);
+        val parameter = Parameters.putPlayerData(new Parameter(), playerData).put("%message%", message);
         PlainMessage plainMessage = config.getPlainMessage("player-chat", parameter);
         return plainMessage != null ? plainMessage.getMessage().toString() : null;
     }

@@ -27,7 +27,7 @@ import javax.inject.Inject;
 import java.util.Set;
 import java.util.UUID;
 
-import static kr.entree.spicord.config.ParameterUtils.putPlayer;
+import static kr.entree.spicord.config.Parameters.putPlayer;
 
 /**
  * Created by JunHyung Lim on 2019-11-27

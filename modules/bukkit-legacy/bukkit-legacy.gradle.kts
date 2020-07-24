@@ -6,7 +6,7 @@ import java.util.jar.JarFile
 plugins {
     java
     id("de.undercouch.download") version "4.0.4"
-    id("kr.entree.spigradle") version "2.1.0"
+    id("kr.entree.spigradle") version "2.1.1"
 }
 
 val bukkitProject: Project get() = project(":spicord-bukkit")

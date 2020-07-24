@@ -1,6 +1,7 @@
 package kr.entree.spicord.config;
 
 import kr.entree.spicord.bukkit.restrict.RestrictType;
+import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.util.Parameter;
 import lombok.val;
 import net.dv8tion.jda.api.entities.Guild;
@@ -107,8 +108,12 @@ public class VerificationConfig {
     }
 
     public String getDiscordName(@NotNull String name) {
-        val format = getDiscordNameFormat();
-        return format.replace("%name%", name);
+        return getDiscordNameFormat().replace("%name%", name);
+    }
+
+    public String getDiscordName(PlayerData data) {
+        val parameter = Parameters.putPlayerData(new Parameter(), data);
+        return parameter.format(getDiscordNameFormat());
     }
 
     public String getDiscordNameFormat() {

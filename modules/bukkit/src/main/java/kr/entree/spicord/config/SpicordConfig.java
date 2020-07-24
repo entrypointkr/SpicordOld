@@ -292,7 +292,7 @@ public class SpicordConfig extends PluginConfiguration {
     }
 
     public void updateRichPresence() {
-        parseRichPresence(ParameterUtils.putServer(new Parameter()))
+        parseRichPresence(Parameters.putServer(new Parameter()))
                 .peek(SpicordRichPresence::update)
                 .peekLeft(Spicord::log);
     }

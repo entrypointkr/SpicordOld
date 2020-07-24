@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static kr.entree.spicord.config.ParameterUtils.putPlayer;
+import static kr.entree.spicord.config.Parameters.putPlayer;
 import static org.mockito.Mockito.mock;
 
 /**

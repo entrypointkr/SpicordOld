@@ -59,7 +59,7 @@ public class DiscordToDiscord implements Listener {
         }
         val name = Platform.getOfflinePlayer(mcId.getId()).getName();
         if (name == null || name.equals(newName)) return;
-        discord.addTask(GuildMemberHandler.createTask(guildId, userId, new Rename(name)));
+        discord.addTask(GuildMemberHandler.createTask(guildId, userId, new Rename(verifyConfig.getDiscordName(mcId))));
     }
 
     private void syncName(GuildMemberEvent e, @Nullable String newName) {
