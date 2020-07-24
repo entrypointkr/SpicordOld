@@ -37,6 +37,7 @@ tasks {
         overwrite(true)
     }
     val extractJar by registering {
+        dependsOn(bukkitProject.tasks["assemble"])
         doLast {
             val dest = sourceSets["main"].java.destinationDirectory.get().asFile
             JarFile(bukkitProject.tasks.getByName("shadowJar", Jar::class)
