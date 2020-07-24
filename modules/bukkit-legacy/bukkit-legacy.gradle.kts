@@ -55,7 +55,6 @@ tasks {
         enabled = false
     }
     compileJava {
-//        dependsOn(downloadLegacySpigot, copyClasses)
         dependsOn(downloadLegacySpigot, extractJar)
     }
     val copyLegacySpigot by registering(Copy::class) {
