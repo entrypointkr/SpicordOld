@@ -137,7 +137,7 @@ public class PlayerVerifier implements Listener {
                             .queue(discord);
                     return;
                 }
-                putPlayer(new Parameter(), player);
+                putPlayer(parameter, player);
                 val discordId = manager.getDiscord(player.getUniqueId());
                 if (discordId != null) {
                     builder.message(config, "already-verified", parameter)
