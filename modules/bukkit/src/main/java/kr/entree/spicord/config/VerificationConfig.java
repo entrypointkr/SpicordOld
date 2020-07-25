@@ -1,5 +1,6 @@
 package kr.entree.spicord.config;
 
+import io.vavr.control.Option;
 import kr.entree.spicord.bukkit.restrict.RestrictType;
 import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.util.Parameter;
@@ -7,14 +8,12 @@ import lombok.val;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -107,12 +106,24 @@ public class VerificationConfig {
         return section.getBoolean("after.name-sync");
     }
 
+    public boolean isNameColorize() {
+        return section.getBoolean("after.name-colorize");
+    }
+
+    public boolean isNameColorizeOpOnly() {
+        return section.getBoolean("after.name-colorize");
+    }
+
     public String getDiscordName(@NotNull String name) {
         return getDiscordNameFormat().replace("%name%", name);
     }
 
     public String getDiscordName(PlayerData data) {
         val parameter = Parameters.putPlayerData(new Parameter(), data);
+        // Strip colors from name keys
+        Arrays.asList("%name%", "%display-name%").forEach(key ->
+                Option.of(parameter.get(key)).peek(v ->
+                        parameter.put(key, ChatColor.stripColor(v.toString()))));
         return parameter.format(getDiscordNameFormat());
     }
 

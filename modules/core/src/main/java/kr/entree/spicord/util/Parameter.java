@@ -5,6 +5,7 @@ import lombok.val;
 import net.dv8tion.jda.api.entities.Member;
 import org.ahocorasick.trie.Emit;
 import org.ahocorasick.trie.Trie;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,11 +48,16 @@ public class Parameter {
         return this;
     }
 
-    public String getOrFormat(String key) {
+    @Nullable
+    public Object get(String key) {
         val replacement = map.get(key);
-        val object = replacement instanceof Supplier<?>
+        return replacement instanceof Supplier<?>
                 ? ((Supplier<?>) replacement).get()
                 : replacement;
+    }
+
+    public String getOrFormat(String key) {
+        val object = get(key);
         return object != null ? object.toString() : "null";
     }
 

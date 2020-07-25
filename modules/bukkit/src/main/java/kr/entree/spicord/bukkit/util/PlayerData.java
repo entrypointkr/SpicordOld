@@ -1,9 +1,11 @@
 package kr.entree.spicord.bukkit.util;
 
+import io.vavr.control.Option;
 import lombok.Data;
 import lombok.Getter;
 import lombok.val;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.ServerOperator;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -62,6 +64,14 @@ public class PlayerData {
     @Nullable
     public Player getPlayer() {
         return Platform.getPlayer(id);
+    }
+
+    public Option<Player> getPlayerOption() {
+        return Option.of(getPlayer());
+    }
+
+    public boolean isOp() {
+        return getPlayerOption().map(ServerOperator::isOp).getOrElse(false);
     }
 
     @Nullable
