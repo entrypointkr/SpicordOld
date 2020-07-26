@@ -1,21 +1,34 @@
 package kr.entree.spicord.discord;
 
 import dagger.Reusable;
+import io.vavr.collection.Stream;
+import io.vavr.control.Try;
+import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.DiscordEventToBukkit;
+import kr.entree.spicord.bukkit.util.ChatStyles;
+import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.discord.exception.NoChannelFoundException;
 import kr.entree.spicord.discord.exception.NoGuildFoundException;
 import kr.entree.spicord.discord.exception.NoUserFoundException;
+import kr.entree.spicord.discord.task.guild.GuildTask;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import javax.inject.Inject;
 import javax.security.auth.login.LoginException;
+import java.awt.*;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
 /**
@@ -30,6 +43,7 @@ public class Discord implements Runnable {
     @Getter
     @Setter
     private String token = null;
+    private static final ReentrantReadWriteLock COLOR_ROLE_LOCK = new ReentrantReadWriteLock();
 
     @Inject
     public Discord(Plugin plugin) {
@@ -100,5 +114,62 @@ public class Discord implements Runnable {
         } catch (Exception ex) {
             logger.log(Level.WARNING, ex, () -> "Exception!");
         }
+    }
+
+    public void retrieveColorRole(Color color, Guild guild, BiConsumer<JDA, Role> receiver) {
+        val name = formatColorToRoleName(color);
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            COLOR_ROLE_LOCK.readLock().lock();
+            val role = guild.getRolesByName(name, false).stream().findFirst().orElse(null);
+            COLOR_ROLE_LOCK.readLock().unlock();
+            if (role != null) {
+                addTask(_jda -> receiver.accept(_jda, role));
+            } else {
+                COLOR_ROLE_LOCK.writeLock().lock();
+                try {
+                    val newRole = guild.createRole().complete();
+                    val manager = newRole.getManager();
+                    Try.of(() -> manager.setName(name).complete())
+                            .andThen(() -> manager.setColor(color).complete())
+                            .onSuccess(v -> receiver.accept(jda, newRole))
+                            .onFailure(ex -> {
+                                Spicord.log(ex);
+                                newRole.delete().complete();
+                            });
+                } finally {
+                    COLOR_ROLE_LOCK.writeLock().unlock();
+                }
+            }
+        });
+    }
+
+    public void retrieveColorRole(Color color, long guildId, BiConsumer<JDA, Role> receiver) {
+        addTask(new GuildTask(guildId, (jda, guild) -> retrieveColorRole(color, guild, receiver)));
+    }
+
+    public void colorizeDiscordName(PlayerData data, long discordUserId, long guildId) {
+        val displayName = data.getDisplayName();
+        val color = ChatStyles.bukkitToAwt(ChatStyles.getFirstColor(displayName));
+        Spicord.get().getDiscord().addTask(jda -> {
+            val guild = jda.getGuildById(guildId);
+            if (guild == null) return;
+            val member = guild.getMemberById(discordUserId);
+            if (member == null) return;
+            if (color != null) {
+                retrieveColorRole(color, guild, (_jda, role) -> {
+                    guild.addRoleToMember(member, role).queue();
+                    Stream.ofAll(member.getRoles()).find(r ->
+                            !r.hasPermission(Permission.ADMINISTRATOR)
+                    ).peek(r -> guild.modifyRolePositions().selectPosition(role).moveTo(r.getPosition()).queue());
+                });
+            } else {
+                member.getRoles().stream().filter(role -> role.getName().startsWith("RGB "))
+                        .forEach(role -> guild.removeRoleFromMember(member, role).queue());
+            }
+        });
+    }
+
+    public static String formatColorToRoleName(Color color) {
+        return "RGB " + color.getRGB();
     }
 }

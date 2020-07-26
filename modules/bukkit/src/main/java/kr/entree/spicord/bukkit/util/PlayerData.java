@@ -48,8 +48,16 @@ public class PlayerData {
     }
 
     public String getDisplayNameOrDefault() {
-        val ret = displayName != null ? displayName : name;
-        return ret != null ? ret : "unknown";
+        val displayName = getDisplayName();
+        return displayName != null ? displayName : "unknown";
+    }
+
+    @Nullable
+    public String getDisplayName() {
+        return Option.of(Platform.getPlayer(id))
+                .map(Player::getDisplayName)
+                .orElse(Option.of(displayName))
+                .getOrElse(name);
     }
 
     @Override

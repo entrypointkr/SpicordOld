@@ -4,6 +4,7 @@ import dagger.Reusable;
 import io.vavr.control.Either;
 import kr.entree.spicord.Spicord;
 import kr.entree.spicord.bukkit.util.Cache;
+import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.EmptyHandler;
 import kr.entree.spicord.discord.JDAHandler;
@@ -295,6 +296,14 @@ public class SpicordConfig extends PluginConfiguration {
         parseRichPresence(Parameters.putServer(new Parameter()))
                 .peek(SpicordRichPresence::update)
                 .peekLeft(Spicord::log);
+    }
+
+    public boolean tryColorizeDiscordName(PlayerData data, long discordUserId, long guildId) {
+        if (verifyConfig.isNameColorize()) {
+            Spicord.get().getDiscord().colorizeDiscordName(data, discordUserId, guildId);
+            return true;
+        }
+        return false;
     }
 
     public static MessageEmbed parseEmbed(Map<?, ?> map, Parameter parameter) {

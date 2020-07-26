@@ -110,10 +110,6 @@ public class VerificationConfig {
         return section.getBoolean("after.name-colorize");
     }
 
-    public boolean isNameColorizeOpOnly() {
-        return section.getBoolean("after.name-colorize");
-    }
-
     public String getDiscordName(@NotNull String name) {
         return getDiscordNameFormat().replace("%name%", name);
     }

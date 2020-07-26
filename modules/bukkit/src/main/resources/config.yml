@@ -110,7 +110,6 @@ verification:
   after:
     name-sync: false
     name-colorize: false
-    name-colorize-op: false
     discord-name-format: "%name%"
     discord-role:
       - verified

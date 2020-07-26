@@ -191,6 +191,7 @@ public class PlayerVerifier implements Listener {
                             new Rename(verifyConfig.getDiscordName(playerData))
                     )
             ).forEach(verification.getDiscord()::addTask);
+            config.tryColorizeDiscordName(playerData, user.getId(), config.getGuild().getLong());
             e.setCancelled(true);
         } else {
             verification.getDiscord().addTask(new ChannelTask(
@@ -232,6 +233,7 @@ public class PlayerVerifier implements Listener {
                     .add(new AddRole(getConfig()::getDiscordRoles));
             if (name != null) {
                 handlers.add(new Rename(getConfig().getDiscordName(mcUser)));
+                config.tryColorizeDiscordName(mcUser, user.getId(), config.getGuild().getLong());
             }
             e.getDiscord().addTask(
                     GuildMemberHandler.createTask(
