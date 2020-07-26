@@ -27,7 +27,7 @@ import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 
@@ -43,7 +43,7 @@ public class Discord implements Runnable {
     @Getter
     @Setter
     private String token = null;
-    private static final ReentrantReadWriteLock COLOR_ROLE_LOCK = new ReentrantReadWriteLock();
+    private static final ReentrantLock COLOR_ROLE_LOCK = new ReentrantLock();
 
     @Inject
     public Discord(Plugin plugin) {
@@ -119,15 +119,12 @@ public class Discord implements Runnable {
     public void retrieveColorRole(Color color, Guild guild, BiConsumer<JDA, Role> receiver) {
         val name = formatColorToRoleName(color);
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            COLOR_ROLE_LOCK.readLock().lock();
+            COLOR_ROLE_LOCK.lock();
             val role = guild.getRolesByName(name, false).stream().findFirst().orElse(null);
-            COLOR_ROLE_LOCK.readLock().unlock();
             if (role != null) {
                 addTask(_jda -> receiver.accept(_jda, role));
             } else {
-                COLOR_ROLE_LOCK.writeLock().lock();
-                try {
-                    val newRole = guild.createRole().complete();
+                Try.of(() -> guild.createRole().complete()).andThen(newRole -> {
                     val manager = newRole.getManager();
                     Try.of(() -> manager.setName(name).complete())
                             .andThen(() -> manager.setColor(color).complete())
@@ -136,10 +133,9 @@ public class Discord implements Runnable {
                                 Spicord.log(ex);
                                 newRole.delete().complete();
                             });
-                } finally {
-                    COLOR_ROLE_LOCK.writeLock().unlock();
-                }
+                });
             }
+            COLOR_ROLE_LOCK.unlock();
         });
     }
 
