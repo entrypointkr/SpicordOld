@@ -1,6 +1,5 @@
 package kr.entree.spicord.config;
 
-import io.vavr.control.Option;
 import kr.entree.spicord.bukkit.restrict.RestrictType;
 import kr.entree.spicord.bukkit.util.PlayerData;
 import kr.entree.spicord.util.Parameter;
@@ -13,7 +12,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -116,11 +118,7 @@ public class VerificationConfig {
 
     public String getDiscordName(PlayerData data) {
         val parameter = Parameters.putPlayerData(new Parameter(), data);
-        // Strip colors from name keys
-        Arrays.asList("%name%", "%display-name%").forEach(key ->
-                Option.of(parameter.get(key)).peek(v ->
-                        parameter.put(key, ChatColor.stripColor(v.toString()))));
-        return parameter.format(getDiscordNameFormat());
+        return ChatColor.stripColor(parameter.format(getDiscordNameFormat()));
     }
 
     public String getDiscordNameFormat() {
