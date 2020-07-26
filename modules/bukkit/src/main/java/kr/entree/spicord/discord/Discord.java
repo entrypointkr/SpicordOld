@@ -151,17 +151,27 @@ public class Discord implements Runnable {
             if (guild == null) return;
             val member = guild.getMemberById(discordUserId);
             if (member == null) return;
-            if (color != null) {
-                retrieveColorRole(color, guild, (_jda, role) -> {
-                    guild.addRoleToMember(member, role).queue();
-                    Stream.ofAll(member.getRoles()).find(r ->
-                            !r.hasPermission(Permission.ADMINISTRATOR)
-                    ).peek(r -> guild.modifyRolePositions().selectPosition(role).moveTo(r.getPosition()).queue());
-                });
-            } else {
-                member.getRoles().stream().filter(role -> role.getName().startsWith("RGB "))
-                        .forEach(role -> guild.removeRoleFromMember(member, role).queue());
+            // Remove original color codes
+            Stream.ofAll(member.getRoles())
+                    .filter(r -> r.getName().startsWith("RGB "))
+                    .forEach(r -> guild.removeRoleFromMember(member, r).queue());
+            if (color == null) return;
+            val colorRoleName = formatColorToRoleName(color);
+            // Already has the color role
+            if (member.getRoles().stream().anyMatch(r -> r.getName().equals(colorRoleName))) {
+                return;
             }
+            retrieveColorRole(color, guild, (_jda, colorRole) -> {
+                guild.addRoleToMember(member, colorRole).queue();
+                Stream.ofAll(member.getRoles())
+                        .find(r -> !r.hasPermission(Permission.ADMINISTRATOR))
+                        .peek(r ->
+                                guild.modifyRolePositions()
+                                        .selectPosition(colorRole)
+                                        .moveTo(r.getPosition())
+                                        .queue()
+                        );
+            });
         });
     }
 
