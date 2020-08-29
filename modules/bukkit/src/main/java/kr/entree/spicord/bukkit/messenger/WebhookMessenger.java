@@ -13,6 +13,7 @@ import kr.entree.spicord.di.qualifier.MessengerCooldown;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.WebhookManager;
 import lombok.val;
+import org.bukkit.ChatColor;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -68,7 +69,7 @@ public class WebhookMessenger implements Messenger, Runnable {
         if (author == null || messageBuilder.length() == 0) return;
         val message = messageBuilder.toString();
         val builder = new WebhookMessageBuilder()
-                .setUsername(author.getDisplayName())
+                .setUsername(ChatColor.stripColor(author.getDisplayName()))
                 .setAvatarUrl(createAvatarUrl(author.getId()))
                 .setContent(message);
         val sendMessage = new WebMessage(
