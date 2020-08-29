@@ -6,7 +6,7 @@ import kr.entree.spigradle.kotlin.spigot
 plugins {
     `java-library`
     id("com.github.johnrengelman.shadow") version "5.2.0"
-    id("kr.entree.spigradle") version "2.1.1"
+    id("kr.entree.spigradle") version "2.2.2"
 }
 
 version = "1.4.1"
@@ -37,6 +37,9 @@ spigot {
         create("spicord") {
             aliases = listOf("sc")
         }
+    }
+    debug {
+        buildVersion = "1.16.2"
     }
 }
 

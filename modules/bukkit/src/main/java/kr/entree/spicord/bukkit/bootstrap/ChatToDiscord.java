@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Set;
 
 /**
  * Created by JunHyung Lim on 2019-11-17
@@ -70,7 +71,8 @@ public class ChatToDiscord implements Listener {
         // Defer for invoke the getOnlinePlayers() which is not thread-safe
         Bukkit.getScheduler().runTask(plugin, () -> {
             // Skip if the recipients is changed
-            if (e.getRecipients().size() != Bukkit.getOnlinePlayers().size()) {
+            Set<Player> recipients = e.getRecipients();
+            if (recipients.size() != 0 && recipients.size() != Bukkit.getOnlinePlayers().size()) {
                 return;
             }
             chats(e.getPlayer(), e.getMessage());
