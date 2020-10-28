@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -80,7 +81,9 @@ public class Discord implements Runnable {
             shutdownJDA();
             JDA newJda;
             try {
-                newJda = new JDABuilder(token)
+                newJda = JDABuilder.createDefault(token)
+                        .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                        .enableIntents(GatewayIntent.GUILD_PRESENCES)
                         .addEventListeners(new DiscordEventToBukkit(plugin, this))
                         .build();
                 newJda.awaitReady();

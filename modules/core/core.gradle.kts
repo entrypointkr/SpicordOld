@@ -7,7 +7,7 @@ plugins {
 
 dependencies {
     api("commons-lang:commons-lang:2.6")
-    api("net.dv8tion:JDA:4.0.0_61")
+    api("net.dv8tion:JDA:4.2.0_212")
     api("io.vavr:vavr:0.10.2")
     api("club.minnced:discord-webhooks:0.1.8")
     implementation("org.ahocorasick:ahocorasick:0.4.0")
