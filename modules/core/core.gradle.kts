@@ -9,7 +9,7 @@ dependencies {
     api("commons-lang:commons-lang:2.6")
     api("net.dv8tion:JDA:4.2.0_212")
     api("io.vavr:vavr:0.10.2")
-    api("club.minnced:discord-webhooks:0.1.8")
+    api("club.minnced:discord-webhooks:0.5.0")
     implementation("org.ahocorasick:ahocorasick:0.4.0")
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.fasterxml.jackson.core:jackson-core:2.10.1")
