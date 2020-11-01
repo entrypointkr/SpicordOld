@@ -6,7 +6,7 @@ import kr.entree.spigradle.kotlin.spigot
 plugins {
     `java-library`
     id("com.github.johnrengelman.shadow") version "5.2.0"
-    id("kr.entree.spigradle") version "2.2.2"
+    id("kr.entree.spigradle") version "2.2.3"
 }
 
 version = "1.4.4"
