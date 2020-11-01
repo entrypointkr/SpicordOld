@@ -13,10 +13,11 @@ import kr.entree.spicord.di.qualifier.MessengerCooldown;
 import kr.entree.spicord.discord.Discord;
 import kr.entree.spicord.discord.WebhookManager;
 import lombok.val;
-import org.bukkit.ChatColor;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
+
+import static org.bukkit.ChatColor.stripColor;
 
 /**
  * Created by JunHyung Lim on 2020-03-03
@@ -69,7 +70,7 @@ public class WebhookMessenger implements Messenger, Runnable {
         if (author == null || messageBuilder.length() == 0) return;
         val message = messageBuilder.toString();
         val builder = new WebhookMessageBuilder()
-                .setUsername(ChatColor.stripColor(author.getDisplayName()))
+                .setUsername(stripColor(author.getDisplayName()))
                 .setAvatarUrl(createAvatarUrl(author.getId()))
                 .setContent(message);
         val sendMessage = new WebMessage(
@@ -91,7 +92,7 @@ public class WebhookMessenger implements Messenger, Runnable {
                 "Failed creating a webhook. This feature will be disabled.");
         config.getFakeProfilePlayerChat().set(false);
         if (author == null) return;
-        textMessenger.sendChat(new Chat(player, message).formatMessage(config));
+        textMessenger.sendChat(stripColor(new Chat(player, message).formatMessage(config)));
     }
 
     private void appendChat(Chat chat) {
@@ -101,7 +102,7 @@ public class WebhookMessenger implements Messenger, Runnable {
         if (author.equals(chat.getPlayerData())) {
             appendMessage(chat.getMessage());
         } else {
-            val message = chat.formatMessage(config);
+            val message = stripColor(chat.formatMessage(config));
             if (message == null) return;
             appendMessage(message);
         }

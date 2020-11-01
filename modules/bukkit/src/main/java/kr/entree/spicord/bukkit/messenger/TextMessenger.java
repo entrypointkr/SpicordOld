@@ -11,6 +11,8 @@ import lombok.val;
 
 import javax.inject.Inject;
 
+import static org.bukkit.ChatColor.stripColor;
+
 /**
  * Created by JunHyung Lim on 2020-03-02
  */
@@ -30,7 +32,7 @@ public class TextMessenger implements Messenger, Runnable {
 
     @Override
     public void chat(Chat chat) {
-        val message = chat.formatMessage(config);
+        val message = stripColor(chat.formatMessage(config));
         if (message == null) return;
         appendChat(message);
         flushChatIfTime();
