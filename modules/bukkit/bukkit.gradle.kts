@@ -9,7 +9,7 @@ plugins {
     id("kr.entree.spigradle") version "2.2.3"
 }
 
-version = "1.4.4"
+version = "1.4.5"
 
 repositories {
     codemc()
