@@ -18,10 +18,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.*;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -73,6 +70,11 @@ public class PlayerRestricter implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent e) {
         tryRestrict(e.getPlayer(), e, RestrictType.CHAT);
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onCommand(PlayerCommandPreprocessEvent e) {
+        tryRestrict(e.getPlayer(), e, RestrictType.COMMAND);
     }
 
     @EventHandler(ignoreCancelled = true)

@@ -14,6 +14,7 @@ val bukkitProject: Project get() = project(":spicord-bukkit")
 version = bukkitProject.version
 
 repositories {
+    mavenCentral()
     codemc()
 }
 

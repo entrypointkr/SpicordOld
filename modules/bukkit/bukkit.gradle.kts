@@ -6,12 +6,13 @@ import kr.entree.spigradle.kotlin.spigot
 plugins {
     `java-library`
     id("com.github.johnrengelman.shadow") version "5.2.0"
-    id("kr.entree.spigradle") version "2.2.3"
+    id("kr.entree.spigradle") version "2.4.2"
 }
 
-version = "1.4.5"
+version = "1.5.0"
 
 repositories {
+    mavenCentral()
     codemc()
 }
 

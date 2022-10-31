@@ -5,6 +5,7 @@ package kr.entree.spicord.bukkit.restrict;
  */
 public enum RestrictType {
     CHAT,
+    COMMAND,
     BUILD,
     PVP,
     MOVE,
