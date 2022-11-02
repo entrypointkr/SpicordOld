@@ -2,7 +2,11 @@ import kr.entree.spigradle.kotlin.lombok
 
 plugins {
     `java-library`
-    id("kr.entree.spigradle.base") version "2.2.3"
+    id("kr.entree.spigradle.base") version "2.4.3"
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
