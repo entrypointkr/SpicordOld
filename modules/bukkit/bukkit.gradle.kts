@@ -42,13 +42,16 @@ spigot {
     debug {
         buildVersion = "1.16.2"
     }
+    excludeLibraries = listOf("*")
 }
 
 tasks {
     shadowJar {
         val prefix = "kr.entree.spicord.libs"
-        listOf("net.", "club.", "com.", "gnu.", "natives.",
-                "okhttp3.", "okio.", "org.", "tomp2p.", "io.vavr.").forEach {
+        listOf(
+            "net.", "club.", "com.", "gnu.", "natives.",
+            "okhttp3.", "okio.", "org.", "tomp2p.", "io.vavr."
+        ).forEach {
             relocate(it, "$prefix.$it") {
                 exclude("org.spigotmc.*")
                 exclude("org.bukkit.*")
